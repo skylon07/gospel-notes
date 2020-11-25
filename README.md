@@ -1,7 +1,7 @@
 # Gospel Notes
 The Gospel-oriented Note Journal!
 
-*(Please note that this program is not officially endorsed by The Church of Jesus Christ of Latter-day Saints.)*
+*(Please note that this program is not affiliated with The Church of Jesus Christ of Latter-day Saints.)*
 
 ### What is it?
 Gospel Notes is a small study-journalling app, intended to be used alongside Gospel Library. If you love the content that Gospel Library offers, but want more flexibility managing your scriptural notes, then Gospel Notes is the perfect fit for you!
