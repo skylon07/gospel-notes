@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "lunr": "^1.0.0",
-    "react": "^17.0.1"
-  },
-  "devDependencies": {
-    "babel": "^6.23.0"
-  }
-}
