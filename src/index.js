@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom'
 
 ReactDOM.render(
     <React.StrictMode>
-        {
-            // TODO: render app here
-        }
+        <MainApp />
     </React.StrictMode>,
     document.getElementById('root')
 )
