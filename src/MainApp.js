@@ -1,8 +1,6 @@
-import ReactStyles from 'react-styles'
-
-class MainApp extends ReactStyles.Component {
+class MainApp extends React.Component {
     render() {
-        return <div>
+        return <div className="MainApp">
             <h1>Test Complete!</h1>
             <p>The main app rendered successfully!</p>
         </div>
