@@ -1,6 +1,8 @@
 import React from 'react'
 import './MainApp.css'
 
+import { TextNode } from "lib/text-fit"
+
 class MainApp extends React.Component {
     render() {
         return <MainWindow>
