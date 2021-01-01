@@ -1,10 +1,14 @@
 import React from 'react'
 import './MainApp.css'
 
+import { TextNode } from "lib/bestFit";
+
 class MainApp extends React.Component {
     render() {
         return <MainWindow>
-            This is the main window!
+            <TextNode>
+                This is the main window!
+            </TextNode>
         </MainWindow>
     }
 }
