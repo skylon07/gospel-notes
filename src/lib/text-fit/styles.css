@@ -12,6 +12,10 @@
     color: var(--main-color);
 }
 
+.TextNode.static {
+    white-space: pre;
+}
+
 .TextNode .textSizer {
     margin: 0px;
     padding: 0px;

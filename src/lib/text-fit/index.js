@@ -165,3 +165,86 @@ export class ConstantTextNode extends TextNode {
         cancelAnimationFrame(this._interval)
     }
 }
+
+// a TextNode that only works with unchanging text, however it only needs to calculate
+// an optimal font factor once (or twice...)
+// NOTE: dynamic wrapping is disabled; to wrap text, you will need to manually insert newline characters
+export class StaticTextNode extends TextNode {
+    constructor(props) {
+        super(props)
+
+        this.classExtension = "static"
+
+        this._fitWidthRatio = null
+        this._fitHeightRatio = null
+        this._lastResizeMode = null
+    }
+
+    onMount() {
+        // perform first resize!
+        this._onResize()
+
+        // set up a listener for future resize events
+        this._resizeListener = () => this._onResize()
+        window.addEventListener("resize", this._resizeListener)
+    }
+
+    onUnmount() {
+        window.removeEventListener("resize", this._resizeListener)
+    }
+
+    _onResize() {
+        const selfElem = this.selfRef.current
+        const { clientHeight, clientWidth } = selfElem
+        const textElem = this.textRef.current
+
+        if (this._lastResizeMode === "width") {
+            if (this._fitWidthRatio === null) {
+                this._fitWidthRatio = this._getRatio(clientWidth)
+            }
+            this.setFontSize(this._fitWidthRatio * clientWidth)
+
+            if (textElem.clientHeight > clientHeight) {
+                this._lastResizeMode = "height"
+                return this._onResize() // switch modes!
+            }
+        }
+
+        else if (this._lastResizeMode === "height") {
+            if (this._fitHeightRatio === null) {
+                this._fitHeightRatio = this._getRatio(clientHeight)
+            }
+            this.setFontSize(this._fitHeightRatio * clientHeight)
+
+            if (textElem.clientWidth > clientWidth) {
+                this._lastResizeMode = "width"
+                return this._onResize() // switch modes!
+            }
+        }
+
+        // in case lastResizeMode has not yet been initialized...
+        else {
+            // just assume width is larger (if this is wrong, it is self-correcting!)
+            this._lastResizeMode = "width"
+            this._fitWidthRatio = this._getRatio(clientWidth)
+            this.setFontSize(this._fitWidthRatio * clientWidth)
+
+            // if we just measured the height instead of the width, then that difference will be smaller (usually ~0-1)
+            const heightDiff = textElem.clientHeight - selfElem.clientHeight
+            const widthDiff = textElem.clientWidth - selfElem.clientWidth
+            if (Math.abs(heightDiff) < Math.abs(widthDiff)) {
+                this._lastResizeMode = "height"
+                // convert to height ratio so we don't need to recalculate the font size again
+                this._fitHeightRatio = this._fitWidthRatio * clientWidth / clientHeight
+                // reset, since it wasn't actually the right ratio...
+                this._fitWidthRatio = null
+            }
+            console.log(textElem.clientHeight, selfElem.clientHeight)
+        }
+    }
+
+    _getRatio(widthOrHeight) {
+        const fontSize = this.updateTextSize()
+        return fontSize / widthOrHeight
+    }
+}
