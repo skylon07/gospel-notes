@@ -13,6 +13,9 @@
 }
 
 .TextNode.static {
+    /*  // NOTE: restricting whitespace is necessary since this component expects
+        // fixed dimensions; "pre" allows both fixed dimensions and '\n' wrapping
+    */
     white-space: pre;
 }
 
