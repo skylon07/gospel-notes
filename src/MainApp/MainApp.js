@@ -1,14 +1,14 @@
 import React from 'react'
 import './MainApp.css'
 
-import { TextNode } from "lib/text-fit"
+import { StaticTextNode } from "lib/text-fit"
 
 class MainApp extends React.Component {
     render() {
         return <MainWindow>
-            <TextNode>
+            <StaticTextNode>
                 This is the main window!
-            </TextNode>
+            </StaticTextNode>
         </MainWindow>
     }
 }
