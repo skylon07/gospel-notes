@@ -4,10 +4,16 @@ fitting text into HTML elements.
 */
 
 import React from 'react'
+import PropTypes from 'prop-types'
+
 import './styles.css'
 
 // an abstract class that defines similar TextNode behavior
 class TextNode extends React.Component {
+    static propTypes = {
+        children: PropTypes.string,
+    }
+    
     constructor(props) {
         super(props)
 
