@@ -1,6 +1,8 @@
 :root {
-    --window-background-color: rgb(37, 37, 48);
-    --main-color: rgb(200, 200, 200);
-    
     --clear: rgba(0, 0, 0, 0);
+
+    --window-background-color: rgb(37, 37, 48);
+    --window-shadow: rgba(20, 20, 35, 25)
+
+    --main-color: rgb(200, 200, 200);
 }
