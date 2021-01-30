@@ -1,8 +1,14 @@
 :root {
-    --clear: rgba(0, 0, 0, 0);
+    --clear: rgba(0, 0, 0, 0); /* PRESET: clear */
 
-    --window-background-color: rgb(37, 37, 48);
-    --window-shadow: rgba(20, 20, 35, 25);
+    --window-background-color: rgb(37, 37, 48); /* PRESET: deepNavy */
+    --window-shadow: rgba(20, 20, 35, 0.25);
 
-    --main-color: rgb(200, 200, 200);
+    --menu-background-color: rgb(105, 105, 117); /* PRESET: ghostNavy */
+    --active-dark: rgb(84, 92, 142); /* PRESET: activeNightBlue */
+    --active-shadow: rgba(2, 0, 12, 0.4); /* PRESET: activeShadow */
+    --disabled-dark: rgb(60, 60, 60); /* PRESET: darkGrey */
+
+    --main-color: rgb(200, 200, 200); /* PRESET: softWhite */
+    --main-color-inv: rgb(20, 20, 20); /* PRESET: softBlack */
 }
