@@ -1,0 +1,94 @@
+.DropMenu {
+    width: 200px;
+    height: 300px;
+    background-color: var(--menu-background-color);
+
+    z-index: 10;
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: center;
+
+    animation: DropMenu-FadeIn 0.22s forwards;
+    animation-timing-function: ease-out;
+}
+
+.DropMenu.hiding {
+    animation-name: DropMenu-FadeOut;
+    animation-timing-function: ease-in;
+}
+
+@keyframes DropMenu-FadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-50%) scaleY(0);
+    }
+}
+
+@keyframes DropMenu-FadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) scaleY(0);
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.DropBar > * {
+    margin: 0px;
+    width: 35%;
+    height: 26px;
+
+    line-height: 24px;
+
+    color: var(--main-color);
+}
+
+.DropMenu .Shadow {
+    height: 15px;
+    width: 100%;
+
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    background-image: linear-gradient(
+        to bottom,
+        rgba(20, 20, 20, 0.3),
+        rgba(20, 20, 20, 0.1),
+        rgba(20, 20, 20, 0.0),
+    )
+}
+
+.DropMenu > button {
+    font-size: 9pt;
+    padding: 0px;
+
+    border: none;
+    background-color: rgba(57, 57, 69, 0.5);
+}
+
+.DropMenu > button:active {
+    background-color: var(--active-dark);
+}
+
+.DropMenu > button:disabled {
+    border: none;
+    background-color: var(--disabled-dark);
+    opacity: 0.8;
+}
+
+.DropMenu > p {
+    font-size: 17px;
+    text-align: left;
+    position: relative;
+    left: -6px;
+    white-space: nowrap;
+}
