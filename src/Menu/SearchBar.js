@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './SearchBar.css'
 
-import {SVGIcon} from 'lib/svg-icon'
+import { SVGIcon } from 'lib/svg-icon'
 
 export default class SearchBar extends React.Component {
     static propTypes = {
