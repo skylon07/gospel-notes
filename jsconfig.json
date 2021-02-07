@@ -1,6 +1,7 @@
+// this allows importing folders/files in src/ as webpack modules
 {
     "compilerOptions": {
       "baseUrl": "src"
     },
     "include": ["src"]
-  }  
+}  
