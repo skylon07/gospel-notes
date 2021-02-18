@@ -2,6 +2,7 @@ import React from 'react'
 import './MainApp.css'
 
 import { StaticTextNode } from "lib/text-fit"
+import { SVGIcon } from 'lib/svg-icon'
 
 class MainApp extends React.Component {
     render() {
