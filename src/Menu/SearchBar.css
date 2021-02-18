@@ -49,6 +49,11 @@
     background-color: var(--clear);
 }
 
+.SearchBar .SearchButton .SVGIcon {
+    width: 100%;
+    height: 100%;
+}
+
 .SearchBar .SearchButton .SVGIcon svg {
     stroke: var(--main-color-inv);
 }
