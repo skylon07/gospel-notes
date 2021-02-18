@@ -4,12 +4,12 @@ import './MainApp.css'
 import { StaticTextNode } from "lib/text-fit"
 import { SVGIcon } from 'lib/svg-icon'
 
+import { TopBar } from 'Menu'
+
 class MainApp extends React.Component {
     render() {
         return <MainWindow>
-            <StaticTextNode>
-                This is the main window!
-            </StaticTextNode>
+            <TopBar />
         </MainWindow>
     }
 }
