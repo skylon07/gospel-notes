@@ -3,7 +3,7 @@
 
         width: 100%;
         box-sizing: border-box;
-        background-color: softNavy;
+        background-color: var(--top-bar-background-color);
         padding: 0px 5px;
 
         display: flex;

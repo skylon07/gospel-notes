@@ -3,6 +3,7 @@
 
     --window-background-color: rgb(37, 37, 48); /* PRESET: deepNavy */
     --window-shadow: rgba(20, 20, 35, 0.25);
+    --top-bar-background-color: rgb(57, 57, 69); /* PRESET: softNavy */
 
     --menu-background-color: rgb(105, 105, 117); /* PRESET: ghostNavy */
     --active-dark: rgb(84, 92, 142); /* PRESET: activeNightBlue */
