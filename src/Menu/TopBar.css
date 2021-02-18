@@ -58,7 +58,7 @@
     animation-timing-function: ease-in;
 }
 
-.TopBar .TopBarMenu {
+.TopBar .DropMenu {
     position: absolute;
     top: 100%;
     left: 10px;
