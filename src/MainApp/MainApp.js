@@ -4,7 +4,7 @@ import './MainApp.css'
 import { StaticTextNode } from "lib/text-fit"
 import { SVGIcon } from 'lib/svg-icon'
 
-import { TopBar } from 'Menu'
+import { TopBar } from 'navigation'
 
 class MainApp extends React.Component {
     constructor(props) {
