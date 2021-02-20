@@ -118,22 +118,22 @@
 
 @keyframes TopBar-SlideLeft {
     to {
-        transform: translateX(-220px);
+        transform: translateX(-60%);
     }
 }
 @keyframes TopBar-UnslideLeft {
     from {
-        transform: translateX(-220px);
+        transform: translateX(-60%);
     }
 }
 
 @keyframes TopBar-SlideRight {
     to {
-        transform: translateX(220px);
+        transform: translateX(60%);
     }
 }
 @keyframes TopBar-UnslideRight {
     from {
-        transform: translateX(220px);
+        transform: translateX(60%);
     }
 }
