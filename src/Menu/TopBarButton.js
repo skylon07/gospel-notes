@@ -5,7 +5,7 @@ import './TopBarButton.css'
 export default class TopBarButton extends React.Component {
     static propTypes = {
         onClick: PropTypes.func,
-        selected: PropTypes.number,
+        selected: PropTypes.bool,
     }
 
     render() {
