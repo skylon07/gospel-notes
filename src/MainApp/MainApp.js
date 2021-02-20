@@ -7,10 +7,32 @@ import { SVGIcon } from 'lib/svg-icon'
 import { TopBar } from 'Menu'
 
 class MainApp extends React.Component {
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            forceMenuHidden: null,
+        }
+    }
     render() {
         return <MainWindow>
-            <TopBar />
+            <TopBar
+                menuContent={this.renderMenu()}
+                forceMenuHidden={this.state.forceMenuHidden}
+            />
         </MainWindow>
+    }
+
+    renderMenu() {
+        return <button onClick={() => this.hideMenu()}>
+            Close Menu
+        </button>
+    }
+
+    hideMenu() {
+        this.setState({ forceMenuHidden: true }, () => {
+            this.setState({ forceMenuHidden: null })
+        })
     }
 }
 
