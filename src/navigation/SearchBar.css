@@ -1,9 +1,7 @@
 .SearchBar {
     width: 100%;
     height: 40px;
-
     background-color: var(--clear);
-
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,11 +10,9 @@
 .SearchBar input {
     width: 90%;
     height: 50%;
-
     /* throwing a little inverted UI up in here... */
     background-color: var(--main-color);
     color: var(--main-color-inv);
-
     padding: 1px 5px;
     border: none;
     border-radius: 6px 0px 0px 6px;
@@ -28,10 +24,8 @@
     height: 22px;
     background-color: var(--main-color);
     margin: 0px;
-
     border: none;
     border-radius: 0px 6px 6px 0px;
-
     display: flex;
     align-items: center;
 }
@@ -39,11 +33,10 @@
 .SearchBar .SearchButton button {
     position: relative;
     left: -1.5px;
-
     width: 19px;
     height: 19px;
-    padding: 0px; /* keeps icon at its full size */
-
+    /* keeps icon at its full size */
+    padding: 0px;
     border: none;
     border-radius: 100px;
     background-color: var(--clear);

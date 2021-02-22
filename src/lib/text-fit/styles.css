@@ -1,12 +1,10 @@
 .TextNode {
     width: 100%;
     height: 100%;
-
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
-
     color: var(--main-color);
 }
 
@@ -20,7 +18,6 @@
 .TextNode .textSizer {
     margin: 0px;
     padding: 0px;
-
     text-align: center;
     white-space: wrap;
 }

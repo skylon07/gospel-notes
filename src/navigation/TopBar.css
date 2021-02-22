@@ -1,26 +1,25 @@
 .TopBar {
-        position: relative;
-
-        width: 100%;
-        box-sizing: border-box;
-        background-color: var(--top-bar-background-color);
-        padding: 0px 5px;
-
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--top-bar-background-color);
+    padding: 0px 5px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
 }
 
 .TopBar *:focus {
     outline: none;
 }
+
 .TopBar *::-moz-focus-inner {
     border: none;
 }
 
 .TopBar .AnimationBounds {
-    overflow: hidden; /* keeps animations inside the bar, but not the menu! */
-
+    /* keeps animations inside the bar, but not the menu! */
+    overflow: hidden;
     position: absolute;
     top: 0px;
     right: 0px;
@@ -30,28 +29,31 @@
 
 .TopBar .Spacer {
     flex: 1;
-    min-width: 5px; /* guarantees a margin of 5px */
+    /* guarantees a margin of 5px */
+    min-width: 5px;
 }
 
 .TopBar .Main {
     position: absolute;
     top: 0px;
     right: 5px;
-
     width: 75%;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-
-    animation: TopBar-FadeOut 0.3s forwards, TopBar-SlideLeft 0.3s forwards;   
+    animation: TopBar-FadeOut 0.3s forwards, TopBar-SlideLeft 0.3s forwards;
 }
+
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
+
 .TopBar .Main.Uncollapsed {
     animation-name: TopBar-FadeIn, TopBar-UnslideLeft;
     animation-timing-function: ease-out;
 }
+
 /* .Collapsed wont work as a generic *.Collapsed class */
+
 .TopBar .Main.Collapsed {
     opacity: 0;
     pointer-events: none;
@@ -73,20 +75,22 @@
     position: absolute;
     top: 0px;
     right: 5px;
-
     width: 75%;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
-
     animation: TopBar-FadeOut 0.3s forwards, TopBar-SlideRight 0.3s forwards;
 }
+
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
+
 .TopBar .Search.Uncollapsed {
     animation-name: TopBar-FadeIn, TopBar-UnslideRight;
     animation-timing-function: ease-out;
 }
+
 /* .Collapsed wont work as a generic *.Collapsed class */
+
 .TopBar .Search.Collapsed {
     opacity: 0;
     pointer-events: none;
@@ -104,6 +108,7 @@
         opacity: 0;
     }
 }
+
 @keyframes TopBar-FadeIn {
     from {
         opacity: 0;
@@ -121,6 +126,7 @@
         transform: translateX(-60%);
     }
 }
+
 @keyframes TopBar-UnslideLeft {
     from {
         transform: translateX(-60%);
@@ -132,6 +138,7 @@
         transform: translateX(60%);
     }
 }
+
 @keyframes TopBar-UnslideRight {
     from {
         transform: translateX(60%);
