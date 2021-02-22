@@ -52,5 +52,5 @@
 }
 
 .SearchBar .SearchButton:active button {
-    background-color: var(--active-shadow);
+    background-color: rgba(var(--color-activeShadow), 0.4);
 }
