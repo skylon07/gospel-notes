@@ -1,27 +1,26 @@
 :root {
-    /* PRESET: clear */
+    /* COLORS */
+    --color-ghostNavy: 105, 105, 117;
+    --color-softNavy: 57, 57, 69;
+    --color-deepNavy: 37, 37, 48;
+    --color-softWhite: 200, 200, 200;
+    --color-darkGrey: 60, 60, 60;
+    --color-softBlack: 20, 20, 20;
+    --color-activeNightBlue: 84, 92, 142;
+    --color-activeShadow: 2, 0, 12;
+    /* SPECIAL COLORS */
     --clear: rgba(0, 0, 0, 0);
-    /* PRESET: deepNavy */
-    --window-background-color: rgb(37, 37, 48);
+    --active-dark: rgb(var(--color-activeNightBlue));
+    --disabled-dark: rgb(var(--color-darkGrey));
+    --main-background: var(--color-deepNavy);
+    /* PRESETS */
+    --window-background-color: rgb(var(--main-background));
     --window-shadow: rgba(20, 20, 35, 0.25);
-    /* PRESET: softNavy */
-    --top-bar-background-color: rgb(57, 57, 69);
-    /* PRESET: softNavy */
-    --drop-bar-background-color: rgb(57, 57, 69);
-    /* PRESET: softNavy */
-    --note-box-background-color: rgba(57, 57, 69, 0.73);
-    /* PRESET: ghostNavy */
-    --menu-background-color: rgb(105, 105, 117);
-    /* PRESET: activeNightBlue */
-    --active-dark: rgb(84, 92, 142);
-    /* PRESET: activeShadow */
-    --active-shadow: rgba(2, 0, 12, 0.4);
-    /* PRESET: darkGrey */
-    --disabled-dark: rgb(60, 60, 60);
-    /* PRESET: ghostNavy */
-    --note-box-title-border: rgba(105, 105, 117, 0.75);
-    /* PRESET: softWhite */
-    --main-color: rgb(200, 200, 200);
-    /* PRESET: softBlack */
-    --main-color-inv: rgb(20, 20, 20);
+    --top-bar-background-color: rgb(var(--color-softNavy));
+    --drop-bar-background-color: rgb(var(--color-softNavy));
+    --note-box-background-color: rgba(var(--color-softNavy), 0.73);
+    --menu-background-color: rgb(var(--color-ghostNavy));
+    --note-box-title-border: rgba(var(--color-ghostNavy), 0.75);
+    --main-color: rgb(var(--color-softWhite));
+    --main-color-inv: rgb(var(--color-softBlack));
 }
