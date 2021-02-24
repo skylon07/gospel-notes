@@ -3,6 +3,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './DropBarGroup.css'
 
+import DropBar from './DropBar.js'
 export default class DropBarGroup extends React.Component {
     static propTypes = {}
 
@@ -65,7 +66,7 @@ class DEBUG_ORIG_DropdownAnimationGroup extends React.Component {
         for (let idx = 0; idx < children.length; idx++) {
             const child = children[idx]
             if (typeof child === "object" && child !== null) {
-                const shouldTrack = child.type === DropdownBar || child.type.animateAsDropdownBar
+                const shouldTrack = child.type === DropBar || child.type.animateAsDropdownBar
                 if (shouldTrack) {
                     child.props._beforeDrop = (elem, dropped) => {
                         this._whenChildDrops(elem, dropped)
