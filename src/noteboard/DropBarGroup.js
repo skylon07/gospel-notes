@@ -1,10 +1,31 @@
 import React from 'react'
+// eslint-disable-next-line no-unused-vars
 import PropTypes from 'prop-types'
 import './DropBarGroup.css'
 
 export default class DropBarGroup extends React.Component {
     static propTypes = {}
-    
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            animationDirection: "raising", // type: "dropping" or "raising"
+            animatingElement: null,
+        }
+
+        this._groupRef = React.createRef()
+    }
+
+    render() {
+        return <div ref={this._groupRef}>
+            {this.props.children}
+        </div>
+    }
+}
+
+// eslint-disable-next-line no-unused-vars
+class DEBUG_ORIG_DropdownAnimationGroup extends React.Component {
     constructor(props) {
         super(props)
 
@@ -23,11 +44,13 @@ export default class DropBarGroup extends React.Component {
     }
 
     componentDidUpdate() {
-        this._updateAllChildClasses()
+        // BUG: cannot edit props
+        // this._updateAllChildClasses()
     }
 
     _wrapChildren() {
-        this._trackDropdownBars(this.props.children)
+        // BUG: cannot edit props
+        // this._trackDropdownBars(this.props.children)
         return this.props.children
     }
 
@@ -120,24 +143,18 @@ export default class DropBarGroup extends React.Component {
 
         switch (state) {
             case "dropping":
-                {
-                    elem.classList.add("DropdownGroup_Child", "DropdownGroup_dropping")
-                    elem.classList.remove("DropdownGroup_raising")
-                }
+                elem.classList.add("DropdownGroup_Child", "DropdownGroup_dropping")
+                elem.classList.remove("DropdownGroup_raising")
                 break
 
             case "raising":
-                {
-                    elem.classList.add("DropdownGroup_Child", "DropdownGroup_raising")
-                    elem.classList.remove("DropdownGroup_dropping")
-                }
+                elem.classList.add("DropdownGroup_Child", "DropdownGroup_raising")
+                elem.classList.remove("DropdownGroup_dropping")
                 break
 
             default:
-                {
-                    elem.classList.add("DropdownGroup_Child")
-                    elem.classList.remove("DropdownGroup_dropping", "DropdownGroup_raising")
-                }
+                elem.classList.add("DropdownGroup_Child")
+                elem.classList.remove("DropdownGroup_dropping", "DropdownGroup_raising")
                 break
         }
     }
