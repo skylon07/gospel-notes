@@ -1,0 +1,31 @@
+.DropBarGroup {
+    /* this is set/changed inside a standalone <style /> element */
+    --group-animation-offset: 0px;
+}
+
+.DropBarGroup .DropChild.dropping {
+        animation: "DropdownGroup_droppingAnimation 0.33s"
+    }
+    @keyframes DropBarGroup_droppingAnimation {
+        from {
+            transform: translateY(calc(-1 * var(--group-animation-offset)));
+            /* transform: () => {
+                const elem = this.state.animatingElement
+                if (elem === null) {
+                    return ''
+                }
+                const contentElem = this._getContentOfDropdown(elem)
+                const height = (contentElem || {}).offsetHeight
+                return `translateY(-${height + 6}px)`
+            } */
+        }
+    },
+
+    .DropBarGroup .DropChild.dropping {
+        animation: "DropdownGroup_raisingAnimation 0.33s"
+    }
+    @keyframes DropBarGroup_raisingAnimation {
+        to {
+            transform: translateY(calc(-1 * var(--group-animation-offset)));
+        }
+    }
