@@ -1,3 +1,3 @@
 import DropBar from './DropBar.js'
-
-export { DropBar }
+import DropBarGroup from './DropBarGroup.js'
+export { DropBar, DropBarGroup }

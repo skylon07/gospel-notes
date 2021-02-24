@@ -5,6 +5,7 @@ import { StaticTextNode } from "lib/text-fit"
 import { SVGIcon } from 'lib/svg-icon'
 
 import { TopBar } from 'navigation'
+import { DropBar, NoteBox, DropBarGroup } from 'noteboard'
 
 class MainApp extends React.Component {
     constructor(props) {

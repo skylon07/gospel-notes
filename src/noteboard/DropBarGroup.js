@@ -1,4 +1,8 @@
-class DropdownAnimationGroup extends React.Component {
+import React from 'react'
+import PropTypes from 'prop-types'
+import './DropBarGroup.css'
+
+export default class DropBarGroup extends React.Component {
     constructor(props) {
         super(props)
 
