@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import './DropBarGroup.css'
 
 export default class DropBarGroup extends React.Component {
+    static propTypes = {}
+    
     constructor(props) {
         super(props)
 
