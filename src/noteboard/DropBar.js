@@ -6,6 +6,17 @@ import { SVGIcon } from 'lib/svg-icon'
 
 import Holdable from './Holdable.js'
 
+const GLOBALS = {
+    offsetSheet: (() => {
+        const e = document.createElement('style')
+        document.head.appendChild(e)
+        return e
+    })(),
+    updateOffsets(offset) {
+        GLOBALS.offsetSheet.innerHTML = `.DropBar { --bottom-bar-shift: ${offset}px; }`
+    },
+}
+
 export default class DropBar extends React.Component {
     static propTypes = {
         title: PropTypes.string,
@@ -23,6 +34,7 @@ export default class DropBar extends React.Component {
         }
 
         this._ref = React.createRef()
+        this._contentElem = null // set on mount
         this._holdIsTouch = false
     }
 
@@ -55,6 +67,19 @@ export default class DropBar extends React.Component {
         </div>
     }
 
+    componentDidMount() {
+        this._findContentElem()
+    }
+
+    // TODO: is this the best/safest way to accomplish this...?
+    _findContentElem() {
+        let elem = this._ref.current.children[0]
+        while (!elem.classList.contains('DropBarContent')) {
+            elem = elem.nextSibling
+        }
+        this._contentElem = elem
+    }
+
     triggerOnMouseHold() {
         if (typeof this.props.onMouseHold === "function") {
             this.props.onMouseHold()
@@ -76,12 +101,18 @@ export default class DropBar extends React.Component {
 
     toggleDrop() {
         this.setState((state, props) => {
+            this._prepareAnimationOffset()
             return { dropped: !state.dropped, barAnimating: true }
         })
         if (typeof this.props._beforeDrop === "function") {
             // being outside the above setState() allows React to batch/sync animation group setState() calls
             this.props._beforeDrop(this._ref.current, this.state.dropped)
         }
+    }
+
+    _prepareAnimationOffset() {
+        const currHeight = this._contentElem.offsetHeight
+        GLOBALS.updateOffsets(currHeight)
     }
 }
 
@@ -168,10 +199,7 @@ class DropBarContent extends React.Component {
     render() {
         return <div
             className={`DropBarContent ${this.props.dropped ? "dropped" : ''}`}
-            style={{
-                animationDuration: this.state.animating ? null : "0s",
-                height: this.props.dropped || this.state.animating ? null : "0px"
-            }}
+            style={this._makeStyle()}
             onAnimationEnd={() => this.setState({ animating: false })}
         >
             <div className="Container">
@@ -180,5 +208,19 @@ class DropBarContent extends React.Component {
             <div className="TopGradient" />
             <div className="BottomGradient" />
         </div>
+    }
+
+    _makeStyle() {
+        const style = {
+            animationDuration: this.state.animating ? null : "0s",
+        }
+
+        if (!this.props.dropped && !this.state.animating) {
+            style.position = "absolute" // removes from document flow
+            style.opacity = 0 // hides element from view
+            style.pointerEvents = "none" // disables interacting with element
+        }
+
+        return style
     }
 }

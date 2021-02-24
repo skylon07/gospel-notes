@@ -1,7 +1,8 @@
 .DropBar {
     width: 80%;
     position: relative;
-    --transforming-content-height: 0px;
+    /* this is set/changed inside a standalone <style /> element */
+    --bottom-bar-shift: 0px;
 }
 
 .DropBar * {
@@ -47,24 +48,14 @@
 @keyframes BottomBar_undropShiftAnimation {
     to {
         opacity: 0;
-        transform: translateY(calc(-1 * var(--transforming-content-height)));
-        /* TODO: insert javascript to set css variable like this
-        transform: () => {
-            const elem = this.state.animatingElement;
-            if (elem === null) {
-                return '';
-            }
-            const contentElem = this._getContentOfDropdown(elem);
-            const height = (contentElem || {}).offsetHeight;
-            return \`translateY(-\${height + 6}px)\`;
-        } */
+        transform: translateY(calc(-1 * var(--bottom-bar-shift)));
     }
 }
 
 @keyframes BottomBar_dropShiftAnimation {
     from {
         opacity: 0;
-        transform: translateY(calc(-1 * var(--transforming-content-height)));
+        transform: translateY(calc(-1 * var(--bottom-bar-shift)));
     }
 }
 
