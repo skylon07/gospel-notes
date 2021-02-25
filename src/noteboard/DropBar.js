@@ -111,6 +111,8 @@ export default class DropBar extends React.Component {
     }
 
     _prepareAnimationOffset() {
+        // offsetHeight is used since this represents the height
+        // before transformations are applied
         const currHeight = this._contentElem.offsetHeight
         GLOBALS.updateOffsets(currHeight)
     }
