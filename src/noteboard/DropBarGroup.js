@@ -4,6 +4,18 @@ import PropTypes from 'prop-types'
 import './DropBarGroup.css'
 
 import DropBar from './DropBar.js'
+
+const GLOBALS = {
+    offsetSheet: (() => {
+        const e = document.createElement('style')
+        document.head.appendChild(e)
+        return e
+    })(),
+    updateOffsets(offset) {
+        GLOBALS.offsetSheet.innerHTML = `.DropBarGroup { --group-animation-offset: ${offset}px; }`
+    },
+}
+
 export default class DropBarGroup extends React.Component {
     static propTypes = {}
 
@@ -19,78 +31,48 @@ export default class DropBarGroup extends React.Component {
     }
 
     render() {
-        return <div ref={this._groupRef}>
-            {this.props.children}
-        </div>
-    }
-}
-
-// eslint-disable-next-line no-unused-vars
-class DEBUG_ORIG_DropdownAnimationGroup extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            animationDirection: "raising", // type: "dropping" or "raising"
-            animatingElement: null,
-        }
-
-        this._groupRef = React.createRef()
-    }
-
-    render() {
-        return <div ref={this._groupRef}>
-            {this._wrapChildren()}
+        return <div ref={this._groupRef} className="DropBarGroup">
+            {this.wrapChildren()}
         </div>
     }
 
     componentDidUpdate() {
-        // BUG: cannot edit props
-        // this._updateAllChildClasses()
+        this.updateAnimationOffsets()
+        this.updateAllChildClasses()
     }
 
-    _wrapChildren() {
-        // BUG: cannot edit props
-        // this._trackDropdownBars(this.props.children)
-        return this.props.children
+    wrapChildren() {
+        return React.Children.map(this.props.children, (child) => {
+            return this._trackIfDropBar(child)
+        })
     }
 
-    // NOTE: some children are dynamically generated and dropdown bars wont be available on
-    // render; in this case, the component class should provide a truthy static "animateAsDropdownBar"
-    // property and utilize needed private props (like _beforeDrop)
-    _trackDropdownBars(children) {
-        if (!Array.isArray(children)) {
-            children = [children]
+    _trackIfDropBar(child) {
+        if (child.type === DropBar) {
+            return React.cloneElement(child, {
+                _beforeDrop: (elem, dropped) => {
+                    this.whenChildDrops(elem, dropped)
+                },
+            })
         }
-
-        for (let idx = 0; idx < children.length; idx++) {
-            const child = children[idx]
-            if (typeof child === "object" && child !== null) {
-                const shouldTrack = child.type === DropBar || child.type.animateAsDropdownBar
-                if (shouldTrack) {
-                    child.props._beforeDrop = (elem, dropped) => {
-                        this._whenChildDrops(elem, dropped)
-                    }
-                }
-                else if (child.props.children) {
-                    this._trackDropdownBars(child.props.children)
-                }
-            }
-        }
+        return child
     }
 
     // "dropped" determines animation direction; "barIdx" determines which dropdown bar is tracked
-    _whenChildDrops(animatingElement, startedDropped) {
+    whenChildDrops(animatingElement, startedDropped) {
         const animationDirection = startedDropped ? "raising" : "dropping"
         this.setState({ animationDirection, animatingElement })
     }
 
-    _getContentOfDropdown(elem) {
-        return elem.children[1]
+    updateAnimationOffsets() {
+        const elem = this.state.animatingElement
+        const barHeight = 40
+        const contentAndBottomBarHeight = elem.offsetHeight - barHeight
+        GLOBALS.updateOffsets(contentAndBottomBarHeight)
     }
 
     // NOTE: the ONLY way to guarantee correct animating is by having access to all DOM elements involved
-    _updateAllChildClasses() {
+    updateAllChildClasses() {
         const activeDropdown = this.state.animatingElement
         if (!activeDropdown) {
             return // initialized and not animating yet
@@ -103,10 +85,12 @@ class DEBUG_ORIG_DropdownAnimationGroup extends React.Component {
         this._lastAnimationDirection = direction
         this._lastAnimatedElement = activeDropdown
 
-        this._updateSiblingAndParentClasses(activeDropdown, direction)
+        this.updateSiblingAndParentClasses(activeDropdown, direction)
     }
 
-    _updateSiblingAndParentClasses(elem, direction) {
+    // NOTE: this function recursively updates animations for
+    // siblings and parent(s' siblings... etc) up to the parent <DropBarGroup />
+    updateSiblingAndParentClasses(elem, direction) {
         const parent = elem.parentElement
         const elemIdx = this._getChildIdx(elem)
 
@@ -124,14 +108,15 @@ class DEBUG_ORIG_DropdownAnimationGroup extends React.Component {
 
         // performs the same operations on the parent until hitting the group
         if (parent !== this._groupRef.current) {
-            this._updateSiblingAndParentClasses(parent, direction)
+            this.updateSiblingAndParentClasses(parent, direction)
         }
     }
 
     _getChildIdx(elem) {
         let idx = 0
-        while (elem = elem.previousSibling) {
+        while (elem.previousSibling) {
             idx++
+            elem = elem.previousSibling
         }
         return idx
     }
@@ -139,23 +124,23 @@ class DEBUG_ORIG_DropdownAnimationGroup extends React.Component {
     _setAnimClasses(elem, state) {
         elem.addEventListener("animationend", () => {
             // ensures that the same animation can re-run multiple times
-            elem.classList.remove("DropdownGroup_dropping", "DropdownGroup_raising")
+            elem.classList.remove("dropping", "raising")
         }, { once: true })
 
         switch (state) {
             case "dropping":
-                elem.classList.add("DropdownGroup_Child", "DropdownGroup_dropping")
-                elem.classList.remove("DropdownGroup_raising")
+                elem.classList.add("DropChild", "dropping")
+                elem.classList.remove("raising")
                 break
 
             case "raising":
-                elem.classList.add("DropdownGroup_Child", "DropdownGroup_raising")
-                elem.classList.remove("DropdownGroup_dropping")
+                elem.classList.add("DropChild", "raising")
+                elem.classList.remove("dropping")
                 break
 
             default:
-                elem.classList.add("DropdownGroup_Child")
-                elem.classList.remove("DropdownGroup_dropping", "DropdownGroup_raising")
+                elem.classList.add("DropChild")
+                elem.classList.remove("dropping", "raising")
                 break
         }
     }
