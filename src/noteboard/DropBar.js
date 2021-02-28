@@ -45,9 +45,7 @@ export default class DropBar extends React.Component {
                     className="Bar"
                     onMouseUp={() => this._allowTriggerDrop()}
                 >
-                    <div className="IconDiv">
-                        <SVGIcon type={this.props.iconType || "blank"} />
-                    </div>
+                    <SVGIcon type={this.props.iconType || "blank"} />
                     {this.props.title}
                     <div className="Spacer" />
                     <DropdownButton onClick={() => this.triggerDrop()} dropped={this.state.dropped} />
