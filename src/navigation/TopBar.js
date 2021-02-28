@@ -11,9 +11,13 @@ import SearchBar from './SearchBar.js'
 // a list of button names to use on the top row, which gives a full button
 // name and a shorter variant to use on mobile devices/smaller screens
 const MENU_BUTTONS = [
+    /* NOTE: These are the buttons to be used in the future...
+             They are not being used now since it is not an
+             immediately necessary feature.
     { fullName: "Questions", shortName: "Ques" },
     { fullName: "Lessons", shortName: "Less" },
     { fullName: "Discussions", shortName: "Disc" },
+    */
 ]
 
 export default class TopBar extends React.Component {
@@ -65,6 +69,7 @@ export default class TopBar extends React.Component {
                     style={{ animationDuration: this.state.sliding ? null : "0s" }}
                 >
                     {buttons.map((button, idx) => this.renderButton(button, idx))}
+                    <div className="Spacer" />
                     <TopBarButton onClick={() => this.showSearch()}>
                         <SVGIcon type="magGlass" />
                     </TopBarButton>
