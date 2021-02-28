@@ -21,6 +21,9 @@ class MainApp extends React.Component {
                 menuContent={this.renderMenu()}
                 forceMenuHidden={this.state.forceMenuHidden}
             />
+            <div className="PageViewer">
+
+            </div>
         </MainWindow>
     }
 

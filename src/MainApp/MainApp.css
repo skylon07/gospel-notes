@@ -1,3 +1,10 @@
+html, body {
+    margin: 0px;
+    /* NOTE: these next two disable page scrolling */
+    height: 100%;
+    overflow: hidden;
+}
+
 .MainWindow {
     width: 100vw;
     height: 100vh;
@@ -6,4 +13,26 @@
     left: 0px;
     background-color: var(--window-background-color);
     color: var(--main-color);
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.MainWindow .PageViewer {
+    background-color: red;
+    position: relative;
+    width: 100%;
+    flex: 1;
+}
+
+.MainWindow .PageViewer .DropBarGroup {
+    /* NOTE: having the combination of position: absolute and parent being a flex
+             element allows the element to overflow without taking more than the rest
+             of the document space */
+    position: absolute;
+    overflow-y: scroll;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
 }
