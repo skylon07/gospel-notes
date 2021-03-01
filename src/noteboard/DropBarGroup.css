@@ -1,10 +1,19 @@
 .DropBarGroup {
+    width: 100%;
+    height: 100%;
     /* this is set/changed inside a standalone <style /> element */
     --group-animation-offset: 0px;
+    --group-animation-time: 0.33s;
 }
 
+.DropBarGroup.animating {
+    animation: DropBarGroup_animationTimer var(--group-animation-time);
+}
+
+@keyframes DropBarGroup_animationTimer {}
+
 .DropBarGroup .DropChild.dropping {
-    animation: DropBarGroup_droppingAnimation 0.33s;
+    animation: DropBarGroup_droppingAnimation var(--group-animation-time);
 }
 
 @keyframes DropBarGroup_droppingAnimation {
@@ -14,7 +23,7 @@
 }
 
 .DropBarGroup .DropChild.raising {
-    animation: DropBarGroup_raisingAnimation 0.33s;
+    animation: DropBarGroup_raisingAnimation var(--group-animation-time);
 }
 
 @keyframes DropBarGroup_raisingAnimation {

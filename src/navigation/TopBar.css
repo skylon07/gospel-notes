@@ -7,6 +7,7 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+    --slide-animation-time: 0.3s;
 }
 
 .TopBar *:focus {
@@ -42,7 +43,7 @@
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    animation: TopBar-FadeOut 0.3s forwards, TopBar-SlideLeft 0.3s forwards;
+    animation: TopBar-FadeOut var(--slide-animation-time) forwards, TopBar-SlideLeft var(--slide-animation-time) forwards;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
@@ -79,7 +80,7 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
-    animation: TopBar-FadeOut 0.3s forwards, TopBar-SlideRight 0.3s forwards;
+    animation: TopBar-FadeOut var(--slide-animation-time) forwards, TopBar-SlideRight var(--slide-animation-time) forwards;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */

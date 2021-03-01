@@ -30,7 +30,7 @@ export default class BetaDisclaimer extends React.Component {
     makeStyle() {
         if (!this.state.showing) {
             if (this.state.fading) {
-                return { animation: "BetaDisclaimer_fadeOut 0.4s" }
+                return { animationName: "BetaDisclaimer_fadeOut" }
             }
             else {
                 return { display: "none" }
