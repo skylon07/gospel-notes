@@ -18,7 +18,6 @@ html, body {
 }
 
 .MainWindow .PageViewer {
-    background-color: red;
     position: relative;
     width: 100%;
     flex: 1;
