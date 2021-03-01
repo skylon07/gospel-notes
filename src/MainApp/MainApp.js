@@ -3,6 +3,7 @@ import './MainApp.css'
 
 import { StaticTextNode } from "lib/text-fit"
 import { SVGIcon } from 'lib/svg-icon'
+import { StorageRegistry } from 'lib/storage-registry'
 
 import BetaDisclaimer from './BetaDisclaimer.js'
 import { TopBar } from 'navigation'
@@ -15,6 +16,8 @@ class MainApp extends React.Component {
         this.state = {
             forceMenuHidden: null,
         }
+
+        this.storage = new StorageRegistry("Notes")
     }
     render() {
         return <MainWindow>
