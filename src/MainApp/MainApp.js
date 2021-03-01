@@ -4,6 +4,7 @@ import './MainApp.css'
 import { StaticTextNode } from "lib/text-fit"
 import { SVGIcon } from 'lib/svg-icon'
 
+import BetaDisclaimer from './BetaDisclaimer.js'
 import { TopBar } from 'navigation'
 import { DropBar, NoteBox, DropBarGroup } from 'noteboard'
 
@@ -17,6 +18,7 @@ class MainApp extends React.Component {
     }
     render() {
         return <MainWindow>
+            <BetaDisclaimer />
             <TopBar
                 menuContent={this.renderMenu()}
                 forceMenuHidden={this.state.forceMenuHidden}
