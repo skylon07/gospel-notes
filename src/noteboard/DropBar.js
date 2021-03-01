@@ -60,7 +60,7 @@ export default class DropBar extends React.Component {
                     animationDuration: this.state.barAnimating ? null : "0s",
                     height: this.state.dropped || this.state.barAnimating ? null : "0px",
                 }}
-                onAnimationEnd={(event) => this.setState({ barAnimating: false })}
+                onAnimationEnd={() => this.setState({ barAnimating: false })}
             />
         </div>
     }
@@ -163,7 +163,7 @@ class DropdownButton extends React.Component {
             }}
             viewBox="0 0 40 40"
             onClick={this.props.onClick}
-            onAnimationEnd={(event) => this.setState({ animating: false })}
+            onAnimationEnd={() => this.setState({ animating: false })}
         >
             <line x1={left} y1={btm} x2={mid + offset} y2={top + offset} />
             <line x1={right} y1={btm} x2={mid - offset} y2={top + offset} />
@@ -200,7 +200,7 @@ class DropBarContent extends React.Component {
         return <div
             className={`DropBarContent ${this.props.dropped ? "dropped" : ''}`}
             style={this._makeStyle()}
-            onAnimationEnd={() => this.setState({ animating: false })}
+            onAnimationEnd={(event) => this.afterAnimation(event.target)}
         >
             <div className="Container">
                 {this.props.children}
@@ -208,6 +208,12 @@ class DropBarContent extends React.Component {
             <div className="TopGradient" />
             <div className="BottomGradient" />
         </div>
+    }
+
+    afterAnimation(element) {
+        if (element.classList.contains("DropBarContent")) {
+            this.setState({ animating: false })
+        }
     }
 
     _makeStyle() {

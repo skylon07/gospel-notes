@@ -25,13 +25,18 @@ export default class DropBarGroup extends React.Component {
         this.state = {
             animationDirection: "raising", // type: "dropping" or "raising"
             animatingElement: null,
+            animating: false,
         }
 
         this._groupRef = React.createRef()
     }
 
     render() {
-        return <div ref={this._groupRef} className="DropBarGroup">
+        return <div
+            ref={this._groupRef}
+            className={`DropBarGroup ${this.state.animating ? "animating" : ""}`}
+            onAnimationEnd={(event) => this.afterAnimation(event.target)}
+        >
             {this.wrapChildren()}
         </div>
     }
@@ -61,10 +66,14 @@ export default class DropBarGroup extends React.Component {
     // "dropped" determines animation direction; "barIdx" determines which dropdown bar is tracked
     whenChildDrops(animatingElement, startedDropped) {
         const animationDirection = startedDropped ? "raising" : "dropping"
-        this.setState({ animationDirection, animatingElement })
+        this.setState({ animationDirection, animatingElement, animating: true })
     }
 
     updateAnimationOffsets() {
+        if (!this.state.animating) {
+            return
+        }
+
         const elem = this.state.animatingElement
         const barHeight = 40
         const contentAndBottomBarHeight = elem.offsetHeight - barHeight
@@ -73,11 +82,11 @@ export default class DropBarGroup extends React.Component {
 
     // NOTE: the ONLY way to guarantee correct animating is by having access to all DOM elements involved
     updateAllChildClasses() {
-        const activeDropdown = this.state.animatingElement
-        if (!activeDropdown) {
-            return // initialized and not animating yet
+        if (!this.state.animating) {
+            return
         }
 
+        const activeDropdown = this.state.animatingElement
         const direction = this.state.animationDirection
         if (direction === this._lastAnimationDirection && activeDropdown === this._lastAnimatedElement) {
             return // only animate for changes
@@ -119,6 +128,12 @@ export default class DropBarGroup extends React.Component {
             elem = elem.previousSibling
         }
         return idx
+    }
+
+    afterAnimation(element) {
+        if (element === this._groupRef.current) {
+            this.setState({ animating: false })
+        }
     }
 
     _setAnimClasses(elem, state) {
