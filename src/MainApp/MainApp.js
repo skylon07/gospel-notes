@@ -1,8 +1,8 @@
 import React from 'react'
 import './MainApp.css'
 
-import { StaticTextNode } from "lib/text-fit"
-import { SVGIcon } from 'lib/svg-icon'
+import { StaticTextNode } from "common/text-fit"
+import { SVGIcon } from 'common/svg-icon'
 import { StorageRegistry } from 'lib/storage-registry'
 
 import BetaDisclaimer from './BetaDisclaimer.js'

@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './TopBar.css'
 
-import { SVGIcon } from 'lib/svg-icon'
+import { SVGIcon } from 'common/svg-icon'
 
 import TopBarButton from './TopBarButton.js'
 import DropMenu from './DropMenu.js'

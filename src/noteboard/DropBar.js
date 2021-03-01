@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './DropBar.css'
 
-import { SVGIcon } from 'lib/svg-icon'
+import { SVGIcon } from 'common/svg-icon'
 
 import Holdable from './Holdable.js'
 
