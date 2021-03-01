@@ -245,7 +245,6 @@ export class StaticTextNode extends TextNode {
                 // reset, since it wasn't actually the right ratio...
                 this._fitWidthRatio = null
             }
-            console.log(textElem.clientHeight, selfElem.clientHeight)
         }
     }
 
