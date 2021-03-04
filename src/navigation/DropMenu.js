@@ -11,40 +11,25 @@ export default class DropMenu extends React.Component {
     constructor(props) {
         super(props)
 
-        this.state = {
-            lastHidden: null,
-            animating: false,
-        }
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        if (state.lastHidden === null) {
-            state.lastHidden = props.hidden
-        }
-        else if (state.lastHidden !== props.hidden) {
-            state.animating = true
-            state.lastHidden = props.hidden
-        }
-        return state
+        this.mounted = false
     }
 
     render() {
-        return <div
-            className={`DropMenu ${this.props.hidden ? "hiding" : ''}`}
-            style={{ animationDuration: this.state.animating ? null : "0s" }}
-            onClick={() => this.props.onClick()}
-            onAnimationEnd={(event) => this.afterAnimation(event.target)}
-        >
+        return <div className={this.getClass()} onClick={() => this.props.onClick()}>
             {/* TODO: replace with <Shadow /> */}
             <div className="Shadow" />
             {this.props.children}
         </div>
     }
 
-    afterAnimation(element) {
-        // only set state if the drop menu stopped animating
-        if (element.classList.contains("DropMenu")) {
-            this.setState({ animating: false })
-        }
+    getClass() {
+        const base = "DropMenu"
+        const hidden = this.props.hidden ? "hiding" : "showing"
+        const init = !this.mounted ? "initAnimation" : ""
+        return `${base} ${hidden} ${init}`
+    }
+
+    componentDidMount() {
+        this.mounted = true
     }
 }

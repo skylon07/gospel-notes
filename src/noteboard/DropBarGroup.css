@@ -6,12 +6,6 @@
     --group-animation-time: 0.33s;
 }
 
-.DropBarGroup.animating {
-    animation: DropBarGroup_animationTimer var(--group-animation-time);
-}
-
-@keyframes DropBarGroup_animationTimer {}
-
 .DropBarGroup .DropChild.dropping {
     animation: DropBarGroup_droppingAnimation var(--group-animation-time);
 }
@@ -20,6 +14,9 @@
     from {
         transform: translateY(calc(-1 * var(--group-animation-offset)));
     }
+    to {
+        transform: translateY(0px);
+    }
 }
 
 .DropBarGroup .DropChild.raising {
@@ -27,6 +24,9 @@
 }
 
 @keyframes DropBarGroup_raisingAnimation {
+    from {
+        transform: translateY(0px);
+    }
     to {
         transform: translateY(calc(-1 * var(--group-animation-offset)));
     }

@@ -38,25 +38,42 @@
     width: 100%;
     height: 6px;
     background-color: var(--drop-bar-background-color);
-    animation: BottomBar_undropShiftAnimation var(--drop-animation-time);
-    animation-fill-mode: forwards;
 }
 
-.DropBar .BottomBar.shifted {
-    animation-name: BottomBar_dropShiftAnimation;
+.DropBar .BottomBar.raised {
+    animation: BottomBar_undropShiftAnimation var(--drop-animation-time);
+    /* these values hide the bar like the content box */
+    position: absolute;
+    top: -500px;
+    opacity: 0;
+    pointer-events: none;
 }
 
 @keyframes BottomBar_undropShiftAnimation {
+    from {
+        opacity: 1;
+        transform: translateY(calc(0px + 500px));
+        position: relative;
+    }
     to {
         opacity: 0;
-        transform: translateY(calc(-1 * var(--bottom-bar-shift)));
+        transform: translateY(calc(-1 * var(--bottom-bar-shift) + 500px));
+        position: relative;
     }
+}
+
+.DropBar .BottomBar.dropped {
+    animation: BottomBar_dropShiftAnimation var(--drop-animation-time) forwards;
 }
 
 @keyframes BottomBar_dropShiftAnimation {
     from {
         opacity: 0;
         transform: translateY(calc(-1 * var(--bottom-bar-shift)));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0px);
     }
 }
 
@@ -65,22 +82,34 @@
     height: 30px;
     stroke: var(--main-color);
     stroke-width: 3px;
-    animation: DropdownButton_undropAnimation var(--drop-animation-time) forwards;
     animation-timing-function: ease-out;
 }
 
-.DropBar .DropdownButton.dropped {
-    animation-name: DropdownButton_dropAnimation;
-    animation-timing-function: ease-out;
+html .DropBar .DropdownButton.initAnimation {
+    animation-duration: 0s;
+}
+
+.DropBar .DropdownButton.raised {
+    animation: DropdownButton_undropAnimation var(--drop-animation-time) forwards;
 }
 
 @keyframes DropdownButton_undropAnimation {
     from {
         transform: rotateX(180deg);
     }
+    to {
+        transform: rotateX(0deg);
+    }
+}
+
+.DropBar .DropdownButton.dropped {
+    animation: DropdownButton_dropAnimation var(--drop-animation-time) forwards;
 }
 
 @keyframes DropdownButton_dropAnimation {
+    from {
+        transform: rotateX(0deg);
+    }
     to {
         transform: rotateX(180deg);
     }
@@ -93,11 +122,41 @@
     padding: 0px;
     margin-left: 8px;
     background-color: var(--clear);
-    animation: DropdownContent_undropAnimation var(--drop-animation-time) forwards;
+}
+
+html .DropBarContent.initAnimation {
+    animation-duration: 0s;
+}
+
+.DropBarContent.raised {
+    animation: DropBarContent_undropAnimation var(--drop-animation-time);
+    /* removes from document flow (but keeps offset height) */
+    position: absolute;
+    /* keeps scrollbox from growing (won't scroll up extra) */
+    top: -500px;
+    /* hides element from view */
+    opacity: 0;
+    /* disables interacting with element */
+    pointer-events: none;
+}
+
+@keyframes DropBarContent_undropAnimation {
+    from {
+        opacity: 1;
+        /* +500px offsets for the "top" parameter above */
+        transform: translateY(calc(0% + 500px)) scaleY(1);
+        /* keeps inside document flow until after animation */
+        position: relative;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(calc(-50% + 500px)) scaleY(0);
+        position: relative;
+    }
 }
 
 .DropBarContent.dropped {
-    animation-name: DropBarContent_dropAnimation;
+    animation: DropBarContent_dropAnimation var(--drop-animation-time) forwards;
 }
 
 @keyframes DropBarContent_dropAnimation {
@@ -105,12 +164,9 @@
         opacity: 0;
         transform: translateY(-50%) scaleY(0);
     }
-}
-
-@keyframes DropdownContent_undropAnimation {
     to {
-        opacity: 0;
-        transform: translateY(-50%) scaleY(0);
+        opacity: 1;
+        transform: translateY(0%) scaleY(1);
     }
 }
 

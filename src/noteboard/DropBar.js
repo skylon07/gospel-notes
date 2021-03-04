@@ -30,20 +30,21 @@ export default class DropBar extends React.Component {
 
         this.state = {
             dropped: false,
-            barAnimating: false,
         }
 
-        this._ref = React.createRef()
-        this._contentElem = null // set on mount
-        this._holdIsTouch = false
+        this.ref = React.createRef()
+        this.contentElem = null // set on mount
+        this.holdIsTouch = false
     }
 
     render() {
-        return <div ref={this._ref} className="DropBar">
+        return <div ref={this.ref} className="DropBar">
             <Holdable onHold={() => this.triggerOnMouseHold()}>
                 <div
                     className="Bar"
                     onMouseUp={() => this._allowTriggerDrop()}
+                    onTouchEnd={() => this._allowTriggerDrop()}
+                    onTouchCancel={() => this._allowTriggerDrop()}
                 >
                     <SVGIcon type={this.props.iconType || "blank"} />
                     {this.props.title}
@@ -55,14 +56,19 @@ export default class DropBar extends React.Component {
                 {this.props.children}
             </DropBarContent>
             <div
-                className={`BottomBar ${this.state.dropped ? "shifted" : ''}`}
+                className={this.getBottomBarClass()}
                 style={{
                     animationDuration: this.state.barAnimating ? null : "0s",
                     height: this.state.dropped || this.state.barAnimating ? null : "0px",
                 }}
-                onAnimationEnd={() => this.setState({ barAnimating: false })}
             />
         </div>
+    }
+
+    getBottomBarClass() {
+        const base = "BottomBar"
+        const dropped = this.state.dropped ? "dropped" : "raised"
+        return `${base} ${dropped}`
     }
 
     componentDidMount() {
@@ -71,11 +77,11 @@ export default class DropBar extends React.Component {
 
     // TODO: is this the best/safest way to accomplish this...?
     _findContentElem() {
-        let elem = this._ref.current.children[0]
+        let elem = this.ref.current.children[0]
         while (!elem.classList.contains('DropBarContent')) {
             elem = elem.nextSibling
         }
-        this._contentElem = elem
+        this.contentElem = elem
     }
 
     triggerOnMouseHold() {
@@ -104,14 +110,14 @@ export default class DropBar extends React.Component {
         })
         if (typeof this.props._beforeDrop === "function") {
             // being outside the above setState() allows React to batch/sync animation group setState() calls
-            this.props._beforeDrop(this._ref.current, this.state.dropped)
+            this.props._beforeDrop(this.ref.current, this.state.dropped)
         }
     }
 
     _prepareAnimationOffset() {
         // offsetHeight is used since this represents the height
         // before transformations are applied
-        const currHeight = this._contentElem.offsetHeight
+        const currHeight = this.contentElem.offsetHeight
         GLOBALS.updateOffsets(currHeight)
     }
 }
@@ -126,21 +132,7 @@ class DropdownButton extends React.Component {
     constructor(props) {
         super(props)
 
-        this.state = {
-            animating: null, // type: true/false after mounting
-            lastDropped: null,
-        }
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        if (state.lastDropped === null) {
-            state.lastDropped = props.dropped
-        }
-        else if (props.dropped !== state.lastDropped) {
-            state.animating = true
-            state.lastDropped = props.dropped
-        }
-        return state
+        this.mounted = false
     }
 
     render() {
@@ -157,17 +149,24 @@ class DropdownButton extends React.Component {
         // offset = w * 2 ** (1 / 2) / 4
         const offset = 1.0606601717 // for w = 3px
         return <svg
-            className={`DropdownButton ${this.props.dropped ? "dropped" : ""}`}
-            style={{
-                animationDuration: this.state.animating ? null : "0s"
-            }}
+            className={this.getClass()}
             viewBox="0 0 40 40"
             onClick={this.props.onClick}
-            onAnimationEnd={() => this.setState({ animating: false })}
         >
             <line x1={left} y1={btm} x2={mid + offset} y2={top + offset} />
             <line x1={right} y1={btm} x2={mid - offset} y2={top + offset} />
         </svg>
+    }
+
+    getClass() {
+        const base = "DropdownButton"
+        const dropped = this.props.dropped ? "dropped" : "raised"
+        const init = !this.mounted ? "initAnimation" : ""
+        return `${base} ${dropped} ${init}`
+    }
+
+    componentDidMount() {
+        this.mounted = true
     }
 }
 
@@ -180,28 +179,11 @@ class DropBarContent extends React.Component {
     constructor(props) {
         super(props)
 
-        this.state = {
-            lastDropped: null,
-            animating: false,
-        }
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        if (state.lastDropped === null) {
-            state.lastDropped = props.dropped
-        }
-        else if (state.lastDropped !== props.dropped) {
-            state.animating = true
-            state.lastDropped = props.dropped
-        }
+        this.mounted = false
     }
 
     render() {
-        return <div
-            className={`DropBarContent ${this.props.dropped ? "dropped" : ''}`}
-            style={this._makeStyle()}
-            onAnimationEnd={(event) => this.afterAnimation(event.target)}
-        >
+        return <div className={this.getClass()}>
             <div className="Container">
                 {this.props.children}
             </div>
@@ -210,23 +192,14 @@ class DropBarContent extends React.Component {
         </div>
     }
 
-    afterAnimation(element) {
-        if (element.classList.contains("DropBarContent")) {
-            this.setState({ animating: false })
-        }
+    getClass() {
+        const base = "DropBarContent"
+        const dropped = this.props.dropped ? "dropped" : "raised"
+        const init = !this.mounted ? "initAnimation" : ""
+        return `${base} ${dropped} ${init}`
     }
 
-    _makeStyle() {
-        const style = {
-            animationDuration: this.state.animating ? null : "0s",
-        }
-
-        if (!this.props.dropped && !this.state.animating) {
-            style.position = "absolute" // removes from document flow
-            style.opacity = 0 // hides element from view
-            style.pointerEvents = "none" // disables interacting with element
-        }
-
-        return style
+    componentDidMount() {
+        this.mounted = true
     }
 }
