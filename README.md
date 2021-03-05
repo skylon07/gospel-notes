@@ -32,6 +32,11 @@ Easy! Go to **[WEBSITE HERE]** to use online, or you can download a copy of the 
 
 ### Developer Quickstart
 
-- Clone the repo
+To run locally, make sure you have npm installed and then:
+
 - `npm install`
 - `npm start`
+
+To run in a docker container, make sure you have docker installed and then:
+
+- `make run`
