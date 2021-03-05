@@ -1,0 +1,54 @@
+.Draggable.holding {
+    /* these are settings used as mathematical constants */
+    --scaling-max-height: 150;
+    --scaling-max-width: 500;
+    --scale-factor: 0.9;
+    /* these are all set inside a standalone style sheet */
+    --transform-origin-x: 0px;
+    --transform-origin-y: 0px;
+    --transform-scale-x: 1;
+    --transform-scale-y: 1;
+}
+
+.Draggable.holding .ScaleContainer {
+    transform-origin: var(--transform-origin-x) var(--transform-origin-y);
+    animation: DraggableShrink 0.2s forwards;
+}
+
+@keyframes DraggableShrink {
+    to {
+        /* (for both x/y) scale = scaleFactor * min(1, scalingMax / transformScale) */
+        transform: scale(calc(var(--scale-factor) * min(1, calc(var(--scaling-max-width) / var(--transform-scale-x)))), calc(var(--scale-factor) * min(1, calc(var(--scaling-max-height) / var(--transform-scale-y)))));
+    }
+}
+
+/* ORIGINAL CODE (kept for reference for JS)
+    const maxHeight = 150
+    const maxWidth = 500
+    const scale = 0.9
+
+    return {
+        [when("holding")]: {
+            // NOTE: separate container used to allow transform coordinates not to be scaled
+            ScaleContainer: {
+                transformOrigin: () => {
+                    if (this.state.initHoldX === null) {
+                        return "0% 0%"
+                    }
+
+                    const rect = this._dragRef.current.getBoundingClientRect()
+                    const relX = this.state.initHoldX - rect.left
+                    const relY = this.state.initHoldY - rect.top
+                    return `${relX}px ${relY}px`
+                },
+                animation: "DraggableShrink 0.2s forwards",
+                "@keyframes DraggableShrink": {
+                    to: {
+                        transform: () => `scale(${scale * Math.min(1, maxWidth / this._dragRef.current.clientWidth)}, ${scale * Math.min(1, maxHeight / this._dragRef.current.clientHeight)})`
+                    }
+                }
+            }
+        }
+    }
+}
+*/
