@@ -39,4 +39,10 @@ To run locally, make sure you have npm installed and then:
 
 To run in a docker container, make sure you have docker installed and then:
 
-- `make run`
+- `npm docker:build` (if you haven't built the image previously)
+- `npm docker:run`
+
+### Developer Frequently Asked Questions
+
+- You commit .env?!
+  - Yes. This is a convention recommended and used by Create React App.

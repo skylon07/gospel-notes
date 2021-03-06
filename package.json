@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.2.2",
+    "dotenv-cli": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
@@ -15,7 +16,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "docker:build": "dotenv ./scripts/docker-build.sh",
+    "docker:run": "dotenv ./scripts/docker-run.sh",
+    "docker:stop": "dotenv ./scripts/docker-stop.sh",
+    "docker:shell": "dotenv ./scripts/docker-shell.sh"
   },
   "eslintConfig": {
     "extends": [
