@@ -1,12 +1,12 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import './TopBar.css'
+import React from "react";
+import PropTypes from "prop-types";
+import "./TopBar.css";
 
-import { SVGIcon } from 'common/svg-icon'
+import { SVGIcon } from "common/svg-icon";
 
-import TopBarButton from './TopBarButton.js'
-import DropMenu from './DropMenu.js'
-import SearchBar from './SearchBar.js'
+import TopBarButton from "./TopBarButton.js";
+import DropMenu from "./DropMenu.js";
+import SearchBar from "./SearchBar.js";
 
 // a list of button names to use on the top row, which gives a full button
 // name and a shorter variant to use on mobile devices/smaller screens
@@ -18,7 +18,7 @@ const MENU_BUTTONS = [
     { fullName: "Lessons", shortName: "Less" },
     { fullName: "Discussions", shortName: "Disc" },
     */
-]
+];
 
 export default class TopBar extends React.Component {
     static propTypes = {
@@ -35,130 +35,161 @@ export default class TopBar extends React.Component {
         onSearchClick: PropTypes.func,
         onSearchActive: PropTypes.func,
         onSearchInactive: PropTypes.func,
-    }
+    };
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             searchActive: false,
             sliding: false,
             menuHidden: true,
-        }
+        };
 
-        this._searchFocusRef = React.createRef()
-        this._menuClicked = false
+        this._searchFocusRef = React.createRef();
+        this._menuClicked = false;
     }
 
     static getDerivedStateFromProps(props, state) {
         if (typeof props.forceMenuHidden === "boolean") {
-            state.menuHidden = props.forceMenuHidden
+            state.menuHidden = props.forceMenuHidden;
         }
-        return state
+        return state;
     }
 
     render() {
         // TODO: (optimization) remove map and remember which name to use instead
-        const buttons = MENU_BUTTONS.map((button) => button.fullName)
+        const buttons = MENU_BUTTONS.map((button) => button.fullName);
 
         // the order is weird because the animation bounds need to be "behind" the menu
-        return <div className="TopBar">
-            <div className="AnimationBounds">
-                <div
-                    className={`Main ${this.state.searchActive ? "Collapsed" : "Uncollapsed"}`}
-                    style={{ animationDuration: this.state.sliding ? null : "0s" }}
-                >
-                    {buttons.map((button, idx) => this.renderButton(button, idx))}
-                    <div className="Spacer" />
-                    <TopBarButton onClick={() => this.showSearch()}>
-                        <SVGIcon type="magGlass" />
-                    </TopBarButton>
+        return (
+            <div className="TopBar">
+                <div className="AnimationBounds">
+                    <div
+                        className={`Main ${
+                            this.state.searchActive
+                                ? "Collapsed"
+                                : "Uncollapsed"
+                        }`}
+                        style={{
+                            animationDuration: this.state.sliding ? null : "0s",
+                        }}
+                    >
+                        {buttons.map((button, idx) =>
+                            this.renderButton(button, idx)
+                        )}
+                        <div className="Spacer" />
+                        <TopBarButton onClick={() => this.showSearch()}>
+                            <SVGIcon type="magGlass" />
+                        </TopBarButton>
+                    </div>
+                    <div
+                        className={`Search ${
+                            this.state.searchActive
+                                ? "Uncollapsed"
+                                : "Collapsed"
+                        }`}
+                        style={{
+                            animationDuration: this.state.sliding ? null : "0s",
+                        }}
+                        onAnimationEnd={() => this.stopSliding()}
+                    >
+                        <TopBarButton onClick={() => this.hideSearch()}>
+                            <SVGIcon type="backArrow" />
+                        </TopBarButton>
+                        {/* TODO: replace with <Spacer /> */}
+                        <div className="Spacer" />
+                        <SearchBar
+                            ref={this._searchFocusRef}
+                            onSearchClick={this.props.onSearchClick}
+                        />
+                    </div>
                 </div>
-                <div
-                    className={`Search ${this.state.searchActive ? "Uncollapsed" : "Collapsed"}`}
-                    style={{ animationDuration: this.state.sliding ? null : "0s" }}
-                    onAnimationEnd={() => this.stopSliding()}
+                <TopBarButton
+                    ariaLabel="main-menu-button"
+                    onClick={() => this.clickedMenuToggle()}
                 >
-                    <TopBarButton onClick={() => this.hideSearch()}>
-                        <SVGIcon type="backArrow" />
-                    </TopBarButton>
-                    {/* TODO: replace with <Spacer /> */}
-                    <div className="Spacer" />
-                    <SearchBar ref={this._searchFocusRef} onSearchClick={this.props.onSearchClick} />
-                </div>
+                    <SVGIcon type="bars" />
+                </TopBarButton>
+                <DropMenu
+                    ariaLabel="main-menu"
+                    hidden={this.state.menuHidden}
+                    onClick={() => this.clickedMenu()}
+                >
+                    {this.props.menuContent}
+                </DropMenu>
             </div>
-            <TopBarButton onClick={() => this.clickedMenuToggle()}>
-                <SVGIcon type="bars" />
-            </TopBarButton>
-            <DropMenu hidden={this.state.menuHidden} onClick={() => this.clickedMenu()}>
-                {this.props.menuContent}
-            </DropMenu>
-        </div>
+        );
     }
 
     renderButton(content, idx) {
-        const result = <TopBarButton
-            selected={idx === this.props.selectedIdx}
-            onClick={() => this.clickedButton(idx, content)}
-        >
-            {content}
-        </TopBarButton>
+        const result = (
+            <TopBarButton
+                selected={idx === this.props.selectedIdx}
+                onClick={() => this.clickedButton(idx, content)}
+            >
+                {content}
+            </TopBarButton>
+        );
 
         // TODO: replace <div className="Spacer" /> with <spacer />
-        return [result, <div className="Spacer" />]
+        return [result, <div className="Spacer" />];
     }
 
     componentDidMount() {
-        window.addEventListener("click", this._clickEventListener = () => this.clickedWindow())
+        window.addEventListener(
+            "click",
+            (this._clickEventListener = () => this.clickedWindow())
+        );
     }
 
     componentWillUnmount() {
-        window.removeEventListener("click", this._clickEventListener)
+        window.removeEventListener("click", this._clickEventListener);
     }
 
     clickedButton(idx) {
         if (typeof this.props.onButtonClick === "function") {
-            this.props.onButtonClick(idx)
+            this.props.onButtonClick(idx);
         }
     }
 
     clickedMenuToggle() {
-        this.setState({ menuHidden: !this.state.menuHidden })
-        this._menuClicked = true
+        this.setState({ menuHidden: !this.state.menuHidden });
+        this._menuClicked = true;
     }
     clickedMenu() {
-        this._menuClicked = true
+        this._menuClicked = true;
     }
     clickedWindow() {
         if (!this._menuClicked && !this.state.menuHidden) {
-            this.setState({ menuHidden: true })
+            this.setState({ menuHidden: true });
         }
-        this._menuClicked = false
+        this._menuClicked = false;
     }
 
     showSearch() {
-        this.setState({ searchActive: true, sliding: true })
+        this.setState({ searchActive: true, sliding: true });
         // allows animation to play first
         setTimeout(() => {
             if (typeof this.props.onSearchActive === "function") {
-                this.props.onSearchActive()
+                this.props.onSearchActive();
             }
-        })
+        });
     }
     hideSearch() {
-        this.setState({ searchActive: false, sliding: true })
+        this.setState({ searchActive: false, sliding: true });
         // allows animation to play first
         setTimeout(() => {
             if (typeof this.props.onSearchInactive === "function") {
-                this.props.onSearchInactive()
+                this.props.onSearchInactive();
             }
-        })
+        });
     }
 
     stopSliding() {
-        this.setState({ sliding: false })
+        this.setState({ sliding: false });
         if (this.state.searchActive) {
-            this._searchFocusRef.current.focus()
+            this._searchFocusRef.current.focus();
         }
     }
 }
