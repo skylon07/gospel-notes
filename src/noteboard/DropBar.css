@@ -90,7 +90,8 @@ html .DropBar .DropdownButton.initAnimation {
 }
 
 .DropBar .DropdownButton.raised {
-    animation: DropdownButton_undropAnimation var(--drop-animation-time) forwards;
+    animation: DropdownButton_undropAnimation var(--drop-animation-time)
+        forwards;
 }
 
 @keyframes DropdownButton_undropAnimation {
@@ -186,7 +187,15 @@ html .DropBarContent.initAnimation {
     width: 100%;
     border-bottom: 12px solid;
     /* background is used to blend the shadow since it doesn't reach the edges */
-    border-image: linear-gradient( to bottom, rgba(var(--main-background), 0.7), rgba(var(--main-background), 0.55), rgba(var(--main-background), 0.3), rgba(var(--main-background), 0.15), var(--clear)) 12;
+    border-image: linear-gradient(
+            to bottom,
+            rgba(var(--main-background), 0.7),
+            rgba(var(--main-background), 0.55),
+            rgba(var(--main-background), 0.3),
+            rgba(var(--main-background), 0.15),
+            var(--clear)
+        )
+        12;
     opacity: 0.8;
 }
 
@@ -195,5 +204,12 @@ html .DropBarContent.initAnimation {
     bottom: 0px;
     width: 100%;
     border-top: 10px solid;
-    border-image: linear-gradient( to top, rgba(var(--main-background), 0.65), rgba(var(--main-background), 0.35), rgba(var(--main-background), 0.15), var(--clear)) 10;
+    border-image: linear-gradient(
+            to top,
+            rgba(var(--main-background), 0.65),
+            rgba(var(--main-background), 0.35),
+            rgba(var(--main-background), 0.15),
+            var(--clear)
+        )
+        10;
 }

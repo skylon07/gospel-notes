@@ -18,7 +18,26 @@
 @keyframes DraggableShrink {
     to {
         /* (for both x/y) scale = scaleFactor * min(1, scalingMax / transformScale) */
-        transform: scale(calc(var(--scale-factor) * min(1, calc(var(--scaling-max-width) / var(--transform-scale-x)))), calc(var(--scale-factor) * min(1, calc(var(--scaling-max-height) / var(--transform-scale-y)))));
+        transform: scale(
+            calc(
+                var(--scale-factor) *
+                    min(
+                        1,
+                        calc(
+                            var(--scaling-max-width) / var(--transform-scale-x)
+                        )
+                    )
+            ),
+            calc(
+                var(--scale-factor) *
+                    min(
+                        1,
+                        calc(
+                            var(--scaling-max-height) / var(--transform-scale-y)
+                        )
+                    )
+            )
+        );
     }
 }
 

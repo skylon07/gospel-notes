@@ -43,7 +43,8 @@
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    animation: TopBar-FadeOut var(--slide-animation-time) forwards, TopBar-SlideLeft var(--slide-animation-time) forwards;
+    animation: TopBar-FadeOut var(--slide-animation-time) forwards,
+        TopBar-SlideLeft var(--slide-animation-time) forwards;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
@@ -80,7 +81,8 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
-    animation: TopBar-FadeOut var(--slide-animation-time) forwards, TopBar-SlideRight var(--slide-animation-time) forwards;
+    animation: TopBar-FadeOut var(--slide-animation-time) forwards,
+        TopBar-SlideRight var(--slide-animation-time) forwards;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */

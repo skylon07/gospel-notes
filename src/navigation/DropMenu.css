@@ -44,7 +44,7 @@ html .DropMenu.initAnimation {
     }
 }
 
-.DropMenu>* {
+.DropMenu > * {
     margin: 0px;
     width: 35%;
     height: 26px;
@@ -58,27 +58,32 @@ html .DropMenu.initAnimation {
     position: absolute;
     top: 0px;
     left: 0px;
-    background-image: linear-gradient( to bottom, rgba(20, 20, 20, 0.35), rgba(20, 20, 20, 0.15), rgba(20, 20, 20, 0.0));
+    background-image: linear-gradient(
+        to bottom,
+        rgba(20, 20, 20, 0.35),
+        rgba(20, 20, 20, 0.15),
+        rgba(20, 20, 20, 0)
+    );
 }
 
-.DropMenu>button {
+.DropMenu > button {
     font-size: 11pt;
     padding: 0px;
     border: none;
     background-color: rgba(57, 57, 69, 0.5);
 }
 
-.DropMenu>button:active {
+.DropMenu > button:active {
     background-color: var(--active-dark);
 }
 
-.DropMenu>button:disabled {
+.DropMenu > button:disabled {
     border: none;
     background-color: var(--disabled-dark);
     opacity: 0.8;
 }
 
-.DropMenu>p {
+.DropMenu > p {
     font-size: 24px;
     text-align: left;
     position: relative;

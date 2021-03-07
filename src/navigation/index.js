@@ -1,2 +1,2 @@
-import TopBar from './TopBar.js'
-export { TopBar }
+import TopBar from "./TopBar.js";
+export { TopBar };
