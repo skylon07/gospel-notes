@@ -8,6 +8,7 @@ it("renders without crashing", () => {
     ReactDOM.render(<TopBar />, div);
 });
 
+// TODO: should this be in DropMenu.test.js?
 it("shows the main menu when the menu button is clicked", () => {
     render(<TopBar />);
 
@@ -29,6 +30,7 @@ it("shows the main menu when the menu button is clicked", () => {
     //expect(screen.getByLabelText("main-menu")).toHaveClass("showing");
 });
 
+// TODO: should this be in DropMenu.test.js?
 it("hides the main menu when the menu button is clicked twice", () => {
     render(<TopBar />);
 
@@ -43,7 +45,7 @@ it("hides the main menu when the menu button is clicked twice", () => {
     fireEvent.click(screen.getByLabelText("main-menu-button"));
     fireEvent.click(screen.getByLabelText("main-menu-button"));
 
-    // Make sure the main menu is displayed now
+    // Make sure the main menu is hidden now
     expect(screen.getByRole("menu", { label: /main-menu/i })).toHaveClass(
         "hiding"
     );
