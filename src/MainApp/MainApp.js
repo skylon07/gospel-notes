@@ -5,7 +5,7 @@ import { StaticTextNode } from "common/text-fit";
 import { SVGIcon } from "common/svg-icon";
 import { StorageRegistry } from "lib/storage-registry";
 
-import BetaDisclaimer from "./BetaDisclaimer.js";
+import BetaDisclaimer from "./BetaDisclaimer";
 import { TopBar } from "navigation";
 import { DropBar, NoteBox, DropBarGroup } from "noteboard";
 
@@ -45,7 +45,7 @@ class MainApp extends React.Component {
                                 Test\n\
                                 Test\n\
                                 Test\n\
-                                Test`.replaceAll("\t", "")}
+                                Test`.replace(/\t/gi, "")}
                             </div>
                         </DropBar>
                         <div>MILLENIA!</div>
@@ -65,7 +65,7 @@ class MainApp extends React.Component {
                                 Test\n\
                                 Test\n\
                                 Test\n\
-                                Test`.replaceAll("\t", "")}
+                                Test`.replace(/\t/gi, "")}
                             </div>
                         </DropBar>
                         <div>MILLENIA!</div>
