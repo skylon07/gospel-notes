@@ -50,6 +50,7 @@ export default class Draggable extends React.Component {
         //       used in translating the element absolutely
         return (
             <div
+                aria-label="draggable"
                 ref={(elem) => this.updateDragRef(elem)}
                 className={this.getClass()}
             >
@@ -106,7 +107,8 @@ export default class Draggable extends React.Component {
     triggerOnDrag(diffX, diffY) {
         let adjusted = [diffX, diffY];
         if (typeof this.props.onDrag === "function") {
-            adjusted = this.props.onDrag(diffX, diffY);
+            const newAdjusted = this.props.onDrag(diffX, diffY);
+            adjusted = newAdjusted || adjusted
         }
         return adjusted;
     }
@@ -182,7 +184,6 @@ export default class Draggable extends React.Component {
     }
 
     moveHold(preventEventDefault, diffX, diffY) {
-        console.log(this.state.holding, diffX, diffY);
         if (this.state.holding) {
             preventEventDefault();
 

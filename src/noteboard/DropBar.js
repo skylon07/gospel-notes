@@ -39,7 +39,7 @@ export default class DropBar extends React.Component {
 
     render() {
         return (
-            <div ref={this.ref} className="DropBar">
+            <div aria-label="drop-bar" ref={this.ref} className="DropBar">
                 <Holdable onHold={() => this.triggerOnMouseHold()}>
                     <div
                         className="Bar"
@@ -160,6 +160,7 @@ class DropdownButton extends React.Component {
         const offset = 1.0606601717; // for w = 3px
         return (
             <svg
+                aria-label="drop-button"
                 className={this.getClass()}
                 viewBox="0 0 40 40"
                 onClick={this.props.onClick}
@@ -196,7 +197,7 @@ class DropBarContent extends React.Component {
 
     render() {
         return (
-            <div className={this.getClass()}>
+            <div aria-label="drop-content" className={this.getClass()}>
                 <div className="Container">{this.props.children}</div>
                 <div className="TopGradient" />
                 <div className="BottomGradient" />

@@ -12,6 +12,7 @@ export default class Holdable extends React.Component {
     render() {
         return (
             <div
+                aria-label="holdable"
                 onTouchStart={(event) => this._startTouchHold(event)}
                 onTouchEnd={(event) => this._cancelTouchHold(event)}
                 onTouchMove={(event) => this._cancelTouchHold(event)}
