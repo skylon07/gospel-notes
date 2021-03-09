@@ -34,19 +34,10 @@ class MainApp extends React.Component {
                             iconType="plus"
                             onMouseHold={() => alert("// TODO: rename...")}
                         >
-                            <div
-                                style={{
-                                    backgroundColor: "darkgrey",
-                                    whiteSpace: "pre",
-                                }}
-                            >
-                                {`// DEBUG\n\
-                                Test\n\
-                                Test\n\
-                                Test\n\
-                                Test\n\
-                                Test`.replace(/\t/gi, "")}
-                            </div>
+                            <NoteBox
+                                title="Test Note 1"
+                                content="this is some text testing the use of the content prop"
+                            />
                         </DropBar>
                         <div>MILLENIA!</div>
                         <DropBar
@@ -54,19 +45,10 @@ class MainApp extends React.Component {
                             iconType="backArrow"
                             onMouseHold={() => alert("// TODO: rename...")}
                         >
-                            <div
-                                style={{
-                                    backgroundColor: "darkgrey",
-                                    whiteSpace: "pre",
-                                }}
-                            >
-                                {`// DEBUG\n\
-                                Test\n\
-                                Test\n\
-                                Test\n\
-                                Test\n\
-                                Test`.replace(/\t/gi, "")}
-                            </div>
+                            <NoteBox title="Test Note 2">
+                                This is some test text using the children
+                                attribute
+                            </NoteBox>
                         </DropBar>
                         <div>MILLENIA!</div>
                     </DropBarGroup>
