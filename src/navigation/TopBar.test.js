@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { render, fireEvent, screen } from "@testing-library/react";
-import TopBar from "./TopBar";
+
+import TopBar from "./TopBar.js";
 
 it("renders without crashing", () => {
     const div = document.createElement("div");

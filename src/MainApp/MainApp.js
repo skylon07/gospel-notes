@@ -5,7 +5,7 @@ import { StaticTextNode } from "common/text-fit";
 import { SVGIcon } from "common/svg-icon";
 import { StorageRegistry } from "lib/storage-registry";
 
-import BetaDisclaimer from "./BetaDisclaimer";
+import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
 import { DropBar, NoteBox, DropBarGroup } from "noteboard";
 
