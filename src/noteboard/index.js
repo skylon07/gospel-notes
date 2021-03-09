@@ -1,3 +1,4 @@
 import DropBar from "./DropBar.js";
 import DropBarGroup from "./DropBarGroup.js";
-export { DropBar, DropBarGroup };
+import NoteBox from './NoteBox.js'
+export { DropBar, DropBarGroup, NoteBox };
