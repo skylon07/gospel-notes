@@ -1,6 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
-
 import "./BetaDisclaimer.css";
 
 export default class BetaDisclaimer extends React.Component {
