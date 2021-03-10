@@ -70,7 +70,7 @@ describe("tests", () => {
             storage.setKeyString("key", "≡;≡");
         }).toThrow(RegistryStoreError);
         expect(() => {
-            storage.setKeyString("key", "≡,≡");
+            storage.setKeyString("key", "≡-≡");
         }).toThrow(RegistryStoreError);
     });
 });
