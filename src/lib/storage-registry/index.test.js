@@ -1,4 +1,4 @@
-import { StorageRegistry } from ".";
+import { StorageRegistry, RegistryStoreError } from ".";
 
 describe("tests", () => {
     let storage;
@@ -53,5 +53,24 @@ describe("tests", () => {
     test("getKey with existing key", () => {
         storage.setKeyString("key", "val");
         expect(storage.getKey("key")).toBe("val");
+    });
+
+    test("setKeyString with valid string doesn't throw", () => {
+        expect(storage.setKeyString("key", "val")).toBe(undefined);
+    });
+
+    test("setKeyString with empty string throws", () => {
+        expect(() => {
+            storage.setKeyString("", "val");
+        }).toThrow(RegistryStoreError);
+    });
+
+    test("setKeyString with separator string throws", () => {
+        expect(() => {
+            storage.setKeyString("key", "≡;≡");
+        }).toThrow(RegistryStoreError);
+        expect(() => {
+            storage.setKeyString("key", "≡,≡");
+        }).toThrow(RegistryStoreError);
     });
 });
