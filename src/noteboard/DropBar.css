@@ -96,10 +96,10 @@ html .DropBar .DropdownButton.initAnimation {
 
 @keyframes DropdownButton_undropAnimation {
     from {
-        transform: rotateX(180deg);
+        transform: rotateX(0deg);
     }
     to {
-        transform: rotateX(0deg);
+        transform: rotateX(180deg);
     }
 }
 
@@ -109,10 +109,10 @@ html .DropBar .DropdownButton.initAnimation {
 
 @keyframes DropdownButton_dropAnimation {
     from {
-        transform: rotateX(0deg);
+        transform: rotateX(180deg);
     }
     to {
-        transform: rotateX(180deg);
+        transform: rotateX(0deg);
     }
 }
 
