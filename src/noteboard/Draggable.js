@@ -108,7 +108,7 @@ export default class Draggable extends React.Component {
         let adjusted = [diffX, diffY];
         if (typeof this.props.onDrag === "function") {
             const newAdjusted = this.props.onDrag(diffX, diffY);
-            adjusted = newAdjusted || adjusted
+            adjusted = newAdjusted || adjusted;
         }
         return adjusted;
     }

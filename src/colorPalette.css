@@ -8,11 +8,13 @@
     --color-softBlack: 20, 20, 20;
     --color-activeNightBlue: 84, 92, 142;
     --color-activeShadow: 2, 0, 12;
+
     /* SPECIAL COLORS */
     --clear: rgba(0, 0, 0, 0);
     --active-dark: rgb(var(--color-activeNightBlue));
     --disabled-dark: rgb(var(--color-darkGrey));
     --main-background: var(--color-deepNavy);
+    
     /* PRESETS */
     --window-background-color: rgb(var(--main-background));
     --window-shadow: rgba(20, 20, 35, 0.25);
