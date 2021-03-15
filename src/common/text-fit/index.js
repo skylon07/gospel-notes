@@ -28,10 +28,11 @@ class TextNode extends React.Component {
         // NOTE: children should be a raw string of text
         return (
             <div
+                data-testid="text-node"
                 ref={this.selfRef}
                 className={`TextNode ${this.classExtension}`}
             >
-                <div ref={this.textRef} className="textSizer">
+                <div ref={this.textRef} className="TextSizer">
                     {this.props.children}
                 </div>
             </div>
@@ -56,6 +57,10 @@ class TextNode extends React.Component {
         // NOTE: the default algorithm is recorded in the "NoWrap" version;
         // an interesting problem arises with wrapping... (see "Wrap" version)
         const text = this.props.children;
+        if (!text) {
+            return;
+        }
+
         const willBreak = text.includes(" "); // TODO: do more extensive "will break" testing (commas? tabs?)
         if (typeof text === "string" && willBreak) {
             return this._updateTextSizeWrap(maxWidth, maxHeight);
@@ -163,6 +168,7 @@ export class ConstantTextNode extends TextNode {
         const self = this.selfRef.current;
         let lastWidth, lastHeight; // undefined !== number; runs update on first frame
         // records this._interval for unmount; do not rely on this value existing!
+        // TODO: maybe make a customizable timeout/interval?
         const intervalFunc = () =>
             (this._interval = requestAnimationFrame(() => {
                 if (
