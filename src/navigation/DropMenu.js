@@ -6,7 +6,6 @@ export default class DropMenu extends React.Component {
     static propTypes = {
         hidden: PropTypes.bool.isRequired,
         onClick: PropTypes.func,
-        ariaLabel: PropTypes.string,
     };
 
     constructor(props) {
@@ -18,8 +17,7 @@ export default class DropMenu extends React.Component {
     render() {
         return (
             <div
-                aria-label={this.props.ariaLabel}
-                role="menu"
+                data-testid="drop-menu"
                 className={this.getClass()}
                 onClick={() => this.props.onClick()}
             >
