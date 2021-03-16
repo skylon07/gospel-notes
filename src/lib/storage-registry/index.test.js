@@ -1,9 +1,11 @@
 import { StorageRegistry, RegistryStoreError, SEPARATORS } from ".";
 
-let storage;
-
+let storage = null;
 beforeEach(() => {
     storage = new StorageRegistry("test");
+});
+afterEach(() => {
+    storage = null;
 });
 
 it("initializes with keys === []", () => {
