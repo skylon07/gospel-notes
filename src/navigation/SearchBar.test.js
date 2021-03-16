@@ -161,12 +161,12 @@ it("selects all text in the input field when focused", () => {
     expect(inputField.selectionStart).toBe(0)
     expect(inputField.selectionEnd).toBe(0)
 
-    const searchString = "test if this is selected"
+    const searchString = "test if this is selected";
     act(() => {
-        inputField.value = searchString
-        inputField.focus()
+        inputField.value = searchString;
+        inputField.focus();
     });
 
-    expect(inputField.selectionStart).toBe(0)
-    expect(inputField.selectionEnd).toBe(searchString.length)
-})
+    expect(inputField.selectionStart).toBe(0);
+    expect(inputField.selectionEnd).toBe(searchString.length);
+});
