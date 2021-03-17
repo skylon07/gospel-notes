@@ -95,6 +95,24 @@ html .TopBar .Search.initAnimation {
     left: 10px;
 }
 
+.TopBarButton {
+    background-color: var(--clear);
+    height: 40px;
+    padding: 0px 10px;
+
+    color: var(--main-color);
+    border: none;
+
+    margin: 0px;
+    font-size: calc(15px + 0.16em);
+}
+.TopBarButton:active {
+    background-color: var(--window-background-color);
+}
+.TopBarButton.selected {
+    background-color: var(--window-shadow);
+}
+
 .TopBar .Search {
     /* positioning */
     position: absolute;

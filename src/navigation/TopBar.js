@@ -4,7 +4,6 @@ import "./TopBar.css";
 
 import { SVGIcon } from "common/svg-icon";
 
-import TopBarButton from "./TopBarButton.js";
 import DropMenu from "./DropMenu.js";
 import SearchBar from "./SearchBar.js";
 
