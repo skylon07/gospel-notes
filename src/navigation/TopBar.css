@@ -1,12 +1,23 @@
 .TopBar {
+    /* positioning (hook) */
     position: relative;
+
+    /* dimensions */
     width: 100%;
+
+    /* layout */
     box-sizing: border-box;
-    background-color: var(--top-bar-background-color);
     padding: 0px 5px;
+
+    /* flex-positioning */
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+
+    /* colors */
+    background-color: var(--top-bar-background-color);
+
+    /* animation */
     --slide-animation-time: 0.3s;
 }
 
@@ -20,12 +31,12 @@
 
 .TopBar .AnimationBounds {
     /* keeps animations inside the bar, but not the menu! */
-    overflow: hidden;
     position: absolute;
     top: 0px;
     right: 0px;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 .TopBar .Spacer {
@@ -35,27 +46,32 @@
 }
 
 .TopBar .Main {
+    /* positioning */
     position: absolute;
     top: 0px;
     right: 5px;
+
+    /* dimensions */
     width: 75%;
+
+    /* flex-positioning */
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
+
+    /* animation */
     animation: TopBar-FadeOut var(--slide-animation-time) forwards,
         TopBar-SlideLeft var(--slide-animation-time) forwards;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
-
 .TopBar .Main.Uncollapsed {
     animation-name: TopBar-FadeIn, TopBar-UnslideLeft;
     animation-timing-function: ease-out;
 }
 
 /* .Collapsed wont work as a generic *.Collapsed class */
-
 .TopBar .Main.Collapsed {
     opacity: 0;
     pointer-events: none;
@@ -74,13 +90,20 @@
 }
 
 .TopBar .Search {
+    /* positioning */
     position: absolute;
     top: 0px;
     right: 5px;
+
+    /* dimensions */
     width: 75%;
+
+    /* flex-positioning */
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+
+    /* animation */
     animation: TopBar-FadeOut var(--slide-animation-time) forwards,
         TopBar-SlideRight var(--slide-animation-time) forwards;
 }

@@ -1,40 +1,58 @@
 .BetaDisclaimer {
+    /* position */
     z-index: 999;
     position: absolute;
     top: 0px;
     left: 0px;
+
+    /* dimensions */
     width: 100vw;
     height: 100vh;
-    background-color: rgb(var(--main-background));
-    animation-fill-mode: forwards;
-    white-space: pre-line;
+
+    /* flex-position */
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
     justify-content: center;
+
+    /* coloring */
+    background-color: rgb(var(--main-background));
+
+    /* font options */
+    white-space: pre-line;
     font-size: 20pt;
+
+    /* animation */
+    animation-fill-mode: forwards;
     animation-duration: 0.6s;
 }
 
 .BetaDisclaimer .Warning {
-    color: firebrick;
     margin-bottom: 4%;
+    color: firebrick;
     font-family: Arial, Helvetica, sans-serif;
 }
 
 .BetaDisclaimer .Message {
+    max-width: 70%;
     color: lightgrey;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16pt;
-    max-width: 70%;
 }
 
 .BetaDisclaimer button {
+    /* layout */
+    padding: 10px;
+
+    /* border */
+    border-radius: 10px;
+    border: none;
+
+    /* coloring */
     background-color: rgba(173, 216, 230, 0.35);
     color: lightgrey;
-    border-radius: 10px;
-    padding: 10px;
-    border: none;
+
+    /* font */
     font-size: 16pt;
 }
 

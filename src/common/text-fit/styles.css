@@ -1,16 +1,21 @@
 .TextNode {
+    /* dimensions */
     width: 100%;
     height: 100%;
+
+    /* flex-positioning */
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
+
+    /* colors */
     color: var(--main-color);
 }
 
 .TextNode.static {
-    /*  // NOTE: restricting whitespace is necessary since this component expects
-        // fixed dimensions; "pre" allows both fixed dimensions and '\n' wrapping
+    /*  NOTE: restricting whitespace is necessary since this component expects
+              fixed dimensions; "pre" allows both fixed dimensions and '\n' wrapping
     */
     white-space: pre;
 }

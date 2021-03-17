@@ -1,34 +1,49 @@
 .NoteBox {
+    /* dimensions */
     /* so empty notes can be seen (mostly for debugging) */
     min-height: 10px;
     width: 100%;
     height: 100%;
-    background-color: var(--note-box-background-color);
+
+    /* flex-positioning */
     display: flex;
     flex-flow: column nowrap;
     align-items: stretch;
     justify-content: center;
+
+    /* coloring */
+    background-color: var(--note-box-background-color);
 }
 
 .NoteBox > * {
+    /* layout */
     margin: 12px 10px;
     padding: 0px;
     overflow: hidden;
-    color: var(--main-color);
-    background-color: var(--clear);
-    font-family: sans-serif;
     border: none;
     resize: none;
+
+    /* coloring */
+    color: var(--main-color);
+    background-color: var(--clear);
+
+    /* font */
+    font-family: sans-serif;
 }
 
 .NoteBox .Title {
+    /* dimensions */
     max-width: 90%;
-    text-align: center;
+
+    /* layout */
     align-self: center;
     padding: 0px 6px;
+    border-bottom: 2px solid var(--note-box-title-border);
+
+    /* font */
     font-size: calc(15px + 0.25em);
     line-height: calc(1.2 * (15px + 0.25em));
-    border-bottom: 2px solid var(--note-box-title-border);
+    text-align: center;
 }
 
 .NoteBox .Content {

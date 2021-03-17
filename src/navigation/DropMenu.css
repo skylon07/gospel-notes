@@ -1,12 +1,21 @@
 .DropMenu {
+    /* positioning */
+    z-index: 10;
+
+    /* dimensions */
     width: 280px;
     height: 380px;
-    background-color: var(--menu-background-color);
-    z-index: 10;
+
+    /* flex-positioning */
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
     align-items: center;
+
+    /* colors */
+    background-color: var(--menu-background-color);
+
+    /* animation */
     --animation-time: 0.28s;
 }
 
@@ -53,11 +62,16 @@ html .DropMenu.initAnimation {
 }
 
 .DropMenu .Shadow {
-    height: 30px;
-    width: 100%;
+    /* positioning */
     position: absolute;
     top: 0px;
     left: 0px;
+
+    /* dimensions */
+    height: 30px;
+    width: 100%;
+
+    /* background */
     background-image: linear-gradient(
         to bottom,
         rgba(20, 20, 20, 0.35),
@@ -84,9 +98,12 @@ html .DropMenu.initAnimation {
 }
 
 .DropMenu > p {
-    font-size: 24px;
-    text-align: left;
+    /* positioning */
     position: relative;
     left: -6px;
+
+    /* text formatting */
+    font-size: 24px;
+    text-align: left;
     white-space: nowrap;
 }

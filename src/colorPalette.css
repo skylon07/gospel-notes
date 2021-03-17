@@ -1,5 +1,6 @@
 :root {
-    /* COLORS */
+    /* colors */
+    /* (actual color definitions) */
     --color-ghostNavy: 105, 105, 117;
     --color-softNavy: 57, 57, 69;
     --color-deepNavy: 37, 37, 48;
@@ -7,22 +8,25 @@
     --color-darkGrey: 60, 60, 60;
     --color-softBlack: 20, 20, 20;
     --color-activeNightBlue: 84, 92, 142;
-    --color-activeShadow: 2, 0, 12;
+    --color-activeShadow: 2, 0, 12;Î
 
-    /* SPECIAL COLORS */
+    /* thematic colors */
+    /* (secondary preset names pointing to colors) */
     --clear: rgba(0, 0, 0, 0);
     --active-dark: rgb(var(--color-activeNightBlue));
     --disabled-dark: rgb(var(--color-darkGrey));
-    --main-background: var(--color-deepNavy);
-    
-    /* PRESETS */
+    --main-background: var(--color-deepNavy); /* rename this one? */
+
+    /* presets */
     --window-background-color: rgb(var(--main-background));
     --window-shadow: rgba(20, 20, 35, 0.25);
+
+    --main-color: rgb(var(--color-softWhite));
+    --main-color-inv: rgb(var(--color-softBlack));
+
     --top-bar-background-color: rgb(var(--color-softNavy));
     --drop-bar-background-color: rgb(var(--color-softNavy));
     --note-box-background-color: rgba(var(--color-softNavy), 0.73);
     --menu-background-color: rgb(var(--color-ghostNavy));
     --note-box-title-border: rgba(var(--color-ghostNavy), 0.75);
-    --main-color: rgb(var(--color-softWhite));
-    --main-color-inv: rgb(var(--color-softBlack));
 }
