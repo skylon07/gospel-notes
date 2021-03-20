@@ -61,8 +61,13 @@
     align-items: center;
 
     /* animation */
-    animation: TopBar-FadeOut var(--slide-animation-time) forwards,
-        TopBar-SlideLeft var(--slide-animation-time) forwards;
+    animation-fill-mode: forwards;
+    animation-duration: var(--slide-animation-time);
+}
+
+html .TopBar .Main.initAnimation,
+html .TopBar .Search.initAnimation {
+    animation-duration: 0s;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
@@ -75,6 +80,7 @@
 .TopBar .Main.Collapsed {
     opacity: 0;
     pointer-events: none;
+    animation-name: TopBar-FadeOut, TopBar-SlideLeft;
     animation-timing-function: ease-in;
 }
 
@@ -104,8 +110,8 @@
     justify-content: space-between;
 
     /* animation */
-    animation: TopBar-FadeOut var(--slide-animation-time) forwards,
-        TopBar-SlideRight var(--slide-animation-time) forwards;
+    animation-fill-mode: forwards;
+    animation-duration: var(--slide-animation-time);
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
@@ -120,6 +126,7 @@
 .TopBar .Search.Collapsed {
     opacity: 0;
     pointer-events: none;
+    animation-name: TopBar-FadeOut, TopBar-SlideRight;
     animation-timing-function: ease-in;
 }
 

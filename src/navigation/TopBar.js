@@ -42,9 +42,10 @@ export default class TopBar extends React.Component {
 
         this.state = {
             searchActive: false,
-            sliding: false,
             menuHidden: true,
         };
+
+        this.mounted = false;
 
         this._searchFocusRef = React.createRef();
         this._menuClicked = false;
@@ -65,16 +66,7 @@ export default class TopBar extends React.Component {
         return (
             <div className="TopBar">
                 <div className="AnimationBounds">
-                    <div
-                        className={`Main ${
-                            this.state.searchActive
-                                ? "Collapsed"
-                                : "Uncollapsed"
-                        }`}
-                        style={{
-                            animationDuration: this.state.sliding ? null : "0s",
-                        }}
-                    >
+                    <div className={this.getMainClass()}>
                         {buttons.map((button, idx) =>
                             this.renderButton(button, idx)
                         )}
@@ -83,17 +75,7 @@ export default class TopBar extends React.Component {
                             <SVGIcon type="magGlass" />
                         </TopBarButton>
                     </div>
-                    <div
-                        className={`Search ${
-                            this.state.searchActive
-                                ? "Uncollapsed"
-                                : "Collapsed"
-                        }`}
-                        style={{
-                            animationDuration: this.state.sliding ? null : "0s",
-                        }}
-                        onAnimationEnd={() => this.stopSliding()}
-                    >
+                    <div className={this.getSearchClass()}>
                         <TopBarButton onClick={() => this.hideSearch()}>
                             <SVGIcon type="backArrow" />
                         </TopBarButton>
@@ -136,11 +118,29 @@ export default class TopBar extends React.Component {
         return [result, <div className="Spacer" />];
     }
 
+    getMainClass() {
+        const base = "Main";
+        const collapsed = this.state.searchActive ? "Collapsed" : "Uncollapsed";
+        const initAnimation = !this.mounted ? "initAnimation" : "";
+        return `${base} ${collapsed} ${initAnimation}`;
+    }
+
+    getSearchClass() {
+        const base = "Search";
+        const collapsed = !this.state.searchActive
+            ? "Collapsed"
+            : "Uncollapsed";
+        const initAnimation = !this.mounted ? "initAnimation" : "";
+        return `${base} ${collapsed} ${initAnimation}`;
+    }
+
     componentDidMount() {
         window.addEventListener(
             "click",
             (this._clickEventListener = () => this.clickedWindow())
         );
+
+        this.mounted = true;
     }
 
     componentWillUnmount() {
@@ -184,12 +184,5 @@ export default class TopBar extends React.Component {
                 this.props.onSearchInactive();
             }
         });
-    }
-
-    stopSliding() {
-        this.setState({ sliding: false });
-        if (this.state.searchActive) {
-            this._searchFocusRef.current.focus();
-        }
     }
 }
