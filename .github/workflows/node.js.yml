@@ -30,4 +30,5 @@ jobs:
         #uses: mattallty/jest-github-action@v1
         uses: ziishaned/jest-reporter-action@v0.0.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
