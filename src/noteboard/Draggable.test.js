@@ -12,7 +12,6 @@ beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
 });
-
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
@@ -41,7 +40,7 @@ it("moves when clicked and dragged across the screen", () => {
         render(<Draggable>{renderDraggableContent()}</Draggable>, root);
     });
     // record some elements for later use
-    const draggable = document.querySelector("[aria-label='draggable']");
+    const draggable = document.querySelector("[data-testid='draggable']");
 
     // the element should not have moved/transformed at all
     expect(draggable).toHaveStyle({ transform: null });
@@ -82,4 +81,153 @@ it("moves when clicked and dragged across the screen", () => {
 
     // make sure the element moved the correct distance
     expect(draggable).toHaveStyle({ transform: "translate(150px, 150px)" });
+});
+
+describe("ref tests", () => {
+    it("correctly updates object-refs", () => {
+        const dragRef = React.createRef();
+
+        expect(dragRef.current).toBe(null);
+
+        act(() => {
+            render(<Draggable dragRef={dragRef} />, root);
+        });
+
+        expect(dragRef.current).not.toBe(null);
+    });
+
+    it("correctly updates function-refs", () => {
+        const dragRef = jest.fn();
+        expect(dragRef).not.toBeCalledWith(null);
+
+        act(() => {
+            render(<Draggable dragRef={dragRef} />, root);
+        });
+
+        expect(dragRef).toBeCalledTimes(1);
+    });
+});
+
+describe("listener tests", () => {
+    it("correctly calls beforeDrag()", () => {
+        const beforeDrag = jest.fn();
+        act(() => {
+            render(
+                <Draggable beforeDrag={beforeDrag}>
+                    {renderDraggableContent()}
+                </Draggable>,
+                root
+            );
+        });
+        const draggable = document.querySelector("[data-testid='draggable']");
+
+        expect(beforeDrag).not.toBeCalled();
+
+        // click the element and drag it 250ms later
+        act(() => {
+            draggable.dispatchEvent(
+                new MouseEvent("mousedown", {
+                    bubbles: true,
+                    clientX: 50,
+                    clientY: 50,
+                })
+            );
+            jest.advanceTimersByTime(250);
+            draggable.dispatchEvent(
+                new MouseEvent("mousemove", {
+                    bubbles: true,
+                    clientX: 150,
+                    clientY: 150,
+                })
+            );
+        });
+
+        expect(beforeDrag).toBeCalledTimes(1);
+    });
+
+    it("correctly calls onDrag(diffX, diffY)", () => {
+        const onDrag = jest.fn();
+        act(() => {
+            render(
+                <Draggable onDrag={onDrag}>
+                    {renderDraggableContent()}
+                </Draggable>,
+                root
+            );
+        });
+        const draggable = document.querySelector("[data-testid='draggable']");
+
+        expect(onDrag).not.toBeCalled();
+
+        // click the element and drag it 250ms later
+        act(() => {
+            draggable.dispatchEvent(
+                new MouseEvent("mousedown", {
+                    bubbles: true,
+                    clientX: 50,
+                    clientY: 50,
+                })
+            );
+            jest.advanceTimersByTime(250);
+            draggable.dispatchEvent(
+                new MouseEvent("mousemove", {
+                    bubbles: true,
+                    clientX: 150,
+                    clientY: 150,
+                })
+            );
+        });
+
+        expect(onDrag).toBeCalledTimes(1);
+        expect(onDrag).toHaveBeenCalledWith(
+            expect.any(Number),
+            expect.any(Number)
+        );
+        expect(onDrag).toHaveBeenLastCalledWith(100, 100); // dragging distance
+    });
+
+    it("correctly calls afterDrag()", () => {
+        const afterDrag = jest.fn();
+        act(() => {
+            render(
+                <Draggable afterDrag={afterDrag}>
+                    {renderDraggableContent()}
+                </Draggable>,
+                root
+            );
+        });
+        const draggable = document.querySelector("[data-testid='draggable']");
+
+        expect(afterDrag).not.toBeCalled();
+
+        // click the element and drag it 250ms later
+        act(() => {
+            draggable.dispatchEvent(
+                new MouseEvent("mousedown", {
+                    bubbles: true,
+                    clientX: 50,
+                    clientY: 50,
+                })
+            );
+            jest.advanceTimersByTime(250);
+            draggable.dispatchEvent(
+                new MouseEvent("mousemove", {
+                    bubbles: true,
+                    clientX: 150,
+                    clientY: 150,
+                })
+            );
+        });
+
+        expect(afterDrag).not.toBeCalled();
+
+        // release the element
+        act(() => {
+            draggable.dispatchEvent(
+                new MouseEvent("mouseup", { bubbles: true })
+            );
+        });
+
+        expect(afterDrag).toBeCalledTimes(1);
+    });
 });

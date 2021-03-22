@@ -21,7 +21,7 @@ const GLOBALS = {
 
 export default class Draggable extends React.Component {
     static propTypes = {
-        dragRef: PropTypes.oneOf([PropTypes.object, PropTypes.func]),
+        dragRef: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
         beforeDrag: PropTypes.func,
         onDrag: PropTypes.func,
         afterDrag: PropTypes.func,
@@ -50,7 +50,7 @@ export default class Draggable extends React.Component {
         //       used in translating the element absolutely
         return (
             <div
-                aria-label="draggable"
+                data-testid="draggable"
                 ref={(elem) => this.updateDragRef(elem)}
                 className={this.getClass()}
             >
