@@ -26,7 +26,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run build --if-present
-      - name: Unit tests with code coverage
-        uses: mattallty/jest-github-action@v1
+      - name: Run unit tests with code coverage
+        #uses: mattallty/jest-github-action@v1
+        uses: ziishaned/jest-reporter-action@v0.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
