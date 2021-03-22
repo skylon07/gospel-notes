@@ -4,6 +4,13 @@ import { act } from "react-dom/test-utils";
 
 import TopBar from "./TopBar.js";
 
+// NOTE: DropMenu shouldn't be mocked in all tests; importing this way
+//       allows mocking in tests only when needed
+import * as DropMenu from "./DropMenu.js";
+// TODO: figure out a way to make mocking this with jest work...
+// keep a memory of the original DropMenu component
+const origDefault = DropMenu.default;
+
 let root = null;
 beforeEach(() => {
     root = document.createElement("div");
@@ -13,6 +20,10 @@ afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
+
+    // restore mock
+    // NOTE: happens here so it is restored in case tests with mocks error
+    DropMenu.default = origDefault;
 });
 
 function grabTopBar() {
@@ -48,6 +59,43 @@ it("renders without crashing", () => {
 });
 
 describe("menu tests", () => {
+    it("renders the correct menu content to the menu", () => {
+        // mock DropMenu component to control children (for comparison later)
+        DropMenu.default = class MockDropMenu extends React.Component {
+            render() {
+                return <div data-testid="drop-menu">{this.props.children}</div>;
+            }
+        };
+
+        const menuContent = [
+            <button>b0</button>,
+            <button>b1</button>,
+            <button>b2</button>,
+            <p>p3</p>,
+            <button>b4</button>,
+        ];
+        act(() => {
+            render(<TopBar menuContent={menuContent} />, root);
+        });
+        const topBar = grabTopBar();
+        const [mainMenu] = grabMainMenuAndButtonFrom(topBar);
+
+        // compare children
+        expect(mainMenu.children.length).toBe(menuContent.length);
+        for (let i = 0; i < mainMenu.children.length; i++) {
+            const renderedChild = mainMenu.children[i];
+            const childElement = menuContent[i];
+
+            // compare tags
+            expect(renderedChild.tagName.toLowerCase()).toBe(
+                childElement.type.toLowerCase()
+            );
+            // compare innerHTML
+            // expect(renderedChild.innerHTML).toBe(childElement.children) // NOTE: innerHTML is not defined; children[0] is used instead
+            expect(renderedChild.children[0]).toBe(childElement.children);
+        }
+    });
+
     it("shows the main menu when the menu button is clicked", () => {
         act(() => {
             render(<TopBar />, root);
