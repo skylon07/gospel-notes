@@ -91,8 +91,7 @@ describe("menu tests", () => {
                 childElement.type.toLowerCase()
             );
             // compare innerHTML
-            // expect(renderedChild.innerHTML).toBe(childElement.children) // NOTE: innerHTML is not defined; children[0] is used instead
-            expect(renderedChild.children[0]).toBe(childElement.children);
+            expect(renderedChild.innerHTML).toBe(childElement.props.children);
         }
     });
 
