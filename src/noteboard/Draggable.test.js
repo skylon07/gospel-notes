@@ -1,50 +1,47 @@
 import React from "react";
-import ReactDOM, { unmountComponentAtNode } from "react-dom";
-import { render, fireEvent, screen, act } from "@testing-library/react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 
 import Draggable from "./Draggable.js";
 
 // NOTE: modern is required as it allows setState() to run inside timeouts
 jest.useFakeTimers("modern");
 
-// real dom is needed for dragging tests
-// TODO: is DOM really needed though?
-let container = null;
+let root = null;
 beforeEach(() => {
-    container = document.createElement("div");
-    document.body.appendChild(container);
+    root = document.createElement("div");
+    document.body.appendChild(root);
 });
 
 afterEach(() => {
-    unmountComponentAtNode(container);
-    document.body.removeChild(container);
-    container = null;
+    unmountComponentAtNode(root);
+    document.body.removeChild(root);
+    root = null;
 });
 
+// just some content for the draggable to have shape...
+function renderDraggableContent() {
+    return (
+        <div
+            style={{
+                width: "100px",
+                height: "100px",
+            }}
+        />
+    );
+}
+
 it("renders without crashing", () => {
-    const div = document.createElement("div");
-    ReactDOM.render(<Draggable />, div);
+    ReactDOM.render(<Draggable />, root);
 });
 
 it("moves when clicked and dragged across the screen", () => {
     // initial render of the component; act() is used since we are using the DOM
     act(() => {
-        ReactDOM.render(
-            <Draggable>
-                <div
-                    data-testid="dragSquare"
-                    style={{
-                        width: "100px",
-                        height: "100px",
-                    }}
-                />
-            </Draggable>,
-            container
-        );
+        ReactDOM.render(<Draggable>{renderDraggableContent()}</Draggable>, root);
     });
     // record some elements for later use
     const draggable = document.querySelector("[aria-label='draggable']");
-    const dragSquare = document.querySelector("[data-testid='dragSquare']");
 
     // the element should not have moved/transformed at all
     expect(draggable).toHaveStyle({ transform: null });
