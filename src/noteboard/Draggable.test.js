@@ -30,6 +30,10 @@ function renderDraggableContent() {
     );
 }
 
+function grabDraggable() {
+    return document.querySelector("[data-testid='draggable']");
+}
+
 it("renders without crashing", () => {
     render(<Draggable />, root);
 });
@@ -40,7 +44,7 @@ it("moves when clicked and dragged across the screen", () => {
         render(<Draggable>{renderDraggableContent()}</Draggable>, root);
     });
     // record some elements for later use
-    const draggable = document.querySelector("[data-testid='draggable']");
+    const draggable = grabDraggable();
 
     // the element should not have moved/transformed at all
     expect(draggable).toHaveStyle({ transform: null });
@@ -119,7 +123,7 @@ describe("listener tests", () => {
                 root
             );
         });
-        const draggable = document.querySelector("[data-testid='draggable']");
+        const draggable = grabDraggable()
 
         expect(beforeDrag).not.toBeCalled();
 
@@ -155,7 +159,7 @@ describe("listener tests", () => {
                 root
             );
         });
-        const draggable = document.querySelector("[data-testid='draggable']");
+        const draggable = grabDraggable();
 
         expect(onDrag).not.toBeCalled();
 
@@ -196,7 +200,7 @@ describe("listener tests", () => {
                 root
             );
         });
-        const draggable = document.querySelector("[data-testid='draggable']");
+        const draggable = grabDraggable();
 
         expect(afterDrag).not.toBeCalled();
 
