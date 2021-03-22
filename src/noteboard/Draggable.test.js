@@ -32,13 +32,13 @@ function renderDraggableContent() {
 }
 
 it("renders without crashing", () => {
-    ReactDOM.render(<Draggable />, root);
+    render(<Draggable />, root);
 });
 
 it("moves when clicked and dragged across the screen", () => {
     // initial render of the component; act() is used since we are using the DOM
     act(() => {
-        ReactDOM.render(<Draggable>{renderDraggableContent()}</Draggable>, root);
+        render(<Draggable>{renderDraggableContent()}</Draggable>, root);
     });
     // record some elements for later use
     const draggable = document.querySelector("[aria-label='draggable']");
