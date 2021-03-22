@@ -22,6 +22,7 @@ export default class DropBar extends React.Component {
         title: PropTypes.string,
         iconType: PropTypes.string,
         onMouseHold: PropTypes.func,
+        // TODO: is there a better way for DropBarGroups to communicate with DropBars?
         _beforeDrop: PropTypes.func,
     };
 
@@ -39,7 +40,7 @@ export default class DropBar extends React.Component {
 
     render() {
         return (
-            <div aria-label="drop-bar" ref={this.ref} className="DropBar">
+            <div data-testid="drop-bar" ref={this.ref} className="DropBar">
                 <Holdable onHold={() => this.triggerOnMouseHold()}>
                     <div
                         className="Bar"
@@ -59,18 +60,7 @@ export default class DropBar extends React.Component {
                 <DropBarContent dropped={this.state.dropped}>
                     {this.props.children}
                 </DropBarContent>
-                <div
-                    className={this.getBottomBarClass()}
-                    style={{
-                        animationDuration: this.state.barAnimating
-                            ? null
-                            : "0s",
-                        height:
-                            this.state.dropped || this.state.barAnimating
-                                ? null
-                                : "0px",
-                    }}
-                />
+                <div className={this.getBottomBarClass()} />
             </div>
         );
     }
@@ -160,7 +150,7 @@ class DropdownButton extends React.Component {
         const offset = 1.0606601717; // for w = 3px
         return (
             <svg
-                aria-label="drop-button"
+                data-testid="dropdown-button"
                 className={this.getClass()}
                 viewBox="0 0 40 40"
                 onClick={this.props.onClick}
@@ -197,7 +187,7 @@ class DropBarContent extends React.Component {
 
     render() {
         return (
-            <div aria-label="drop-content" className={this.getClass()}>
+            <div data-testid="drop-bar-content" className={this.getClass()}>
                 <div className="Container">{this.props.children}</div>
                 <div className="TopGradient" />
                 <div className="BottomGradient" />
