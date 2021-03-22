@@ -27,11 +27,10 @@ export default class TopBar extends React.Component {
             PropTypes.array,
         ]),
 
-        // TODO: write test
+        // TODO: write test (after there are buttons...)
         selectedIdx: PropTypes.number,
         forceMenuHidden: PropTypes.bool,
 
-        // TODO: write tests for below
         onButtonClick: PropTypes.func,
         onSearchClick: PropTypes.func,
         onSearchActive: PropTypes.func,

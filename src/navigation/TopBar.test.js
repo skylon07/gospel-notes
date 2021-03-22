@@ -199,3 +199,55 @@ it("hides the search bar when the search button and then back button is clicked"
     expect(main).toHaveClass("Uncollapsed");
     expect(search).toHaveClass("Collapsed");
 });
+
+// TODO: complete this test when buttons are introduced
+// it("triggers onButtonClick()", () => {
+//     const onButtonClick = jest.fn();
+//     act(() => {
+//         render(<TopBar onButtonClick={onButtonClick} />, root);
+//     });
+// });
+
+it("triggers onSearchActive()", async () => {
+    const onSearchActive = jest.fn();
+    act(() => {
+        render(<TopBar onSearchActive={onSearchActive} />, root);
+    });
+    const topBar = grabTopBar();
+    const [searchButton] = grabSearchAndBackButtonFrom(topBar);
+
+    expect(onSearchActive).not.toBeCalled();
+
+    await act(async () => {
+        searchButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        // NOTE: timeout is needed since onSearchActive() is called asyncronously
+        await new Promise((res) => setTimeout(res, 10))
+    });
+    
+    expect(onSearchActive).toBeCalledTimes(1);
+});
+
+it("triggers onSearchInactive()", async () => {
+    const onSearchInactive = jest.fn();
+    act(() => {
+        render(<TopBar onSearchInactive={onSearchInactive} />, root);
+    });
+    const topBar = grabTopBar();
+    const [searchButton, backButton] = grabSearchAndBackButtonFrom(topBar);
+    
+    expect(onSearchInactive).not.toBeCalled();
+    
+    act(() => {
+        searchButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    
+    expect(onSearchInactive).not.toBeCalled();
+    
+    await act(async () => {
+        backButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        // NOTE: timeout is needed since onSearchInactive() is called asyncronously
+        await new Promise((res) => setTimeout(res, 10))
+    });
+
+    expect(onSearchInactive).toBeCalledTimes(1);
+});
