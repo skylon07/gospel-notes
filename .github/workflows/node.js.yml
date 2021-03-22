@@ -30,7 +30,7 @@ jobs:
         #uses: mattallty/jest-github-action@v1
         #env:
         #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: romeovs/lcov-reporter-action@v0.2.16
+        uses: artiomtr/jest-coverage-report-action@v1.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          lcov-file: ./coverage/lcov.info
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          #threshold: 80 # optional parameter
