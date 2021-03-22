@@ -31,6 +31,10 @@ export default class BetaDisclaimer extends React.Component {
         );
     }
 
+    // NOTE: using state to control animations/direct styles on elements is
+    //       highly discouraged; it is inefficient and hard to read. This
+    //       should be changed, however since this is a temporary component
+    //       it likely will not be.
     makeStyle() {
         if (!this.state.showing) {
             if (this.state.fading) {
