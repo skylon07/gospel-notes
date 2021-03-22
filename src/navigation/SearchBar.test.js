@@ -1,6 +1,6 @@
-import { act } from "@testing-library/react";
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 
 import SearchBar from "./SearchBar.js";
 
