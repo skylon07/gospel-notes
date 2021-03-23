@@ -1,35 +1,56 @@
 import React from "react";
-import ReactDOM, { unmountComponentAtNode } from "react-dom";
-import { render, fireEvent, screen, act } from "@testing-library/react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 
 import Holdable from "./Holdable.js";
 
 jest.useFakeTimers("modern");
 
+let root = null;
+beforeEach(() => {
+    root = document.createElement("div");
+    document.body.appendChild(root);
+});
+afterEach(() => {
+    unmountComponentAtNode(root);
+    document.body.removeChild(root);
+    root = null;
+});
+
+function grabHoldable() {
+    return document.querySelector("[data-testid='holdable']");
+}
+
 it("renders without crashing", () => {
-    const div = document.createElement("div");
-    ReactDOM.render(<Holdable />, div);
+    render(<Holdable />, root);
 });
 
 it("calls onHold() when clicked and held", () => {
     const onHold = jest.fn();
-    render(<Holdable onHold={onHold} />);
-
-    const holdable = screen.getByLabelText("holdable");
+    act(() => {
+        render(<Holdable onHold={onHold} />);
+    });
+    const holdable = grabHoldable();
 
     // click on the holdable
-    fireEvent.mouseDown(holdable);
+    act(() => {
+        holdable.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    });
 
     // onHold() should not have activated yet
     expect(onHold).not.toHaveBeenCalled();
 
     // wait some time...
-    jest.advanceTimersByTime(100);
+    act(() => {
+        jest.advanceTimersByTime(100);
+    });
 
     // still should not have activated...
     expect(onHold).not.toHaveBeenCalled();
 
     // wait the rest of the time
-    jest.advanceTimersByTime(1000);
+    act(() => {
+        jest.advanceTimersByTime(1000);
+    });
     expect(onHold).toHaveBeenCalledTimes(1);
 });
