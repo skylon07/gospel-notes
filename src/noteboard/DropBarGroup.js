@@ -32,7 +32,7 @@ export default class DropBarGroup extends React.Component {
 
     render() {
         return (
-            <div ref={this._groupRef} className="DropBarGroup">
+            <div data-testid="drop-bar-group" ref={this._groupRef} className="DropBarGroup">
                 {this.wrapChildren()}
             </div>
         );
@@ -44,9 +44,17 @@ export default class DropBarGroup extends React.Component {
     }
 
     wrapChildren() {
-        return React.Children.map(this.props.children, (child) => {
+        let children = this._processFragments(this.props.children)
+        return React.Children.map(children, (child) => {
             return this._trackIfDropBar(child);
         });
+    }
+
+    _processFragments(children) {
+        while (children && children.type === React.Fragment) {
+            children = children.props.children
+        }
+        return children
     }
 
     _trackIfDropBar(child) {
@@ -66,7 +74,6 @@ export default class DropBarGroup extends React.Component {
         this.setState({
             animationDirection,
             animatingElement,
-            animating: true,
         });
     }
 
@@ -85,10 +92,10 @@ export default class DropBarGroup extends React.Component {
 
         const activeDropdown = this.state.animatingElement;
         const direction = this.state.animationDirection;
-        if (
-            direction === this._lastAnimationDirection &&
-            activeDropdown === this._lastAnimatedElement
-        ) {
+
+        const isLastDirection = direction === this._lastAnimationDirection;
+        const isLastAnimated = activeDropdown === this._lastAnimatedElement;
+        if (isLastDirection && isLastAnimated) {
             return; // only animate for changes
         }
         this._lastAnimationDirection = direction;

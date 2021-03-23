@@ -155,20 +155,20 @@ it("triggers onMouseHold() when holdable bar is held", () => {
 });
 
 it("triggers the hidden _beforeDrop(ref, dropped) prop", () => {
-    const _beforeDrop = jest.fn()
+    const _beforeDrop = jest.fn();
     act(() => {
         render(<DropBar _beforeDrop={_beforeDrop} />, root);
     });
     const dropBar = grabDropBar();
     const dropButton = grabDropButtonFrom(dropBar);
 
-    expect(_beforeDrop).not.toBeCalled()
-    
+    expect(_beforeDrop).not.toBeCalled();
+
     act(() => {
         dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    const wasDropped = false // it was not dropped before the click
-    expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped)
-    expect(_beforeDrop).toBeCalledTimes(1)
+    const wasDropped = false; // it was not dropped before the click
+    expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
+    expect(_beforeDrop).toBeCalledTimes(1);
 });
