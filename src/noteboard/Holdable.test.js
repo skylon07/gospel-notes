@@ -28,7 +28,7 @@ it("renders without crashing", () => {
 it("calls onHold() when clicked and held", () => {
     const onHold = jest.fn();
     act(() => {
-        render(<Holdable onHold={onHold} />);
+        render(<Holdable onHold={onHold} />, root);
     });
     const holdable = grabHoldable();
 
