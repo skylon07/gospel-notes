@@ -57,7 +57,7 @@ it("renders a title", () => {
     const dropBar = grabDropBar();
     const mainBar = grabMainBarFrom(dropBar);
 
-    expect(mainBar.innerHTML).toInclude(title);
+    expect(mainBar).toHaveTextContent(title);
 });
 
 it("renders the correct icon type", () => {
@@ -75,7 +75,7 @@ it("renders the correct icon type", () => {
     const dropBar = grabDropBar();
     const icon = grabIconFrom(dropBar);
 
-    expect(icon.innerHTML).toBe(iconType);
+    expect(icon).toHaveTextContent(iconType);
 });
 
 describe("drop button tests", () => {

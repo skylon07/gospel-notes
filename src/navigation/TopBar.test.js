@@ -91,7 +91,7 @@ describe("menu tests", () => {
                 childElement.type.toLowerCase()
             );
             // compare innerHTML
-            expect(renderedChild.innerHTML).toBe(childElement.props.children);
+            expect(renderedChild).toHaveTextContent(childElement.props.children);
         }
     });
 
