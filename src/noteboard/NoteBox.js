@@ -19,7 +19,7 @@ export default class NoteBox extends React.Component {
 
     render() {
         return (
-            <div className="NoteBox">
+            <div data-testid="note-box" className="NoteBox">
                 {this.renderTitle()}
                 {this.renderContent()}
             </div>
@@ -39,7 +39,6 @@ export default class NoteBox extends React.Component {
 
         return (
             <textarea
-                aria-label="note-title"
                 ref={this.titleRef}
                 className="Title"
                 rows="1"
@@ -67,7 +66,6 @@ export default class NoteBox extends React.Component {
 
         return (
             <textarea
-                aria-label="note-content"
                 ref={this.contentRef}
                 className="Content"
                 rows="1"

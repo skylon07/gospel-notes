@@ -112,7 +112,7 @@ describe("ref tests", () => {
     });
 });
 
-describe("listener tests", () => {
+describe("listener callbacks", () => {
     it("correctly calls beforeDrag()", () => {
         const beforeDrag = jest.fn();
         act(() => {
