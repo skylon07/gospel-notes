@@ -88,7 +88,7 @@ it("moves when clicked and dragged across the screen", () => {
 });
 
 describe("ref tests", () => {
-    it("correctly updates object-refs", () => {
+    it("correctly updates dragRef when given object-refs", () => {
         const dragRef = React.createRef();
 
         expect(dragRef.current).toBe(null);
@@ -100,7 +100,7 @@ describe("ref tests", () => {
         expect(dragRef.current).not.toBe(null);
     });
 
-    it("correctly updates function-refs", () => {
+    it("correctly updates dragRef when given function-refs", () => {
         const dragRef = jest.fn();
         expect(dragRef).not.toBeCalledWith(null);
 
@@ -112,7 +112,7 @@ describe("ref tests", () => {
     });
 });
 
-describe("listener callbacks", () => {
+describe("listener callback tests", () => {
     it("correctly calls beforeDrag()", () => {
         const beforeDrag = jest.fn();
         act(() => {
@@ -123,7 +123,7 @@ describe("listener callbacks", () => {
                 root
             );
         });
-        const draggable = grabDraggable()
+        const draggable = grabDraggable();
 
         expect(beforeDrag).not.toBeCalled();
 

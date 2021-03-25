@@ -257,7 +257,7 @@ describe("search bar tests", () => {
     });
 });
 
-describe("listener tests", () => {
+describe("listener callback tests", () => {
     // TODO: complete this test when buttons are introduced
     // it("triggers onButtonClick()", () => {
     //     const onButtonClick = jest.fn();
