@@ -24,7 +24,10 @@ export default class SearchBar extends React.Component {
                     onKeyDown={(event) => this.searchOnEnter(event)}
                 />
                 <div className="SearchButton">
-                    <button onClick={() => this.triggerSearchClick()}>
+                    <button
+                        aria-label="search-button"
+                        onClick={() => this.triggerSearchClick()}
+                    >
                         <SVGIcon type="magGlass" />
                     </button>
                 </div>
