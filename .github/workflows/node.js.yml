@@ -34,3 +34,4 @@ jobs:
         uses: anuraag016/Jest-Coverage-Diff@master
         with:
           runCommand: "npm test -- --coverage --watchAll=false --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'"
+          delta: 1 // the action will fail if any of the percentage dip is more than this much % for any changed file
