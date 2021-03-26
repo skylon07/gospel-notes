@@ -30,6 +30,6 @@ jobs:
         #uses: mattallty/jest-github-action@v1
         uses: anuraag016/Jest-Coverage-Diff@master
         with:
-          runCommand: "npm test -- --coverage --watchAll=false"
+          runCommand: "npm test -- --coverage --watchAll=false --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'"
         #env:
         #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
