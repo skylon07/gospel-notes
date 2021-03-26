@@ -29,5 +29,7 @@ jobs:
       - name: Run unit tests with code coverage
         #uses: mattallty/jest-github-action@v1
         uses: anuraag016/Jest-Coverage-Diff@master
+        with:
+          runCommand: "npm test -- --coverage --watchAll=false"
         #env:
         #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
