@@ -17,7 +17,7 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "coverage": "react-scripts test --coverage --watchAll=false",
-        "eject": "react-scripts eject",
+        "UNSAFE_eject": "react-scripts eject",
         "docker:build": "dotenv ./scripts/docker-build.sh",
         "docker:run": "dotenv ./scripts/docker-run.sh",
         "docker:stop": "dotenv ./scripts/docker-stop.sh",
