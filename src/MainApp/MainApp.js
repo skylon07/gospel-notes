@@ -15,6 +15,7 @@ class MainApp extends React.Component {
             forceMenuHidden: null,
         };
 
+        // NOTE: storage will be a backup in case internet sync is not available
         this.storage = new StorageRegistry("Notes");
     }
     render() {
