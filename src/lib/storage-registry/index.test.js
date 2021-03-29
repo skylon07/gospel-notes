@@ -2,8 +2,12 @@ import {
     StorageRegistry,
     RegistryStoreError,
     RegistryCreationError,
-    SEPARATORS,
 } from ".";
+
+const SEPARATORS = {
+    item: "≡;≡",
+    pair: "≡,≡",
+};
 
 let storage = null;
 beforeEach(() => {
