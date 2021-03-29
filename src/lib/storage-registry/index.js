@@ -39,15 +39,10 @@ export class StorageRegistry {
         this._initStoredStrs();
     }
 
-    onStoreFinish() {
-        // overridden by implementation
-    }
-    onStoreFull() {
-        // overridden by implementation
-    }
-    onStoreError(error) {
-        // overridden by implementation
-    }
+    // overridden by implementation
+    onStoreFinish() {}
+    onStoreFull() {}
+    onStoreError(error) {}
 
     get keys() {
         return Object.keys(this._strs);
