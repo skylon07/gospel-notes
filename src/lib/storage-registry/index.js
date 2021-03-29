@@ -102,10 +102,11 @@ export class StorageRegistry {
     }
 
     _initStoredStrs() {
-        const storageStr = localStorage[this._storageKey] || "";
+        const storageStr = localStorage.getItem(this._storageKey);
         this._strs = {};
 
         if (!storageStr) {
+            this._requestUpdate();
             return;
         }
 
@@ -135,7 +136,10 @@ export class StorageRegistry {
         }
 
         try {
-            localStorage[this._storageKey] = storageList.join(SEPARATORS.item);
+            localStorage.setItem(
+                this._storageKey,
+                storageList.join(SEPARATORS.item)
+            );
             this.onStoreFinish();
         } catch (error) {
             if (error.name === "QuotaExceededError") {

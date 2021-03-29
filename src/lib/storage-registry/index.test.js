@@ -1,23 +1,62 @@
-import {
-    StorageRegistry,
-    RegistryStoreError,
-    RegistryCreationError,
-} from ".";
+import { StorageRegistry, RegistryStoreError, RegistryCreationError } from ".";
 
 const SEPARATORS = {
     item: "≡;≡",
     pair: "≡,≡",
 };
 
+let mockLocalStorage = null;
+// NOTE: __proto__ must be spied on; this actually returns a jest fn()
+jest.spyOn(localStorage.__proto__, "getItem").mockImplementation(
+    function (storageKey) {
+        // NOTE: this does not work...?
+        // return mockLocalStorage()[storageKey];
+    }
+);
+jest.spyOn(localStorage.__proto__, "setItem").mockImplementation(
+    function(storageKey, value) {
+        // mockLocalStorage()[storageKey] = value;
+    }
+);
+jest.spyOn(localStorage.__proto__, "removeItem").mockImplementation(
+    function (storageKey) {
+        // delete mockLocalStorage()[storageKey];
+    }
+);
+
 let storage = null;
 beforeEach(() => {
-    storage = new StorageRegistry("test");
+    storage = new StorageRegistry("storageKey");
+    mockLocalStorage = {};
 });
 afterEach(() => {
     storage = null;
+    mockLocalStorage = null;
+
+    // since sets to localStorage are async, this makes sure no timers are running before each test
+    jest.clearAllTimers();
 });
 
+jest.useFakeTimers("modern");
+
 describe("initialization tests", () => {
+    it("initializes with the correct storage key", () => {
+        jest.advanceTimersByTime(1000)
+        expect(localStorage.setItem).toBeCalledWith("storageKey", "")
+    })
+
+    // NOTE: can't get this test to work... localStorage won't actually update, and I can't
+    //       figure out a way to make getItem() return a specific value
+    // it("initialises with the previously stored localStorage value", () => {
+    //     storage.setKeyString("key", "val")
+
+    //     jest.advanceTimersByTime(1000)
+        
+    //     expect(localStorage.setItem).toBeCalledWith("storageKey", `key${SEPARATORS.pair}val`) // this works...
+    //     localStorage.getItem.mockReturnValueOnce(`key${SEPARATORS.pair}val`) // DOESN'T WORK!!!
+    //     expect(new StorageRegistry("storageKey").getKey("key")).toBe("val") // mockLocalStorage is null...?
+    // })
+
     it("initializes with keys === []", () => {
         expect(storage.keys).toStrictEqual([]);
     });
@@ -65,6 +104,21 @@ describe("value storing tests", () => {
 
     it("returns null when an undefined key is requested", () => {
         expect(storage.getKey("key")).toBe(null);
+    });
+
+    it("stores values to localStorage in batches", () => {
+        storage.setKeyString("key", "val");
+        storage.setKeyString("key2", "val2");
+        expect(localStorage.setItem).not.toBeCalled();
+
+        jest.advanceTimersByTime(1000);
+        expect(localStorage.setItem).toBeCalledTimes(1);
+
+        storage.resetKey("key");
+        storage.setKeyString("key", "test");
+
+        jest.advanceTimersByTime(1000);
+        expect(localStorage.setItem).toBeCalledTimes(2);
     });
 });
 
