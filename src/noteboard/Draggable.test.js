@@ -87,6 +87,64 @@ it("moves when clicked and dragged across the screen", () => {
     expect(draggable).toHaveStyle({ transform: "translate(150px, 150px)" });
 });
 
+it("moves when touched and dragged across the screen", () => {
+    act(() => {
+        render(<Draggable>{renderDraggableContent()}</Draggable>, root);
+    });
+    const draggable = grabDraggable();
+
+    expect(draggable).toHaveStyle({ transform: null });
+
+    // tap the element and drag it 250ms later
+    act(() => {
+        draggable.dispatchEvent(
+            new TouchEvent("touchstart", {
+                bubbles: true,
+                touches: [
+                    {
+                        clientX: 50,
+                        clientY: 50,
+                    },
+                ],
+            })
+        );
+        jest.advanceTimersByTime(250);
+        draggable.dispatchEvent(
+            new TouchEvent("touchmove", {
+                bubbles: true,
+                touches: [
+                    {
+                        clientX: 150,
+                        clientY: 150,
+                    },
+                ],
+            })
+        );
+    });
+
+    // make sure the element moved the correct distance
+    expect(draggable).toHaveStyle({ transform: "translate(100px, 100px)" });
+
+    // drag the element some more
+    act(() => {
+        draggable.dispatchEvent(
+            new TouchEvent("touchmove", {
+                bubbles: true,
+                cancelable: true,
+                touches: [
+                    {
+                        clientX: 200,
+                        clientY: 200,
+                    },
+                ],
+            })
+        );
+    });
+
+    // make sure the element moved the correct distance
+    expect(draggable).toHaveStyle({ transform: "translate(150px, 150px)" });
+});
+
 describe("ref tests", () => {
     it("correctly updates dragRef when given object-refs", () => {
         const dragRef = React.createRef();
@@ -113,125 +171,275 @@ describe("ref tests", () => {
 });
 
 describe("listener callback tests", () => {
-    it("correctly calls beforeDrag()", () => {
-        const beforeDrag = jest.fn();
-        act(() => {
-            render(
-                <Draggable beforeDrag={beforeDrag}>
-                    {renderDraggableContent()}
-                </Draggable>,
-                root
-            );
+    describe("...using mouse events", () => {
+        it("correctly calls beforeDrag()", () => {
+            const beforeDrag = jest.fn();
+            act(() => {
+                render(
+                    <Draggable beforeDrag={beforeDrag}>
+                        {renderDraggableContent()}
+                    </Draggable>,
+                    root
+                );
+            });
+            const draggable = grabDraggable();
+
+            expect(beforeDrag).not.toBeCalled();
+
+            // click the element and drag it 250ms later
+            act(() => {
+                draggable.dispatchEvent(
+                    new MouseEvent("mousedown", {
+                        bubbles: true,
+                        clientX: 50,
+                        clientY: 50,
+                    })
+                );
+                jest.advanceTimersByTime(250);
+                draggable.dispatchEvent(
+                    new MouseEvent("mousemove", {
+                        bubbles: true,
+                        clientX: 150,
+                        clientY: 150,
+                    })
+                );
+            });
+
+            expect(beforeDrag).toBeCalledTimes(1);
         });
-        const draggable = grabDraggable();
 
-        expect(beforeDrag).not.toBeCalled();
+        it("correctly calls onDrag(diffX, diffY)", () => {
+            const onDrag = jest.fn();
+            act(() => {
+                render(
+                    <Draggable onDrag={onDrag}>
+                        {renderDraggableContent()}
+                    </Draggable>,
+                    root
+                );
+            });
+            const draggable = grabDraggable();
 
-        // click the element and drag it 250ms later
-        act(() => {
-            draggable.dispatchEvent(
-                new MouseEvent("mousedown", {
-                    bubbles: true,
-                    clientX: 50,
-                    clientY: 50,
-                })
+            expect(onDrag).not.toBeCalled();
+
+            // click the element and drag it 250ms later
+            act(() => {
+                draggable.dispatchEvent(
+                    new MouseEvent("mousedown", {
+                        bubbles: true,
+                        clientX: 50,
+                        clientY: 50,
+                    })
+                );
+                jest.advanceTimersByTime(250);
+                draggable.dispatchEvent(
+                    new MouseEvent("mousemove", {
+                        bubbles: true,
+                        clientX: 150,
+                        clientY: 150,
+                    })
+                );
+            });
+
+            expect(onDrag).toBeCalledTimes(1);
+            expect(onDrag).toHaveBeenCalledWith(
+                expect.any(Number),
+                expect.any(Number)
             );
-            jest.advanceTimersByTime(250);
-            draggable.dispatchEvent(
-                new MouseEvent("mousemove", {
-                    bubbles: true,
-                    clientX: 150,
-                    clientY: 150,
-                })
-            );
+            expect(onDrag).toHaveBeenLastCalledWith(100, 100); // dragging distance
         });
 
-        expect(beforeDrag).toBeCalledTimes(1);
+        it("correctly calls afterDrag()", () => {
+            const afterDrag = jest.fn();
+            act(() => {
+                render(
+                    <Draggable afterDrag={afterDrag}>
+                        {renderDraggableContent()}
+                    </Draggable>,
+                    root
+                );
+            });
+            const draggable = grabDraggable();
+
+            expect(afterDrag).not.toBeCalled();
+
+            // click the element and drag it 250ms later
+            act(() => {
+                draggable.dispatchEvent(
+                    new MouseEvent("mousedown", {
+                        bubbles: true,
+                        clientX: 50,
+                        clientY: 50,
+                    })
+                );
+                jest.advanceTimersByTime(250);
+                draggable.dispatchEvent(
+                    new MouseEvent("mousemove", {
+                        bubbles: true,
+                        clientX: 150,
+                        clientY: 150,
+                    })
+                );
+            });
+
+            expect(afterDrag).not.toBeCalled();
+
+            // release the element
+            act(() => {
+                draggable.dispatchEvent(
+                    new MouseEvent("mouseup", { bubbles: true })
+                );
+            });
+
+            expect(afterDrag).toBeCalledTimes(1);
+        });
     });
 
-    it("correctly calls onDrag(diffX, diffY)", () => {
-        const onDrag = jest.fn();
-        act(() => {
-            render(
-                <Draggable onDrag={onDrag}>
-                    {renderDraggableContent()}
-                </Draggable>,
-                root
-            );
-        });
-        const draggable = grabDraggable();
+    describe("...using touch events", () => {
+        it("correctly calls beforeDrag()", () => {
+            const beforeDrag = jest.fn();
+            act(() => {
+                render(
+                    <Draggable beforeDrag={beforeDrag}>
+                        {renderDraggableContent()}
+                    </Draggable>,
+                    root
+                );
+            });
+            const draggable = grabDraggable();
 
-        expect(onDrag).not.toBeCalled();
+            expect(beforeDrag).not.toBeCalled();
 
-        // click the element and drag it 250ms later
-        act(() => {
-            draggable.dispatchEvent(
-                new MouseEvent("mousedown", {
-                    bubbles: true,
-                    clientX: 50,
-                    clientY: 50,
-                })
-            );
-            jest.advanceTimersByTime(250);
-            draggable.dispatchEvent(
-                new MouseEvent("mousemove", {
-                    bubbles: true,
-                    clientX: 150,
-                    clientY: 150,
-                })
-            );
-        });
+            // tap the element and drag it 250ms later
+            act(() => {
+                draggable.dispatchEvent(
+                    new TouchEvent("touchstart", {
+                        bubbles: true,
+                        touches: [
+                            {
+                                clientX: 50,
+                                clientY: 50,
+                            },
+                        ],
+                    })
+                );
+                jest.advanceTimersByTime(250);
+                draggable.dispatchEvent(
+                    new TouchEvent("touchmove", {
+                        bubbles: true,
+                        touches: [
+                            {
+                                clientX: 150,
+                                clientY: 150,
+                            },
+                        ],
+                    })
+                );
+            });
 
-        expect(onDrag).toBeCalledTimes(1);
-        expect(onDrag).toHaveBeenCalledWith(
-            expect.any(Number),
-            expect.any(Number)
-        );
-        expect(onDrag).toHaveBeenLastCalledWith(100, 100); // dragging distance
-    });
-
-    it("correctly calls afterDrag()", () => {
-        const afterDrag = jest.fn();
-        act(() => {
-            render(
-                <Draggable afterDrag={afterDrag}>
-                    {renderDraggableContent()}
-                </Draggable>,
-                root
-            );
-        });
-        const draggable = grabDraggable();
-
-        expect(afterDrag).not.toBeCalled();
-
-        // click the element and drag it 250ms later
-        act(() => {
-            draggable.dispatchEvent(
-                new MouseEvent("mousedown", {
-                    bubbles: true,
-                    clientX: 50,
-                    clientY: 50,
-                })
-            );
-            jest.advanceTimersByTime(250);
-            draggable.dispatchEvent(
-                new MouseEvent("mousemove", {
-                    bubbles: true,
-                    clientX: 150,
-                    clientY: 150,
-                })
-            );
+            expect(beforeDrag).toBeCalledTimes(1);
         });
 
-        expect(afterDrag).not.toBeCalled();
+        it("correctly calls onDrag(diffX, diffY)", () => {
+            const onDrag = jest.fn();
+            act(() => {
+                render(
+                    <Draggable onDrag={onDrag}>
+                        {renderDraggableContent()}
+                    </Draggable>,
+                    root
+                );
+            });
+            const draggable = grabDraggable();
 
-        // release the element
-        act(() => {
-            draggable.dispatchEvent(
-                new MouseEvent("mouseup", { bubbles: true })
+            expect(onDrag).not.toBeCalled();
+
+            // click the element and drag it 250ms later
+            act(() => {
+                draggable.dispatchEvent(
+                    new TouchEvent("touchstart", {
+                        bubbles: true,
+                        touches: [
+                            {
+                                clientX: 50,
+                                clientY: 50,
+                            },
+                        ],
+                    })
+                );
+                jest.advanceTimersByTime(250);
+                draggable.dispatchEvent(
+                    new TouchEvent("touchmove", {
+                        bubbles: true,
+                        touches: [
+                            {
+                                clientX: 150,
+                                clientY: 150,
+                            },
+                        ],
+                    })
+                );
+            });
+
+            expect(onDrag).toBeCalledTimes(1);
+            expect(onDrag).toHaveBeenCalledWith(
+                expect.any(Number),
+                expect.any(Number)
             );
+            expect(onDrag).toHaveBeenLastCalledWith(100, 100); // dragging distance
         });
 
-        expect(afterDrag).toBeCalledTimes(1);
+        it("correctly calls afterDrag()", () => {
+            const afterDrag = jest.fn();
+            act(() => {
+                render(
+                    <Draggable afterDrag={afterDrag}>
+                        {renderDraggableContent()}
+                    </Draggable>,
+                    root
+                );
+            });
+            const draggable = grabDraggable();
+
+            expect(afterDrag).not.toBeCalled();
+
+            // click the element and drag it 250ms later
+            act(() => {
+                draggable.dispatchEvent(
+                    new TouchEvent("touchstart", {
+                        bubbles: true,
+                        touches: [
+                            {
+                                clientX: 50,
+                                clientY: 50,
+                            },
+                        ],
+                    })
+                );
+                jest.advanceTimersByTime(250);
+                draggable.dispatchEvent(
+                    new TouchEvent("touchmove", {
+                        bubbles: true,
+                        touches: [
+                            {
+                                clientX: 150,
+                                clientY: 150,
+                            },
+                        ],
+                    })
+                );
+            });
+
+            expect(afterDrag).not.toBeCalled();
+
+            // release the element
+            act(() => {
+                draggable.dispatchEvent(
+                    new TouchEvent("touchend", { bubbles: true })
+                );
+            });
+
+            expect(afterDrag).toBeCalledTimes(1);
+        });
     });
 });
