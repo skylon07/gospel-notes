@@ -12,7 +12,7 @@ export default class Holdable extends React.Component {
     render() {
         return (
             <div
-                aria-label="holdable"
+                data-testid="holdable"
                 onTouchStart={(event) => this._startTouchHold(event)}
                 onTouchEnd={(event) => this._cancelTouchHold(event)}
                 onTouchMove={(event) => this._cancelTouchHold(event)}
@@ -56,8 +56,8 @@ export default class Holdable extends React.Component {
             cursor = cursor.touches[0];
         }
         if (isTouch || !this._ignoreMouseEvents) {
-            // NOTE: sometimes touchMove is activated when it is still, so this detects if there was actually a move
-            if (isTouch) {
+            // NOTE: sometimes touchmove is activated when it is still, so this detects if there was actually a move
+            if (event.type === "touchmove") {
                 const { clientX, clientY } = cursor;
                 if (!this._lastTouch) {
                     this._lastTouch = { x: clientX, y: clientY };

@@ -1,51 +1,182 @@
 import React from "react";
-import ReactDOM, { unmountComponentAtNode } from "react-dom";
-import { render, fireEvent, screen, act } from "@testing-library/react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 
 import DropBar from "./DropBar.js";
 
+// NOTE: imported this way to manually mock SVGIcon
+import * as SVGIconModule from "common/svg-icon";
+// TODO: find a better way to mock with jest
+const origSVGIcon = SVGIconModule.SVGIcon;
+
+jest.useFakeTimers("modern");
+
+let root = null;
+beforeEach(() => {
+    root = document.createElement("div");
+    document.body.appendChild(root);
+});
+afterEach(() => {
+    unmountComponentAtNode(root);
+    document.body.removeChild(root);
+    root = null;
+
+    // reset mock
+    SVGIconModule.SVGIcon = origSVGIcon;
+});
+
+function grabDropBar() {
+    return document.querySelector("[data-testid='drop-bar']");
+}
+
+function grabMainBarFrom(dropBar) {
+    return dropBar.querySelector(".Bar");
+}
+
+function grabIconFrom(dropBar) {
+    return dropBar.querySelector("[data-testid='svg-icon']");
+}
+
+function grabDropButtonFrom(dropBar) {
+    return dropBar.querySelector("[data-testid='dropdown-button']");
+}
+
+function grabContentFrom(dropBar) {
+    return dropBar.querySelector("[data-testid='drop-bar-content']");
+}
+
 it("renders without crashing", () => {
-    const div = document.createElement("div");
-    ReactDOM.render(<DropBar />, div);
+    render(<DropBar />, root);
 });
 
-it("drops when the drop button is clicked", () => {
-    render(<DropBar />);
+describe("rendering tests", () => {
+    it("renders a title", () => {
+        const title = "this is the title string to look for";
+        act(() => {
+            render(<DropBar title={title} />, root);
+        });
+        const dropBar = grabDropBar();
+        const mainBar = grabMainBarFrom(dropBar);
 
-    const dropBar = screen.getByLabelText("drop-bar");
-    const dropContent = screen.getByLabelText("drop-content");
-    const dropButton = screen.getByLabelText("drop-button");
+        expect(mainBar).toHaveTextContent(title);
+    });
 
-    // ensure the drop bar is not dropped
-    // TODO: Should probably find a better way than just to check for the class
-    expect(dropContent).toHaveClass("raised");
-    expect(dropButton).toHaveClass("raised");
+    it("renders the correct icon type", () => {
+        // mock SVGIcon to track "type"
+        SVGIconModule.SVGIcon = class MockSVGIcon extends React.Component {
+            render() {
+                return <div data-testid="svg-icon">{this.props.type}</div>;
+            }
+        };
 
-    // click the dropper button
-    fireEvent.click(dropButton);
+        const iconType = "this is a fake icon type";
+        act(() => {
+            render(<DropBar iconType={iconType} />, root);
+        });
+        const dropBar = grabDropBar();
+        const icon = grabIconFrom(dropBar);
 
-    // ensure the drop bar and button are dropped now
-    expect(dropContent).toHaveClass("dropped");
-    expect(dropButton).toHaveClass("dropped");
+        expect(icon).toHaveTextContent(iconType);
+    });
 });
 
-it("raises when the drop button is clicked twice", () => {
-    render(<DropBar />);
+describe("drop button tests", () => {
+    it("drops when the drop button is clicked", () => {
+        act(() => {
+            render(<DropBar />, root);
+        });
+        const dropBar = grabDropBar();
+        const dropContent = grabContentFrom(dropBar);
+        const dropButton = grabDropButtonFrom(dropBar);
 
-    const dropBar = screen.getByLabelText("drop-bar");
-    const dropContent = screen.getByLabelText("drop-content");
-    const dropButton = screen.getByLabelText("drop-button");
+        // ensure the drop bar is not dropped
+        expect(dropContent).toHaveClass("raised");
+        expect(dropButton).toHaveClass("raised");
 
-    // ensure the drop bar is not dropped
-    // TODO: Should probably find a better way than just to check for the class
-    expect(dropContent).toHaveClass("raised");
-    expect(dropButton).toHaveClass("raised");
+        // click the dropper button
+        act(() => {
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
+        });
 
-    // click the dropper button twice
-    fireEvent.click(dropButton);
-    fireEvent.click(dropButton);
+        // ensure the drop bar and button are dropped now
+        expect(dropContent).toHaveClass("dropped");
+        expect(dropButton).toHaveClass("dropped");
+    });
 
-    // ensure the drop bar and button are dropped now
-    expect(dropContent).toHaveClass("raised");
-    expect(dropButton).toHaveClass("raised");
+    it("raises when the drop button is clicked twice", () => {
+        act(() => {
+            render(<DropBar />, root);
+        });
+        const dropBar = grabDropBar();
+        const dropContent = grabContentFrom(dropBar);
+        const dropButton = grabDropButtonFrom(dropBar);
+
+        // ensure the drop bar is not dropped
+        expect(dropContent).toHaveClass("raised");
+        expect(dropButton).toHaveClass("raised");
+
+        // click the dropper button twice
+        act(() => {
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
+        });
+
+        // ensure the drop bar and button are dropped now
+        expect(dropContent).toHaveClass("raised");
+        expect(dropButton).toHaveClass("raised");
+    });
+});
+
+describe("listener callback tests", () => {
+    it("triggers onMouseHold() when holdable bar is held", () => {
+        const onMouseHold = jest.fn();
+        act(() => {
+            render(<DropBar onMouseHold={onMouseHold} />, root);
+        });
+        const dropBar = grabDropBar();
+        const mainBar = grabMainBarFrom(dropBar);
+
+        expect(onMouseHold).not.toBeCalled();
+
+        act(() => {
+            mainBar.dispatchEvent(
+                new MouseEvent("mousedown", { bubbles: true })
+            );
+        });
+
+        expect(onMouseHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(5000);
+        });
+
+        expect(onMouseHold).toBeCalledTimes(1);
+    });
+
+    it("triggers the hidden _beforeDrop(ref, dropped) prop", () => {
+        const _beforeDrop = jest.fn();
+        act(() => {
+            render(<DropBar _beforeDrop={_beforeDrop} />, root);
+        });
+        const dropBar = grabDropBar();
+        const dropButton = grabDropButtonFrom(dropBar);
+
+        expect(_beforeDrop).not.toBeCalled();
+
+        act(() => {
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
+        });
+
+        const wasDropped = false; // it was not dropped before the click
+        expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
+        expect(_beforeDrop).toBeCalledTimes(1);
+    });
 });

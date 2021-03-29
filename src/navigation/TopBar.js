@@ -4,7 +4,6 @@ import "./TopBar.css";
 
 import { SVGIcon } from "common/svg-icon";
 
-import TopBarButton from "./TopBarButton.js";
 import DropMenu from "./DropMenu.js";
 import SearchBar from "./SearchBar.js";
 
@@ -28,6 +27,7 @@ export default class TopBar extends React.Component {
             PropTypes.array,
         ]),
 
+        // TODO: write test (after there are buttons...)
         selectedIdx: PropTypes.number,
         forceMenuHidden: PropTypes.bool,
 
@@ -64,7 +64,7 @@ export default class TopBar extends React.Component {
 
         // the order is weird because the animation bounds need to be "behind" the menu
         return (
-            <div className="TopBar">
+            <div data-testid="top-bar" className="TopBar">
                 <div className="AnimationBounds">
                     <div className={this.getMainClass()}>
                         {buttons.map((button, idx) =>
@@ -79,7 +79,7 @@ export default class TopBar extends React.Component {
                         <TopBarButton onClick={() => this.hideSearch()}>
                             <SVGIcon type="backArrow" />
                         </TopBarButton>
-                        {/* TODO: replace with <Spacer /> */}
+                        {/* TODO: replace with <spacer /> */}
                         <div className="Spacer" />
                         <SearchBar
                             ref={this._searchFocusRef}
@@ -87,14 +87,10 @@ export default class TopBar extends React.Component {
                         />
                     </div>
                 </div>
-                <TopBarButton
-                    ariaLabel="main-menu-button"
-                    onClick={() => this.clickedMenuToggle()}
-                >
+                <TopBarButton onClick={() => this.clickedMenuToggle()}>
                     <SVGIcon type="bars" />
                 </TopBarButton>
                 <DropMenu
-                    ariaLabel="main-menu"
                     hidden={this.state.menuHidden}
                     onClick={() => this.clickedMenu()}
                 >
@@ -168,7 +164,7 @@ export default class TopBar extends React.Component {
     }
 
     showSearch() {
-        this.setState({ searchActive: true, sliding: true });
+        this.setState({ searchActive: true });
         // allows animation to play first
         setTimeout(() => {
             if (typeof this.props.onSearchActive === "function") {
@@ -177,12 +173,33 @@ export default class TopBar extends React.Component {
         });
     }
     hideSearch() {
-        this.setState({ searchActive: false, sliding: true });
+        this.setState({ searchActive: false });
         // allows animation to play first
         setTimeout(() => {
             if (typeof this.props.onSearchInactive === "function") {
                 this.props.onSearchInactive();
             }
         });
+    }
+}
+
+class TopBarButton extends React.Component {
+    static propTypes = {
+        onClick: PropTypes.func,
+        selected: PropTypes.bool,
+    };
+
+    render() {
+        return (
+            <button
+                data-testid="top-bar-button"
+                className={`TopBarButton ${
+                    this.props.selected ? "selected" : ""
+                }`}
+                onClick={() => this.props.onClick()}
+            >
+                {this.props.children}
+            </button>
+        );
     }
 }
