@@ -56,8 +56,8 @@ export default class Holdable extends React.Component {
             cursor = cursor.touches[0];
         }
         if (isTouch || !this._ignoreMouseEvents) {
-            // NOTE: sometimes touchMove is activated when it is still, so this detects if there was actually a move
-            if (isTouch) {
+            // NOTE: sometimes touchmove is activated when it is still, so this detects if there was actually a move
+            if (event.type === "touchmove") {
                 const { clientX, clientY } = cursor;
                 if (!this._lastTouch) {
                     this._lastTouch = { x: clientX, y: clientY };
