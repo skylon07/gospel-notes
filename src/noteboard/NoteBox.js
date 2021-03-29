@@ -28,9 +28,6 @@ export default class NoteBox extends React.Component {
 
     renderTitle() {
         let title = this.props.title;
-        if (Array.isArray(title)) {
-            title = title.join("\n");
-        }
         this.lastTitle = title;
 
         if (!title) {
@@ -55,9 +52,6 @@ export default class NoteBox extends React.Component {
 
     renderContent() {
         let content = this.props.children || this.props.content;
-        if (Array.isArray(content)) {
-            content = content.join("\n");
-        }
         this.lastContent = content;
 
         if (!content) {
