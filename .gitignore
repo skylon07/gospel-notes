@@ -47,3 +47,4 @@ Thumbs.db
 .babelrc
 webpack.config.js
 spck.config.json
+src/lib/fakeJest/
