@@ -39,8 +39,13 @@ export default class DropBarGroup extends React.Component {
     }
 
     componentDidUpdate() {
-        this.updateAnimationOffsets();
-        this.updateAllChildClasses();
+        if (this.state.animatingElement) {
+            // NOTE: crashes when DropBarGroup updates after being created
+            //       and never running a dropping animation; only update when
+            //       the element is not null to avoid errors
+            this.updateAnimationOffsets();
+            this.updateAllChildClasses();
+        }
     }
 
     wrapChildren() {

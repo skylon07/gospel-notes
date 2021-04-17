@@ -40,7 +40,7 @@ export default class DropBar extends React.Component {
 
     render() {
         return (
-            <div data-testid="drop-bar" ref={this.ref} className="DropBar">
+            <div data-testid="drop-bar" ref={this.ref} className={this.getClass()}>
                 <Holdable onHold={() => this.triggerOnMouseHold()}>
                     <div
                         className="Bar"
@@ -64,6 +64,12 @@ export default class DropBar extends React.Component {
             </div>
         );
     }
+    
+    getClass() {
+        const base = "DropBar";
+        const init = !this.mounted ? "initAnimation" : "";
+        return `${base} ${init}`;
+    }
 
     getBottomBarClass() {
         const base = "BottomBar";
@@ -72,6 +78,7 @@ export default class DropBar extends React.Component {
     }
 
     componentDidMount() {
+        this.mounted = true
         this._findContentElem();
     }
 
@@ -164,8 +171,7 @@ class DropdownButton extends React.Component {
     getClass() {
         const base = "DropdownButton";
         const dropped = this.props.dropped ? "dropped" : "raised";
-        const init = !this.mounted ? "initAnimation" : "";
-        return `${base} ${dropped} ${init}`;
+        return `${base} ${dropped}`;
     }
 
     componentDidMount() {
@@ -198,8 +204,7 @@ class DropBarContent extends React.Component {
     getClass() {
         const base = "DropBarContent";
         const dropped = this.props.dropped ? "dropped" : "raised";
-        const init = !this.mounted ? "initAnimation" : "";
-        return `${base} ${dropped} ${init}`;
+        return `${base} ${dropped}`;
     }
 
     componentDidMount() {
