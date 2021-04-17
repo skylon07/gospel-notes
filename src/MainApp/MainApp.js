@@ -15,11 +15,22 @@ class MainApp extends React.Component {
 
         this.state = {
             forceMenuHidden: null,
-            notes: [], // {title, body, dateID}
+            // TODO: come up with a better name for these...
+            noteBars: [], // {title, dateID}
         };
 
         // NOTE: storage will be a backup in case internet sync is not available
         this.storage = new StorageRegistry("Notes");
+
+        this.on = {
+            hideMenu: () => this.hideMenu(),
+            dropBar: {
+                mouseHold: () => alert("// TODO: rename drop bar")
+            },
+            addNoteBar: () => this.addNoteBar("New Bar"),
+        }
+        
+        this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
     }
     render() {
         return (
@@ -31,20 +42,13 @@ class MainApp extends React.Component {
                 />
                 <div className="PageViewer">
                     <DropBarGroup>
-                        <DropBar
-                            title="first test dropbar"
-                            iconType="plus"
-                            onMouseHold={() => alert("// TODO: rename...")}
-                        >
-                            <NoteBox
-                                title="Test Note 1"
-                                content="this is some text testing the use of the content prop"
-                            />
-                        </DropBar>
                         { this.renderNotes() }
-                        <button className="AddNoteButton">
+                        <button
+                           className="AddNoteButton"
+                           onClick={this.on.addNoteBar}
+                        >
                             <SVGIcon type="plus" />
-                            Add Note
+                            Add NoteBar
                         </button>
                     </DropBarGroup>
                 </div>
@@ -53,32 +57,43 @@ class MainApp extends React.Component {
     }
 
     renderMenu() {
-        return <button onClick={() => this.hideMenu()}>Close Menu</button>;
+        // NOTE: the menu stays the same to allow
+        //       TopBar to work as a Pure Component
+        return this._menuContent;
     }
-    
+
     renderNotes() {
-        return this.state.notes.map(({title, note, dateID}) => {
+        return this.state.noteBars.map(({ title, dateID }) => {
             return <DropBar
                 key={dateID}
                 title={title}
                 iconType="blank"
-                onMouseHold={() => alert("// TODO: rename...")}
-            >
-                <NoteBox title="" content={note} />
-            </DropBar>
+                canModify={true}
+                onMouseHold={this.on.dropBar.mouseHold}
+            />
         })
     }
-    
-    componentDidMount() {
-        setTimeout(() => this.addNote("title", "test note string"), 7000)
-    }
-    
-    addNote(title, note) {
+
+    addNoteBar(title) {
         const dateID = new Date().getTime()
-        const newNote = {title, note, dateID}
+        const newBar = { title, dateID }
         this.setState((state) => {
-            const notes = state.notes.concat(newNote)
-            return {notes}
+            const newNoteBars = state.noteBars.concat(newBar)
+            return { noteBars: newNoteBars }
+        })
+    }
+
+    setNoteBarTitle(targetIdx, newTitle) {
+        this.setState((state) => {
+            const newNotebars = state.noteBars.map((currBar, currIdx) => {
+                if (currIdx === targetIdx) {
+                    let { title, dateID } = currBar
+                    title = newTitle
+                    const newBar = { title, dateID }
+                    return newBar
+                }
+                return currBar
+            })
         })
     }
 

@@ -28,6 +28,10 @@ export default class DropBarGroup extends React.Component {
         };
 
         this._groupRef = React.createRef();
+        
+        this.on = {
+            childDrop: (...args) => this.whenChildDrops(...args),
+        }
     }
 
     render() {
@@ -56,7 +60,7 @@ export default class DropBarGroup extends React.Component {
     }
 
     _processFragments(children) {
-        while (children && children.type === React.Fragment) {
+        while (typeof children === "object" && children.type === React.Fragment) {
             children = children.props.children
         }
         return children
@@ -65,9 +69,7 @@ export default class DropBarGroup extends React.Component {
     _trackIfDropBar(child) {
         if (child.type === DropBar) {
             return React.cloneElement(child, {
-                _beforeDrop: (elem, dropped) => {
-                    this.whenChildDrops(elem, dropped);
-                },
+                _beforeDrop: this.on.childDrop,
             });
         }
         return child;
