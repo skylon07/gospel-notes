@@ -1,10 +1,17 @@
-html,
-body {
+html, body {
     margin: 0px;
 
     /* NOTE: these next two disable page scrolling */
     height: 100%;
     overflow: hidden;
+}
+
+html body *:focus {
+    outline: none;
+}
+
+html body *::-moz-focus-inner {
+    border: none;
 }
 
 .MainWindow {
@@ -47,4 +54,54 @@ body {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
+}
+
+.MainWindow .PageViewer .DropBarGroup .DropBar {
+    margin-top: 6px;
+    width: 95%;
+}
+
+@media (min-width: 31em) {
+    .MainWindow .PageViewer .DropBarGroup .DropBar {
+        margin-top: 16px;
+        width: 83%;
+    }
+}
+
+.MainWindow .PageViewer .AddNoteButton {
+    /* positioning */
+    margin-top: 20px;
+    
+    /* dimensions */
+    padding-left: 0.23em;
+    padding-right: 0.53em;
+    border: none;
+    
+    /* flex-positioning */
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    
+    /* font */
+    background-color: var(--clear);
+    font-size: 1.3em;
+    color: var(--main-link-color);
+    
+    /* other */
+    user-select: none;
+}
+
+.MainWindow .PageViewer .AddNoteButton:active {
+    background-color: var(--active-shadow);
+}
+
+.MainWindow .PageViewer .AddNoteButton .SVGIcon {
+    width: 2.2em;
+    height: 2.2em;
+    padding-right: 0.4em;
+}
+
+.MainWindow .PageViewer .AddNoteButton .SVGIcon svg{
+    stroke: var(--main-link-color);
 }

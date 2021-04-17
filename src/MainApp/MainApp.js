@@ -3,6 +3,8 @@ import "./MainApp.css";
 
 import { StorageRegistry } from "lib/storage-registry";
 
+import { SVGIcon } from "common/svg-icon"
+
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
 import { DropBar, NoteBox, DropBarGroup } from "noteboard";
@@ -13,6 +15,7 @@ class MainApp extends React.Component {
 
         this.state = {
             forceMenuHidden: null,
+            notes: [], // {title, body, dateID}
         };
 
         // NOTE: storage will be a backup in case internet sync is not available
@@ -38,18 +41,11 @@ class MainApp extends React.Component {
                                 content="this is some text testing the use of the content prop"
                             />
                         </DropBar>
-                        <div>MILLENIA!</div>
-                        <DropBar
-                            title="second test dropbar"
-                            iconType="backArrow"
-                            onMouseHold={() => alert("// TODO: rename...")}
-                        >
-                            <NoteBox title="Test Note 2">
-                                This is some test text using the children
-                                attribute
-                            </NoteBox>
-                        </DropBar>
-                        <div>MILLENIA!</div>
+                        { this.renderNotes() }
+                        <button className="AddNoteButton">
+                            <SVGIcon type="plus" />
+                            Add Note
+                        </button>
                     </DropBarGroup>
                 </div>
             </MainWindow>
@@ -58,6 +54,32 @@ class MainApp extends React.Component {
 
     renderMenu() {
         return <button onClick={() => this.hideMenu()}>Close Menu</button>;
+    }
+    
+    renderNotes() {
+        return this.state.notes.map(({title, note, dateID}) => {
+            return <DropBar
+                key={dateID}
+                title={title}
+                iconType="blank"
+                onMouseHold={() => alert("// TODO: rename...")}
+            >
+                <NoteBox title="" content={note} />
+            </DropBar>
+        })
+    }
+    
+    componentDidMount() {
+        setTimeout(() => this.addNote("title", "test note string"), 7000)
+    }
+    
+    addNote(title, note) {
+        const dateID = new Date().getTime()
+        const newNote = {title, note, dateID}
+        this.setState((state) => {
+            const notes = state.notes.concat(newNote)
+            return {notes}
+        })
     }
 
     hideMenu() {
