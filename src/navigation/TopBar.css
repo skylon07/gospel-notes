@@ -65,8 +65,7 @@
     animation-duration: var(--slide-animation-time);
 }
 
-html .TopBar .Main.initAnimation,
-html .TopBar .Search.initAnimation {
+html .TopBar.initAnimation * {
     animation-duration: 0s;
 }
 

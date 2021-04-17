@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./NoteBox.css";
 
-export default class NoteBox extends React.Component {
+export default class NoteBox extends React.PureComponent {
     static propTypes = {
         title: PropTypes.string,
         content: PropTypes.string,
@@ -15,6 +15,13 @@ export default class NoteBox extends React.Component {
 
         this.titleRef = React.createRef();
         this.contentRef = React.createRef();
+        
+        this.on = {
+            titleBlur: () => this.detectIfTitleChanged(this.titleRef.current.value),
+            titleChange: () => this.updateDims(this.titleRef.current, "title"),
+            contentBlur: () => this.detectIfContentChanged(this.contentRef.current.value),
+            contentChange: () => this.updateDims(this.contentRef.current, "content"),
+        }
     }
 
     render() {
@@ -41,10 +48,8 @@ export default class NoteBox extends React.Component {
                 rows="1"
                 cols="1"
                 wrap="off"
-                onBlur={() =>
-                    this.detectIfTitleChanged(this.titleRef.current.value)
-                }
-                onInput={() => this.updateDims(this.titleRef.current, "title")}
+                onBlur={this.on.titleBlur}
+                onInput={this.on.titleChange}
                 defaultValue={title}
             />
         );
@@ -64,12 +69,8 @@ export default class NoteBox extends React.Component {
                 className="Content"
                 rows="1"
                 cols="1"
-                onBlur={() =>
-                    this.detectIfContentChanged(this.contentRef.current.value)
-                }
-                onInput={() =>
-                    this.updateDims(this.contentRef.current, "content")
-                }
+                onBlur={this.on.contentBlur}
+                onInput={this.on.contentChange}
                 defaultValue={content}
             />
         );
@@ -99,7 +100,8 @@ export default class NoteBox extends React.Component {
     detectIfPropChanged(str, compStr, onChangeName) {
         if (str !== compStr) {
             // convert breaks to newlines
-            str = str.replace(/<br>/gi, "\n");
+            const regex = eval("/<br>/gi")
+            str = str.replace(regex, "\n");
 
             // ensure first/last characters are ommitted when newlines
             if (str[0] === "\n") {
