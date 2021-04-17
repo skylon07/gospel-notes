@@ -47,3 +47,5 @@ Thumbs.db
 .babelrc
 webpack.config.js
 spck.config.json
+# fake jest library I use only in spck
+src/lib/fakeJest/
