@@ -5,6 +5,7 @@ import "./DropBar.css";
 import { SVGIcon } from "common/svg-icon";
 
 import Holdable from "./Holdable.js";
+import NoteBox from "./NoteBox.js"
 
 const GLOBALS = {
     offsetSheet: (() => {
@@ -17,10 +18,11 @@ const GLOBALS = {
     },
 };
 
-export default class DropBar extends React.Component {
+export default class DropBar extends React.PureComponent {
     static propTypes = {
         title: PropTypes.string,
         iconType: PropTypes.string,
+        canModify: PropTypes.bool,
         onMouseHold: PropTypes.func,
         // TODO: is there a better way for DropBarGroups to communicate with DropBars?
         _beforeDrop: PropTypes.func,
@@ -31,40 +33,68 @@ export default class DropBar extends React.Component {
 
         this.state = {
             dropped: false,
+            notes: [], // {title, content, dateID}
         };
 
         this.ref = React.createRef();
         this.contentElem = null; // set on mount
         this.holdIsTouch = false;
+
+        this.on = {
+            hold: () => this.triggerOnMouseHold(),
+            allowTriggerDrop: () => this._allowTriggerDrop(),
+            triggerDrop: () => this.triggerDrop(),
+            addNote: () => this.addNote("New Note", "This is the note content"),
+        }
     }
 
     render() {
         return (
             <div data-testid="drop-bar" ref={this.ref} className={this.getClass()}>
-                <Holdable onHold={() => this.triggerOnMouseHold()}>
+                <Holdable onHold={this.on.hold}>
                     <div
                         className="Bar"
-                        onMouseUp={() => this._allowTriggerDrop()}
-                        onTouchEnd={() => this._allowTriggerDrop()}
-                        onTouchCancel={() => this._allowTriggerDrop()}
+                        onMouseUp={this.on.allowTriggerDrop}
+                        onTouchEnd={this.on.allowTriggerDrop}
+                        onTouchCancel={this.on.allowTriggerDrop}
                     >
                         <SVGIcon type={this.props.iconType || "blank"} />
                         {this.props.title}
                         <div className="Spacer" />
                         <DropdownButton
-                            onClick={() => this.triggerDrop()}
+                            onClick={this.on.triggerDrop}
                             dropped={this.state.dropped}
                         />
                     </div>
                 </Holdable>
                 <DropBarContent dropped={this.state.dropped}>
-                    {this.props.children}
+                    {this.renderNotes()}
+                    {this.renderAddButton()}
                 </DropBarContent>
                 <div className={this.getBottomBarClass()} />
             </div>
         );
     }
-    
+
+    renderNotes() {
+        return this.state.notes.map(({ title, content, dateID }) => {
+            return <NoteBox key={dateID} title={title} content={content} />
+        })
+    }
+
+    renderAddButton() {
+        if (this.props.canModify) {
+            return <button
+                className="AddNoteButton"
+                onClick={this.on.addNote}
+            >
+                <SVGIcon type="plus" />
+                Add Note
+            </button>
+        }
+        return null
+    }
+
     getClass() {
         const base = "DropBar";
         const init = !this.mounted ? "initAnimation" : "";
@@ -80,6 +110,15 @@ export default class DropBar extends React.Component {
     componentDidMount() {
         this.mounted = true
         this._findContentElem();
+    }
+
+    addNote(title, content) {
+        const dateID = new Date().getTime()
+        const newNote = { title, content, dateID }
+        this.setState((state) => {
+            const newNotes = state.notes.concat(newNote)
+            return { notes: newNotes }
+        })
     }
 
     // TODO: is this the best/safest way to accomplish this...?
