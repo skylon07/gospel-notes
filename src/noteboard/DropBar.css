@@ -1,6 +1,6 @@
 .DropBar {
     position: relative;
-    width: 80%;
+    width: 100%;
     /* this is set/changed inside a standalone <style /> element */
     --bottom-bar-shift: 0px;
     --drop-animation-time: 0.33s;
@@ -43,6 +43,13 @@
 
 .DropBar .Spacer {
     flex: 1;
+}
+
+/* html overrides specificity */
+html .DropBar.initAnimation .BottomBar {
+    animation-duration: 0s;
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--bottom-bar-shift) + 500px));
 }
 
 .DropBar .BottomBar {
@@ -88,16 +95,17 @@
     }
 }
 
+/* html overrides specificity */
+html .DropBar.initAnimation .DropdownButton {
+    animation-duration: 0s;
+    transform: rotateX(180deg);
+}
 .DropBar .DropdownButton {
     width: 30px;
     height: 30px;
     stroke: var(--main-color);
     stroke-width: 3px;
     animation-timing-function: ease-out;
-}
-
-html .DropBar .DropdownButton.initAnimation {
-    animation-duration: 0s;
 }
 
 .DropBar .DropdownButton.raised {
@@ -143,8 +151,12 @@ html .DropBar .DropdownButton.initAnimation {
     background-color: var(--clear);
 }
 
-html .DropBarContent.initAnimation {
+/* html overrides specificity */
+html .DropBar.initAnimation .DropBarContent {
     animation-duration: 0s;
+    opacity: 0;
+    transform: translateY(calc(-50% + 500px)) scaleY(0);
+    
 }
 
 .DropBarContent.raised {
