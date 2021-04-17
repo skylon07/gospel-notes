@@ -7,22 +7,24 @@
     --color-softWhite: 200, 200, 200;
     --color-darkGrey: 60, 60, 60;
     --color-softBlack: 20, 20, 20;
+    --color-activeBlue: 38, 113, 246;
     --color-activeNightBlue: 84, 92, 142;
     --color-activeShadow: 2, 0, 12;
 
     /* thematic colors */
     /* (secondary preset names pointing to colors) */
     --clear: rgba(0, 0, 0, 0);
+    --main-color: rgb(var(--color-softWhite));
+    --main-color-inv: rgb(var(--color-softBlack));
+    --main-link-color: rgb(var(--color-activeBlue));
     --active-dark: rgb(var(--color-activeNightBlue));
+    --active-shadow: rgba(var(--color-ghostNavy), 0.1);
     --disabled-dark: rgb(var(--color-darkGrey));
     --main-background: var(--color-deepNavy); /* rename this one? */
 
     /* presets */
     --window-background-color: rgb(var(--main-background));
     --window-shadow: rgba(20, 20, 35, 0.25);
-
-    --main-color: rgb(var(--color-softWhite));
-    --main-color-inv: rgb(var(--color-softBlack));
 
     --top-bar-background-color: rgb(var(--color-softNavy));
     --drop-bar-background-color: rgb(var(--color-softNavy));
