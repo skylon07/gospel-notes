@@ -13,7 +13,7 @@ function numberOfDocuments(idx=index) {
 }
 
 function documentStore(idx=index) {
-    return idx._idx.documentStore.storex
+    return idx._idx.documentStore.store
 }
 
 it("initializes with an index of zero documents", () => {
