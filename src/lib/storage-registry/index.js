@@ -1,11 +1,11 @@
-class RegistryCreationError extends Error {
+export class RegistryCreationError extends Error {
     constructor(msg) {
         super(msg);
         this.name = "RegistryCreationError";
     }
 }
 
-class RegistryStoreError extends Error {
+export class RegistryStoreError extends Error {
     constructor(msg) {
         super(msg);
         this.name = "RegistryStoreError";
