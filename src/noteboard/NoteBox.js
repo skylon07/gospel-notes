@@ -100,6 +100,9 @@ export default class NoteBox extends React.PureComponent {
     detectIfPropChanged(str, compStr, onChangeName) {
         if (str !== compStr) {
             // convert breaks to newlines
+            // NOTE: eval is used to generate the regex; this is perfectly
+            //       safe usage (talking to you eslint)
+            // eslint-disable-next-line
             const regex = eval("/<br>/gi")
             str = str.replace(regex, "\n");
 
