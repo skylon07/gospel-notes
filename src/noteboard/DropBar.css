@@ -35,7 +35,7 @@
     user-select: none;
 }
 
-.DropBar .SVGIcon {
+.DropBar .Bar > .SVGIcon {
     width: 30px;
     height: 30px;
     margin: 0px 12px 0px 4px;
@@ -254,4 +254,14 @@ html .DropBar.initAnimation .DropBarContent {
             var(--clear)
         )
         10;
+}
+
+.DropBarContent .Container .AddButton {
+    /* centering (on x-axis only) */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* other */
+    font-size: 0.9em;
 }

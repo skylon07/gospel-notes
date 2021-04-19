@@ -7,7 +7,7 @@ import { SVGIcon } from "common/svg-icon"
 
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
-import { DropBar, NoteBox, DropBarGroup } from "noteboard";
+import { DropBar, NoteBox, DropBarGroup, AddButton } from "noteboard";
 
 class MainApp extends React.Component {
     constructor(props) {
@@ -43,13 +43,9 @@ class MainApp extends React.Component {
                 <div className="PageViewer">
                     <DropBarGroup>
                         { this.renderNotes() }
-                        <button
-                           className="AddNoteButton"
-                           onClick={this.on.addNoteBar}
-                        >
-                            <SVGIcon type="plus" />
+                        <AddButton onClick={this.on.addNoteBar}>
                             Add NoteBar
-                        </button>
+                        </AddButton>
                     </DropBarGroup>
                 </div>
             </MainWindow>

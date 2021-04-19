@@ -68,40 +68,7 @@ html body *::-moz-focus-inner {
     }
 }
 
-.MainWindow .PageViewer .AddNoteButton {
-    /* positioning */
+.MainWindow .PageViewer .AddButton {
     margin-top: 20px;
-    
-    /* dimensions */
-    padding-left: 0.23em;
-    padding-right: 0.53em;
-    border: none;
-    
-    /* flex-positioning */
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-evenly;
-    align-items: center;
-    
-    /* font */
-    background-color: var(--clear);
     font-size: 1.3em;
-    color: var(--main-link-color);
-    
-    /* other */
-    user-select: none;
-}
-
-.MainWindow .PageViewer .AddNoteButton:active {
-    background-color: var(--active-shadow);
-}
-
-.MainWindow .PageViewer .AddNoteButton .SVGIcon {
-    width: 2.2em;
-    height: 2.2em;
-    padding-right: 0.4em;
-}
-
-.MainWindow .PageViewer .AddNoteButton .SVGIcon svg{
-    stroke: var(--main-link-color);
 }
