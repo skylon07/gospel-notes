@@ -3,11 +3,9 @@ import "./MainApp.css";
 
 import { StorageRegistry } from "lib/storage-registry";
 
-import { SVGIcon } from "common/svg-icon"
-
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
-import { DropBar, NoteBox, DropBarGroup, AddButton } from "noteboard";
+import { DropBar, DropBarGroup, AddButton } from "noteboard";
 
 class MainApp extends React.Component {
     constructor(props) {
@@ -81,7 +79,7 @@ class MainApp extends React.Component {
 
     setNoteBarTitle(targetIdx, newTitle) {
         this.setState((state) => {
-            const newNotebars = state.noteBars.map((currBar, currIdx) => {
+            const newNoteBars = state.noteBars.map((currBar, currIdx) => {
                 if (currIdx === targetIdx) {
                     let { title, dateID } = currBar
                     title = newTitle
@@ -90,6 +88,7 @@ class MainApp extends React.Component {
                 }
                 return currBar
             })
+            return {noteBars: newNoteBars}
         })
     }
 
