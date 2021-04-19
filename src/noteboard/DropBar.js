@@ -6,6 +6,7 @@ import { SVGIcon } from "common/svg-icon";
 
 import Holdable from "./Holdable.js";
 import NoteBox from "./NoteBox.js"
+import AddButton from "./AddButton.js"
 
 const GLOBALS = {
     offsetSheet: (() => {
@@ -84,13 +85,9 @@ export default class DropBar extends React.PureComponent {
 
     renderAddButton() {
         if (this.props.canModify) {
-            return <button
-                className="AddNoteButton"
-                onClick={this.on.addNote}
-            >
-                <SVGIcon type="plus" />
+            return <AddButton onClick={this.on.addNote}>
                 Add Note
-            </button>
+            </AddButton>
         }
         return null
     }
