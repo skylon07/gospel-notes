@@ -5,9 +5,9 @@ import { StorageRegistry } from "lib/storage-registry";
 
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
-import { DropBar, DropBarGroup, AddButton } from "noteboard";
+import {} from "noteboard";
 
-class MainApp extends React.Component {
+export default class MainApp extends React.Component {
     constructor(props) {
         super(props);
 
@@ -105,5 +105,3 @@ class MainWindow extends React.Component {
         return <div className="MainWindow">{this.props.children}</div>;
     }
 }
-
-export default MainApp;
