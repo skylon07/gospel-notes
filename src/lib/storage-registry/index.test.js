@@ -7,22 +7,22 @@ const SEPARATORS = {
 
 let mockLocalStorage = null;
 // NOTE: __proto__ must be spied on; this actually returns a jest fn()
-jest.spyOn(localStorage.__proto__, "getItem").mockImplementation(
-    function (storageKey) {
-        // NOTE: this does not work...?
-        // return mockLocalStorage()[storageKey];
-    }
-);
-jest.spyOn(localStorage.__proto__, "setItem").mockImplementation(
-    function(storageKey, value) {
-        // mockLocalStorage()[storageKey] = value;
-    }
-);
-jest.spyOn(localStorage.__proto__, "removeItem").mockImplementation(
-    function (storageKey) {
-        // delete mockLocalStorage()[storageKey];
-    }
-);
+// jest.spyOn(localStorage.__proto__, "getItem").mockImplementation(
+//     function (storageKey) {
+//         // NOTE: this does not work...?
+//         // return mockLocalStorage()[storageKey];
+//     }
+// );
+// jest.spyOn(localStorage.__proto__, "setItem").mockImplementation(
+//     function(storageKey, value) {
+//         // mockLocalStorage()[storageKey] = value;
+//     }
+// );
+// jest.spyOn(localStorage.__proto__, "removeItem").mockImplementation(
+//     function (storageKey) {
+//         // delete mockLocalStorage()[storageKey];
+//     }
+// );
 
 let storage = null;
 beforeEach(() => {
