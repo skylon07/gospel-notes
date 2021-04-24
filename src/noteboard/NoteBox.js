@@ -2,13 +2,19 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./NoteBox.css";
 
-export default class NoteBox extends React.PureComponent {
+export default class NoteBox extends React.Component {
     static propTypes = {
-        title: PropTypes.string,
-        content: PropTypes.string,
-        onTitleChange: PropTypes.func,
-        onContentChange: PropTypes.func,
+        initTitle: PropTypes.string,
+        initContent: PropTypes.string,
+        onChangeTitle: PropTypes.func,
+        onChangeContent: PropTypes.func,
     };
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        // NOTE: changes in "init..." props can be ignored
+        return nextProps.onChangeTitle !== this.props.onChangeTitle ||
+           nextProps.onChangeContent !== this.props.onChangeContent
+    }
 
     constructor(props) {
         super(props);
@@ -17,10 +23,11 @@ export default class NoteBox extends React.PureComponent {
         this.contentRef = React.createRef();
         
         this.on = {
-            titleBlur: () => this.detectIfTitleChanged(this.titleRef.current.value),
-            titleChange: () => this.updateDims(this.titleRef.current, "title"),
-            contentBlur: () => this.detectIfContentChanged(this.contentRef.current.value),
-            contentChange: () => this.updateDims(this.contentRef.current, "content"),
+            // NOTE: onBlur() is used because onChange() isn't working as expected...
+            blurTitle: () => this.detectIfTitleChanged(),
+            blurContent: () => this.detectIfContentChanged(),
+            titleInput: () => this.updateDims(this.titleRef.current, "title"),
+            contentInput: () => this.updateDims(this.contentRef.current, "content"),
         }
     }
 
@@ -34,7 +41,7 @@ export default class NoteBox extends React.PureComponent {
     }
 
     renderTitle() {
-        let title = this.props.title;
+        let title = this.props.initTitle;
         this.lastTitle = title;
 
         if (!title) {
@@ -48,15 +55,15 @@ export default class NoteBox extends React.PureComponent {
                 rows="1"
                 cols="1"
                 wrap="off"
-                onBlur={this.on.titleBlur}
-                onInput={this.on.titleChange}
+                onBlur={this.on.blurTitle}
+                onInput={this.on.titleInput}
                 defaultValue={title}
             />
-        );
+        )
     }
 
     renderContent() {
-        let content = this.props.children || this.props.content;
+        let content = this.props.children || this.props.initContent;
         this.lastContent = content;
 
         if (!content) {
@@ -69,8 +76,8 @@ export default class NoteBox extends React.PureComponent {
                 className="Content"
                 rows="1"
                 cols="1"
-                onBlur={this.on.contentBlur}
-                onInput={this.on.contentChange}
+                onBlur={this.on.blurContent}
+                onInput={this.on.contentInput}
                 defaultValue={content}
             />
         );
@@ -79,25 +86,14 @@ export default class NoteBox extends React.PureComponent {
     componentDidMount() {
         this.initDims();
     }
-
-    componentDidUpdate() {
-        if (!this.props.preventOverwrite) {
-            const title = this.titleRef.current;
-            if (title) {
-                title.value = this.lastTitle;
-                this.updateDims(title);
-            }
-
-            const content = this.contentRef.current;
-            if (content) {
-                content.value = this.lastContent;
-                this.updateDims(content);
-            }
+    
+    detectIfTextAreaChanged(str, compStr, onChange) {
+        if (typeof onChange !== "function") {
+            // detecting won't trigger anything...
+            // might as well not try!
+            return
         }
-    }
-
-    // NOTE: these are used during onBlur() because onChange() isnt working
-    detectIfPropChanged(str, compStr, onChangeName) {
+        
         if (str !== compStr) {
             // convert breaks to newlines
             // NOTE: eval is used to generate the regex; this is perfectly
@@ -113,28 +109,25 @@ export default class NoteBox extends React.PureComponent {
             if (str[str.length - 1] === "\n") {
                 str = str.slice(0, str.length - 1);
             }
-
-            const onChange = this.props[onChangeName];
-            if (onChange) {
-                onChange(str);
-            }
+            
+            onChange(str);
         }
     }
 
-    detectIfTitleChanged(titleStr) {
+    detectIfTitleChanged() {
         // prettier-ignore
-        this.detectIfPropChanged(
-            titleStr,
+        this.detectIfTextAreaChanged(
+            this.titleRef.current.value,
             this.lastTitle,
-            "onTitleChange"
+            this.props.onChangeTitle
         );
     }
-    detectIfContentChanged(contentStr) {
+    detectIfContentChanged() {
         // prettier-ignore
-        this.detectIfPropChanged(
-            contentStr,
+        this.detectIfTextAreaChanged(
+            this.contentRef.current.value,
             this.lastContent,
-            "onContentChange"
+            this.props.onChangeContent
         );
     }
 
