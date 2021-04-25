@@ -23,6 +23,11 @@ class NodeStoreSingleton {
         return val instanceof NodeParent
     }
     
+    isNodeId(str) {
+        const tag = "NODE"
+        return typeof str === "string" && str.substr(0, tag.length) === tag
+    }
+    
     // creates a string indentifier that is unique between
     // all other note board elements (for this user, at least)
     _createId() {
@@ -33,7 +38,7 @@ class NodeStoreSingleton {
         // for that one person that one time where their computers
         // decided to use two of the same times anyway... ("one in a million")
         const randNumJustInCase = Math.floor(Math.random() * 1000000)
-        let fullId = `${time}-${specificTime}-${randNumJustInCase}`
+        let fullId = `NODE${time}-${specificTime}-${randNumJustInCase}`
     
         // okay... let's guarantee this id is unique
         if (nodesById[fullId]) {

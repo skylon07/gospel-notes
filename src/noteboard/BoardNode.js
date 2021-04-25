@@ -7,28 +7,31 @@ import NoteBox from "./NoteBox.js"
 
 // a base component that provides a launching point for
 // representing note nodes as a UI component
-export default class BoardNode extends React.Component {
+export default class BoardNode extends React.PureComponent {
     static propTypes = {
-        nodeId: PropTypes.string,
+        nodeId: PropTypes.string.isRequired,
+        onChange: PropTypes.function,
     }
 
     constructor(props) {
         super(props)
-
+        
         this.on = {
             NoteBox: {
-                changeTitle: (...args) => this.trigger(this.props.onNoteBoxChangeTitle, ...args),
-                changeContent: (...args) => this.trigger(this.props.onNoteBoxChangeContent, ...args),
+                changeTitle: (newTitle) => this.props.onChange(this.node, "title", newTitle),
+                changeContent: (newContent) => this.props.onChange(this.node, "content", newContent),
             },
             DropBar: {
                 changeTitle: (...args) => this.trigger(this.props.onDropBarChangeTitle, ...args),
             },
             Folder: {
-                changeTitle: (...args) => this.trigger(this.props.onFolderChangeTitle, ...args),
+                changeTitle: (newTitle) => this.props.onChange(this.node, "title", newTitle),
             },
             addChild: () => alert('// TODO: BoardNode().on.addChild()'),
             removeChild: () => alert('// TODO: BoardNode().on.removeChild()'),
         }
+        
+        this.node = null // updated every render
     }
 
     render() {
@@ -38,11 +41,12 @@ export default class BoardNode extends React.Component {
     }
     
     renderThisNode() {
-        const node = nodeStore.getNodeById(this.props.nodeId)
-        if (!node) {
+        const node = this.node = nodeStore.getNodeById(this.props.nodeId)
+        if (!node || typeof node !== "object") {
             return <h1>INVALID NODE ID</h1>
         }
         
+        const types = nodeStore.nodeTypes
         switch (node.type) {
             case types.NoteBox: {
                 return this.renderNoteBox(node)

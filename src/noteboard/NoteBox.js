@@ -87,20 +87,20 @@ export default class NoteBox extends React.Component {
         this.initDims();
     }
     
-    detectIfTextAreaChanged(str, compStr, onChange) {
+    detectIfTextAreaChanged(newStr, lastStr, onChange) {
         if (typeof onChange !== "function") {
             // detecting won't trigger anything...
             // might as well not try!
             return
         }
         
-        if (str !== compStr) {
+        if (newStr !== lastStr) {
             // convert breaks to newlines
             // NOTE: eval is used to generate the regex; this is perfectly
             //       safe usage (talking to you eslint)
             // eslint-disable-next-line
             const regex = eval("/<br>/gi")
-            str = str.replace(regex, "\n");
+            let str = newStr.replace(regex, "\n");
 
             // ensure first/last characters are ommitted when newlines
             if (str[0] === "\n") {
