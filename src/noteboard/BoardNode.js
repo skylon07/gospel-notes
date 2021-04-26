@@ -10,7 +10,7 @@ import NoteBox from "./NoteBox.js"
 export default class BoardNode extends React.PureComponent {
     static propTypes = {
         nodeId: PropTypes.string.isRequired,
-        onChange: PropTypes.function,
+        onChange: PropTypes.func,
     }
 
     constructor(props) {

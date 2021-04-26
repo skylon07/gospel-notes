@@ -34,6 +34,6 @@
     stroke: var(--main-link-color);
 }
 
-.AddButton spacer {
+.AddButton .Spacer {
     width: 0.44em;
 }

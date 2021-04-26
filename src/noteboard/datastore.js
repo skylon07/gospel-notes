@@ -1,14 +1,14 @@
 // represents the database for all notes
 class NodeStoreSingleton {
     constructor() {
-        this._notesById = {}
+        this._nodesById = {}
     }
     
     get nodeTypes() {
         return NodeParent.types
     }
     
-    createNode(type, data=null) {
+    createNode(type, data) {
         const id = this._createId()
         const node = new NodeParent(type, id, data)
         this._nodesById[id] = node
@@ -34,14 +34,14 @@ class NodeStoreSingleton {
         // pretty much unique...
         const time = new Date().getTime()
         // unique so long as you aren't running on a massive supercomputer...
-        const specificTime = performance.now()
+        const specificTime = parseInt(performance.now())
         // for that one person that one time where their computers
         // decided to use two of the same times anyway... ("one in a million")
         const randNumJustInCase = Math.floor(Math.random() * 1000000)
         let fullId = `NODE${time}-${specificTime}-${randNumJustInCase}`
     
         // okay... let's guarantee this id is unique
-        if (nodesById[fullId]) {
+        if (this._nodesById[fullId]) {
             fullId = this._createIdFor(node)
         }
         
@@ -54,10 +54,9 @@ export const nodeStore = new NodeStoreSingleton()
 class NodeParent {
     // populated after class definition
     static types = {}
-    static reverseTypes = {}
     
     constructor(type, id, data) {
-        if (!NodeParent.reverseTypes[type]) {
+        if (type !== this.constructor.types[type]) {
             throw new TypeError(`Invalid NodeParent type (${typeof type}) received; Please use one of NodeStore.nodeTypes`)
         }
         
@@ -70,13 +69,42 @@ class NodeParent {
     get type() {
         return this._type
     }
-    // NOTE: this exists solely for debugging purposes
-    get typeStr() {
-        return NodeParent.reverseTypes[this._type]
+    
+    get id() {
+        return this._id
     }
     
-    get nodeId() {
-        return this._id
+    get data() {
+        return this._data
+    }
+    
+    set data(newData) {
+        if (typeof newData !== "object" || !newData) {
+            newData = {}
+        }
+        
+        const types = this.constructor.types
+        switch (this._type) {
+            case types.NoteBox: {
+                this._data = {
+                    title: typeof newData.title === "string" ?
+                        newData.title : "(bad title data)",
+                    content: typeof newData.content === "string" ?
+                        newData.content : "(bad content data)",
+                }
+            }
+            break
+            
+            case types.DropBar: {
+                // TODO
+            }
+            break
+            
+            case types.Folder: {
+                // TODO
+            }
+            break
+        }
     }
     
     getChild(idx) {
@@ -98,7 +126,5 @@ const typeNames = [
     "Folder",
 ]
 for (const type of typeNames) {
-    const sym = Symbol()
-    NodeParent.types[type] = sym
-    NodeParent.reverseTypes[sym] = type
+    NodeParent.types[type] = type
 }

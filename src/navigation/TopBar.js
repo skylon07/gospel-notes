@@ -90,7 +90,6 @@ export default class TopBar extends React.PureComponent {
                         <TopBarButton onClick={this.on.searchSlideOut}>
                             <SVGIcon type="backArrow" />
                         </TopBarButton>
-                        {/* TODO: replace with <spacer /> */}
                         <div className="Spacer" />
                         <SearchBar
                             ref={this._searchFocusRef}

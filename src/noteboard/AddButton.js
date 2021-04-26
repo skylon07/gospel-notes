@@ -16,7 +16,7 @@ export default class AddButton extends React.Component {
         >
             <SVGIcon type="plus" />
             {this.props.children}
-            <spacer />
+            <div className="Spacer" />
         </button>
     }
 }

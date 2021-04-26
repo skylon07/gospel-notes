@@ -5,16 +5,23 @@ import { StorageRegistry } from "lib/storage-registry";
 
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
-import {} from "noteboard";
+import { nodeStore, AddButton, NoteBoard } from "noteboard";
+
+// DEBUG
+const ids = []
+for (let i = 0; i < 4; i++) {
+    ids.push(nodeStore.createNode("NoteBox", null).id)
+}
 
 export default class MainApp extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            // TODO: maybe pass hide() when rendering (a function child) instead of using props?
             forceMenuHidden: null,
-            // TODO: come up with a better name for these...
-            noteBars: [], // {title, dateID}
+            // DEBUG
+            currentNodeIds: [...ids], // strings
         };
 
         // NOTE: storage will be a backup in case internet sync is not available
@@ -22,10 +29,6 @@ export default class MainApp extends React.Component {
 
         this.on = {
             hideMenu: () => this.hideMenu(),
-            dropBar: {
-                mouseHold: () => alert("// TODO: rename drop bar")
-            },
-            addNoteBar: () => this.addNoteBar("New Bar"),
         }
         
         this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
@@ -36,15 +39,13 @@ export default class MainApp extends React.Component {
                 <BetaDisclaimer />
                 <TopBar
                     menuContent={this.renderMenu()}
-                    forceMenuHidden={this.state.forceMenuHidden}
                 />
                 <div className="PageViewer">
-                    <DropBarGroup>
-                        { this.renderNotes() }
-                        <AddButton onClick={this.on.addNoteBar}>
-                            Add NoteBar
-                        </AddButton>
-                    </DropBarGroup>
+                    <NoteBoard
+                        onNoteBoxChange={() => alert("// TODO: MainApp > NoteBoard.onNoteBoxChange()")}
+                    >
+                        {this.renderCurrNotes()}
+                    </NoteBoard>
                 </div>
             </MainWindow>
         );
@@ -56,16 +57,17 @@ export default class MainApp extends React.Component {
         return this._menuContent;
     }
 
-    renderNotes() {
-        return this.state.noteBars.map(({ title, dateID }) => {
-            return <DropBar
-                key={dateID}
-                title={title}
-                iconType="blank"
-                canModify={true}
-                onMouseHold={this.on.dropBar.mouseHold}
-            />
-        })
+    renderCurrNotes() {
+        return this.state.currentNodeIds.concat(this.renderAddButton())
+    }
+    
+    renderAddButton() {
+        return <AddButton
+            key="React gets mad if this doesn't exist"
+            onClick={() => alert("// TODO: MainApp > AddButton.onClick()")}
+        >
+            Add Node
+        </AddButton>
     }
 
     addNoteBar(title) {
