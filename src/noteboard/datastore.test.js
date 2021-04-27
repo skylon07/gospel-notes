@@ -1,7 +1,5 @@
 import { createNodeStoreForTesting } from './datastore.js'
 
-import {describe, it, test, expect, beforeAll, beforeEach, afterEach, afterAll, jest, setTimeout, setInterval, clearTimeout, clearInterval} from "/fakeJest.js";
-
 let nodeStore = null
 beforeEach(() => {
     nodeStore = createNodeStoreForTesting()
