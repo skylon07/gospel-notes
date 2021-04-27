@@ -4,7 +4,6 @@ let nodeStore = null
 beforeEach(() => {
     nodeStore = createNodeStoreForTesting()
 })
-
 afterEach(() => {
     nodeStore = null
 })
@@ -146,7 +145,6 @@ describe("Node tests", () => {
         beforeEach(() => {
             mainNode = nodeStore.createNode("Folder")
         })
-        
         afterEach(() => {
             mainNode = null
         })

@@ -35,7 +35,7 @@ export default class BoardNode extends React.PureComponent {
     }
 
     render() {
-        return <div className="BoardNode">
+        return <div data-testid="board-node" className="BoardNode">
             {this.renderThisNode()}
         </div>
     }

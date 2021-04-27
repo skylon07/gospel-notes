@@ -21,12 +21,16 @@ export default class NoteBoard extends React.Component {
     }
     
     render() {
-        return <div className="NoteBoard">
+        return <div data-testid="note-board" className="NoteBoard">
             {this.renderNodes()}
         </div>
     }
     
     renderNodes() {
+        if (!Array.isArray(this.props.children)) {
+            return null
+        }
+        
         return this.props.children.map((child) => {
             if (nodeStore.isNodeId(child)) {
                 const id = child
@@ -58,7 +62,7 @@ export default class NoteBoard extends React.Component {
             case types.Folder: {
                 
             }
-            break1
+            break
             
             default: {
                 throw new TypeError(`Invalid node type requested NoteBoard.onNodeChange()`)
