@@ -48,7 +48,11 @@ class NodeStoreSingleton {
         return fullId
     }
 }
-export const nodeStore = new NodeStoreSingleton()
+export let nodeStore = new NodeStoreSingleton()
+export function createNodeStoreForTesting() {
+    // NOTE: resets nodeStore to correct the references used by NodeParents
+    return nodeStore = new NodeStoreSingleton()
+}
 
 // represents a set of data accessible by the database by a unique ID
 class NodeParent {
@@ -56,13 +60,14 @@ class NodeParent {
     static types = {}
     
     constructor(type, id, data) {
-        if (type !== this.constructor.types[type]) {
+        if (!type || type !== this.constructor.types[type]) {
             throw new TypeError(`Invalid NodeParent type (${typeof type}) received; Please use one of NodeStore.nodeTypes`)
         }
         
         this._type = type
         this._id = id
         this._children = []
+        this._data = {}
         this.data = data
     }
     
@@ -87,24 +92,81 @@ class NodeParent {
         switch (this._type) {
             case types.NoteBox: {
                 this._data = {
-                    title: typeof newData.title === "string" ?
-                        newData.title : "(bad title data)",
-                    content: typeof newData.content === "string" ?
-                        newData.content : "(bad content data)",
+                    // prettier-ignore
+                    title: typeof newData.title === "string" ? newData.title :
+                        typeof this._data.title === "string" ? this._data.title :
+                        "(bad title data)",
+                    // prettier-ignore
+                    content: typeof newData.content === "string" ? newData.content :
+                        typeof this._data.content === "string" ? this._data.content :
+                        "(bad content data)",
                 }
             }
             break
             
             case types.DropBar: {
-                // TODO
+                this._data = {
+                    // prettier-ignore
+                    title: typeof newData.title === "string" ? newData.title :
+                        typeof this._data.title === "string" ? this._data.title :
+                        "(bad title data)"
+                }
             }
             break
             
             case types.Folder: {
-                // TODO
+                this._data = {
+                    // prettier-ignore
+                    title: typeof newData.title === "string" ? newData.title :
+                        typeof this._data.title === "string" ? this._data.title :
+                        "(bad title data)"
+                }
             }
             break
         }
+    }
+    
+    addChild(nodeOrId, idx=null) {
+        let node = nodeOrId
+        if (typeof nodeOrId === "string") {
+            node = nodeStore.getNodeById(nodeOrId)
+            if (!nodeStore.isNodeId(nodeOrId) || !nodeStore.isNode(node)) {
+                throw new TypeError(`NodeParents can only add strings if the string is a valid node id (got ${nodeOrId})`)
+            }
+        } else if (!nodeStore.isNode(node)) {
+            throw new TypeError(`NodeParents can only add other NodeParents as children (got ${node}`)
+        }
+        
+        if (typeof idx === "number") {
+            this._children.splice(idx, 0, node)
+        } else {
+            this._children.push(node)
+        }
+    }
+    
+    removeChildAt(idx) {
+        return this._children.splice(idx, 1)[0]
+    }
+    
+    indexOf(nodeOrId, start=0) {
+        let id = nodeOrId
+        if (typeof nodeOrId !== "string") {
+            if (!nodeStore.isNode(nodeOrId)) {
+                throw new TypeError(`An invalid node was passed to NodeParent.indexOf() (got ${nodeOrId})`)
+            }
+            id = nodeOrId.id
+        }
+        if (!nodeStore.isNodeId(id)) {
+            throw new TypeError(`An invalid node id was passed to NodeParent.indexOf() (got ${id})`)
+        }
+        
+        for (let i = start; i < this._children.length; i++) {
+            const childId = this._children[i].id
+            if (childId === id) {
+                return i
+            }
+        }
+        return -1
     }
     
     getChild(idx) {
@@ -117,6 +179,10 @@ class NodeParent {
     
     mapChildren(fn) {
         return this._children.map(fn)
+    }
+    
+    filterChildren(fn) {
+        return this._children.filter(fn)
     }
 }
 // initialize the types...
