@@ -15,9 +15,18 @@ const GLOBALS = {
         return e;
     })(),
     updateOffsets(offset) {
-        GLOBALS.offsetSheet.innerHTML = `.DropBar { --bottom-bar-shift: ${offset}px; }`;
+        GLOBALS.offsetSheet.innerHTML = `.DropBar, .DropBarTransform { --bottom-bar-shift: ${offset}px; }`;
     },
 };
+
+function getChildIdx(elem) {
+    let idx = 0;
+    while (elem.previousSibling) {
+        idx++;
+        elem = elem.previousSibling;
+    }
+    return idx;
+}
 
 export default class DropBar extends React.PureComponent {
     static propTypes = {
@@ -25,8 +34,6 @@ export default class DropBar extends React.PureComponent {
         iconType: PropTypes.string,
         canModify: PropTypes.bool,
         onMouseHold: PropTypes.func,
-        // TODO: is there a better way for DropBarGroups to communicate with DropBars?
-        _beforeDrop: PropTypes.func,
     };
 
     constructor(props) {
@@ -149,12 +156,12 @@ export default class DropBar extends React.PureComponent {
     toggleDrop() {
         this.setState((state, props) => {
             this._prepareAnimationOffset();
-            return { dropped: !state.dropped, barAnimating: true };
+            const newDropped = !state.dropped
+            return { dropped: newDropped };
+        }, () => {
+            const direction = this.state.dropped ? "dropping" : "raising"
+            this._updateSiblingAndParentClasses(this.ref.current, direction)
         });
-        if (typeof this.props._beforeDrop === "function") {
-            // being outside the above setState() allows React to batch/sync animation group setState() calls
-            this.props._beforeDrop(this.ref.current, this.state.dropped);
-        }
     }
 
     _prepareAnimationOffset() {
@@ -162,6 +169,63 @@ export default class DropBar extends React.PureComponent {
         // before transformations are applied
         const currHeight = this.contentElem.offsetHeight;
         GLOBALS.updateOffsets(currHeight);
+    }
+    
+    _updateSiblingAndParentClasses(elem, direction) {
+        const parent = elem.parentElement;
+        const elemIdx = getChildIdx(elem);
+        
+        for (let idx = 0; idx < parent.children.length; idx++) {
+            const child = parent.children[idx];
+            // sets previous children (and self) with no animation
+            if (idx <= elemIdx) {
+                this._setAnimationClasses(child, null);
+            }
+            // sets children after with the animation
+            else {
+                this._setAnimationClasses(child, direction);
+            }
+        }
+        
+        // performs the same operations on the parent until hitting the group
+        if (parent !== document.body) {
+            this._updateSiblingAndParentClasses(parent, direction);
+        }
+    }
+    
+    _setAnimationClasses(elem, state) {
+        const base = "DropBarTransform"
+        const dropping = "dropping"
+        const raising = "raising"
+        const listen = () => elem.addEventListener(
+            "animationend",
+            () => {
+                // ensures that the same animation can re-run multiple times
+                elem.classList.remove(base, dropping, raising);
+            },
+            { once: true }
+        );
+
+        switch (state) {
+            case "dropping": {
+                elem.classList.add(base, dropping);
+                elem.classList.remove(raising);
+                listen()
+            }
+            break;
+
+            case "raising": {
+                elem.classList.add(base, raising);
+                elem.classList.remove(dropping);
+                listen()
+            }
+            break;
+
+            default: {
+                elem.classList.remove(base, dropping, raising);
+            }
+            break;
+        }
     }
 }
 

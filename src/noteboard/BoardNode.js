@@ -1,9 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import "./BoardNode.css"
 
 import { nodeStore } from './datastore.js'
 
 import NoteBox from "./NoteBox.js"
+import DropBar from "./DropBar.js"
 
 // a base component that provides a launching point for
 // representing note nodes as a UI component
@@ -18,14 +20,14 @@ export default class BoardNode extends React.PureComponent {
         
         this.on = {
             NoteBox: {
-                changeTitle: (newTitle) => this.props.onChange(this.node, "title", newTitle),
-                changeContent: (newContent) => this.props.onChange(this.node, "content", newContent),
+                changeTitle: (newTitle) => this.triggerOnChange("title", newTitle),
+                changeContent: (newContent) => this.triggerOnChange("content", newContent),
             },
             DropBar: {
-                changeTitle: (...args) => this.trigger(this.props.onDropBarChangeTitle, ...args),
+                changeTitle: (newTitle) => this.triggerOnChange("title", newTitle),
             },
             Folder: {
-                changeTitle: (newTitle) => this.props.onChange(this.node, "title", newTitle),
+                changeTitle: (newTitle) => this.triggerOnChange("title", newTitle),
             },
             addChild: () => alert('// TODO: BoardNode().on.addChild()'),
             removeChild: () => alert('// TODO: BoardNode().on.removeChild()'),
@@ -49,17 +51,17 @@ export default class BoardNode extends React.PureComponent {
         const types = nodeStore.nodeTypes
         switch (node.type) {
             case types.NoteBox: {
-                return this.renderNoteBox(node)
+                return this.renderNoteBox()
             }
             break
             
             case types.DropBar: {
-                return this.renderDropBar(node)
+                return this.renderDropBar()
             }
             break
             
             case types.Folder: {
-                return this.renderFolder(node)
+                return this.renderFolder()
             }
             break
             
@@ -70,8 +72,8 @@ export default class BoardNode extends React.PureComponent {
     }
     
     // abstracted node rendering functions, given the NodeParent they represent
-    renderNoteBox(node) {
-        const { title, content } = node.data
+    renderNoteBox() {
+        const { title, content } = this.node.data
         const on = this.on.NoteBox
         return <NoteBox
             initTitle={title}
@@ -81,11 +83,20 @@ export default class BoardNode extends React.PureComponent {
         />
     }
     
-    renderDropBar(node) {
+    renderDropBar() {
+        const { title } = this.node.data
+        return <DropBar
+            title={title}
+        />
+    }
+    
+    renderFolder() {
         
     }
     
-    renderFolder(node) {
-        
+    triggerOnChange(type, newData) {
+        if (typeof this.props.onChange === "function") {
+            this.props.onChange(this.node, type, newData)
+        }
     }
 }

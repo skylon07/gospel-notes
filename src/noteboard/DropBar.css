@@ -1,9 +1,16 @@
-.DropBar {
-    position: relative;
-    width: 100%;
+.DropBar, .DropBarTransform {
+    /* set as var here for animations */
+    --bottom-bar-height: 6px;
     /* this is set/changed inside a standalone <style /> element */
     --bottom-bar-shift: 0px;
     --drop-animation-time: 0.33s;
+    /* // TODO: try using this after animations work */
+    --sibling-shift: calc(-1 * var(--bottom-bar-shift) + var(--bottom-bar-height));
+}
+
+.DropBar {
+    position: relative;
+    width: 100%;
 }
 
 .DropBar * {
@@ -54,7 +61,7 @@ html .DropBar.initAnimation .BottomBar {
 
 .DropBar .BottomBar {
     width: 100%;
-    height: 6px;
+    height: var(--bottom-bar-height);
     background-color: var(--drop-bar-background-color);
 }
 
@@ -140,6 +147,7 @@ html .DropBar.initAnimation .DropdownButton {
     position: relative;
 
     /* dimensions */
+    min-height: 30px;
     max-height: 300px;
     width: 86%;
 
@@ -264,4 +272,30 @@ html .DropBar.initAnimation .DropBarContent {
     
     /* other */
     font-size: 0.9em;
+}
+
+html body .DropBarTransform.dropping {
+    animation: DropBar_siblingDropAnimation var(--drop-animation-time);
+}
+
+html body .DropBarTransform.raising {
+    animation: DropBar_siblingRaiseAnimation var(--drop-animation-time);
+}
+
+@keyframes DropBar_siblingDropAnimation {
+    from {
+        transform: translateY(calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height)));
+    }
+    to {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes DropBar_siblingRaiseAnimation {
+    from {
+        transform: translateY(0px);
+    }
+    to {
+        transform: translateY(calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height)));
+    }
 }

@@ -63,4 +63,8 @@ describe("rendering tests", () => {
         expect(noteBox).toHave
         expect(noteBoxData).toStrictEqual({title, content})
     })
+    
+    // TODO: test other types
 })
+
+// TODO: onChange tests

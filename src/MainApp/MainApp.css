@@ -14,7 +14,7 @@ html body *::-moz-focus-inner {
     border: none;
 }
 
-.MainWindow {
+.MainApp {
     /* positioning */
     position: absolute;
     top: 0px;
@@ -33,13 +33,13 @@ html body *::-moz-focus-inner {
     color: var(--main-color);
 }
 
-.MainWindow .PageViewer {
+.MainApp .MainWindow {
     position: relative;
     width: 100%;
     flex: 1;
 }
 
-.MainWindow .PageViewer .DropBarGroup {
+.MainApp .MainWindow .NoteBoard {
     /* positioning */
     /* NOTE: having the combination of position: absolute and parent being a flex
              element allows the element to overflow without taking more than the rest
@@ -49,26 +49,46 @@ html body *::-moz-focus-inner {
     overflow-y: scroll;
     top: 0px;
     left: 0px;
+    
+    /* dimensions */
+    width: 100%;
+    height: 100%;
 
     /* flex-positioning */
     display: flex;
     flex-flow: column nowrap;
+    justify-content: start;
     align-items: center;
 }
 
-.MainWindow .PageViewer .DropBarGroup .DropBar {
+.MainApp .MainWindow .BoardNode {
+    width: 100%;
+    height: auto;
+}
+
+.MainApp .MainWindow .BoardNode > * {
+    /* center elements inside nodes */
+    margin: auto;
+}
+
+.MainApp .MainWindow .NoteBox {
+    margin-top: 6px;
+    width: 85%;
+}
+
+.MainApp .MainWindow .DropBar {
     margin-top: 6px;
     width: 95%;
 }
 
 @media (min-width: 31em) {
-    .MainWindow .PageViewer .DropBarGroup .DropBar {
+    .MainApp .MainWindow .DropBar {
         margin-top: 16px;
         width: 83%;
     }
 }
 
-.MainWindow .PageViewer .AddButton {
+.MainApp .MainWindow .AddButton {
     margin-top: 20px;
     font-size: 1.3em;
 }

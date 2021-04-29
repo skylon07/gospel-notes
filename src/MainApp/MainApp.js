@@ -9,8 +9,10 @@ import { nodeStore, AddButton, NoteBoard } from "noteboard";
 
 // DEBUG
 const ids = []
-for (let i = 0; i < 4; i++) {
-    ids.push(nodeStore.createNode("NoteBox", null).id)
+const types = ["NoteBox", "DropBar", "NoteBox"]
+for (let i = 0; i < 10; i++) {
+    const type = types[i % types.length]
+    ids.push(nodeStore.createNode(type, null).id)
 }
 
 export default class MainApp extends React.Component {
@@ -35,19 +37,19 @@ export default class MainApp extends React.Component {
     }
     render() {
         return (
-            <MainWindow>
+            <div className="MainApp">
                 <BetaDisclaimer />
                 <TopBar
                     menuContent={this.renderMenu()}
                 />
-                <div className="PageViewer">
+                <MainWindow>
                     <NoteBoard
                         onNoteBoxChange={() => alert("// TODO: MainApp > NoteBoard.onNoteBoxChange()")}
                     >
                         {this.renderCurrNotes()}
                     </NoteBoard>
-                </div>
-            </MainWindow>
+                </MainWindow>
+            </div>
         );
     }
 
