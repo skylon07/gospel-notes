@@ -22,3 +22,7 @@ function grabNoteBoard() {
 it("renders without crashing", () => {
     render(<NoteBoard />, root)
 })
+
+// TODO: write recursive-nested-array test thing
+
+// TODO: write more tests

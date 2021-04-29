@@ -22,16 +22,16 @@ export default class NoteBoard extends React.Component {
     
     render() {
         return <div data-testid="note-board" className="NoteBoard">
-            {this.renderNodes()}
+            {this.renderNodes(this.props.children)}
         </div>
     }
     
-    renderNodes() {
-        if (!Array.isArray(this.props.children)) {
+    renderNodes(array) {
+        if (!Array.isArray(array)) {
             return null
         }
         
-        return this.props.children.map((child) => {
+        return array.map((child) => {
             if (nodeStore.isNodeId(child)) {
                 const id = child
                 return <BoardNode
@@ -39,6 +39,8 @@ export default class NoteBoard extends React.Component {
                     nodeId={id}
                     onChange={this.on.nodeChange}
                 />
+            } else if (Array.isArray(child)) {
+                return this.renderNodes(child)
             }
             return child
         })

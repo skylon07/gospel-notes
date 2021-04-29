@@ -37,6 +37,7 @@ html body *::-moz-focus-inner {
     position: relative;
     width: 100%;
     flex: 1;
+    overflow-y: scroll;
 }
 
 .MainApp .MainWindow .NoteBoard {
@@ -46,13 +47,12 @@ html body *::-moz-focus-inner {
              of the document space
     */
     position: absolute;
-    overflow-y: scroll;
     top: 0px;
     left: 0px;
     
     /* dimensions */
     width: 100%;
-    height: 100%;
+    height: auto;
 
     /* flex-positioning */
     display: flex;
@@ -91,4 +91,8 @@ html body *::-moz-focus-inner {
 .MainApp .MainWindow .AddButton {
     margin-top: 20px;
     font-size: 1.3em;
+}
+
+.MainApp .MainWindow .ScrollExtension {
+    height: 10em;
 }

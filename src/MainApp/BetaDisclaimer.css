@@ -56,6 +56,10 @@
     font-size: 0.7em;
 }
 
+.BetaDisclaimer button:active {
+    background-color: rgba(150, 190, 210, 0.24);
+}
+
 @keyframes BetaDisclaimer_fadeOut {
     to {
         opacity: 0;

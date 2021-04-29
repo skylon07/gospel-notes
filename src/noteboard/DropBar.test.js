@@ -6,7 +6,7 @@ import DropBar from "./DropBar.js";
 
 // NOTE: imported this way to manually mock SVGIcon
 import * as SVGIconModule from "common/svg-icon";
-// TODO: find a better way to mock with jest
+// TODO: find a better way to mock with jest (that works)
 const origSVGIcon = SVGIconModule.SVGIcon;
 
 jest.useFakeTimers("modern");
@@ -180,3 +180,5 @@ describe("listener callback tests", () => {
         expect(_beforeDrop).toBeCalledTimes(1);
     });
 });
+
+// TODO: implement DropBarGroup tests here

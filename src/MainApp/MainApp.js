@@ -10,10 +10,8 @@ import { nodeStore, AddButton, NoteBoard } from "noteboard";
 // DEBUG
 const ids = []
 const types = ["NoteBox", "DropBar", "NoteBox"]
-for (let i = 0; i < 10; i++) {
-    const type = types[i % types.length]
-    ids.push(nodeStore.createNode(type, null).id)
-}
+let i = 0
+let interval = null
 
 export default class MainApp extends React.Component {
     constructor(props) {
@@ -22,7 +20,7 @@ export default class MainApp extends React.Component {
         this.state = {
             // TODO: maybe pass hide() when rendering (a function child) instead of using props?
             forceMenuHidden: null,
-            // DEBUG
+            // DEBUG: ids
             currentNodeIds: [...ids], // strings
         };
 
@@ -34,19 +32,34 @@ export default class MainApp extends React.Component {
         }
         
         this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
+        
+        interval = () => {
+            if (i >= 15) {
+                return
+            }
+            const type = types[i++ % types.length]
+            ids.push(nodeStore.createNode(type, null).id)
+            this.setState({currentNodeIds: ids}, () => setTimeout(() => {
+                interval()
+            }, 400))
+        }
     }
+    
     render() {
         return (
             <div className="MainApp">
                 <BetaDisclaimer />
                 <TopBar
                     menuContent={this.renderMenu()}
+                    forceMenuHidden={this.state.forceMenuHidden}
                 />
                 <MainWindow>
                     <NoteBoard
                         onNoteBoxChange={() => alert("// TODO: MainApp > NoteBoard.onNoteBoxChange()")}
                     >
                         {this.renderCurrNotes()}
+                        {this.renderAddButton()}
+                        <div className="ScrollExtension" />
                     </NoteBoard>
                 </MainWindow>
             </div>
@@ -60,7 +73,7 @@ export default class MainApp extends React.Component {
     }
 
     renderCurrNotes() {
-        return this.state.currentNodeIds.concat(this.renderAddButton())
+        return this.state.currentNodeIds
     }
     
     renderAddButton() {
@@ -71,29 +84,9 @@ export default class MainApp extends React.Component {
             Add Node
         </AddButton>
     }
-
-    addNoteBar(title) {
-        const dateID = new Date().getTime()
-        const newBar = { title, dateID }
-        this.setState((state) => {
-            const newNoteBars = state.noteBars.concat(newBar)
-            return { noteBars: newNoteBars }
-        })
-    }
-
-    setNoteBarTitle(targetIdx, newTitle) {
-        this.setState((state) => {
-            const newNoteBars = state.noteBars.map((currBar, currIdx) => {
-                if (currIdx === targetIdx) {
-                    let { title, dateID } = currBar
-                    title = newTitle
-                    const newBar = { title, dateID }
-                    return newBar
-                }
-                return currBar
-            })
-            return {noteBars: newNoteBars}
-        })
+    
+    componentDidMount() {
+        setTimeout(interval, 700)
     }
 
     hideMenu() {
