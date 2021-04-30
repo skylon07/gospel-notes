@@ -3,17 +3,22 @@ import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 
 import BoardNode from "./BoardNode.js";
-import { nodeStore } from "./datastore.js"
+import { createNodeStoreForTesting } from "./datastore.js"
 
 let root = null;
+let nodeStore = null
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
+    
+    nodeStore = createNodeStoreForTesting()
 });
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
+    
+    nodeStore = null
 });
 
 function grabBoardNode() {
@@ -36,7 +41,17 @@ function grabNoteBoxData(noteBox) {
 }
 
 function grabDropBarData(dropBar) {
-    // TODO
+    const titleElem = dropBar.querySelector(".Bar")
+    let title = null
+    for (let i = 0; i < titleElem.childNodes.length; i++) {
+        title = titleElem.childNodes[i]
+        if (title.nodeType === Node.TEXT_NODE) {
+            title = title.textContent
+            break
+        }
+        title = null
+    }
+    return {title}
 }
 
 function grabFolderData(folder) {
@@ -60,11 +75,23 @@ describe("rendering tests", () => {
         const noteBox = grabChildFrom(boardNode)
         const noteBoxData = grabNoteBoxData(noteBox)
         
-        expect(noteBox).toHave
+        expect(noteBox).toHaveClass("NoteBox")
         expect(noteBoxData).toStrictEqual({title, content})
     })
     
-    // TODO: test other types
+    it("renders DropBar nodes", () => {
+        const title = "title"
+        const nodeId = nodeStore.createNode("DropBar", {title}).id
+        act(() => {
+            render(<BoardNode nodeId={nodeId} />, root)
+        })
+        const boardNode = grabBoardNode()
+        const dropBar = grabChildFrom(boardNode)
+        const dropBarData = grabDropBarData(dropBar)
+        
+        expect(dropBar).toHaveClass("DropBar")
+        expect(dropBarData).toStrictEqual({title})
+    })
 })
 
 // TODO: onChange tests

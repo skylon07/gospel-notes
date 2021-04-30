@@ -24,8 +24,8 @@ class NodeStoreSingleton {
     }
     
     isNodeId(str) {
-        const tag = "NODE"
-        return typeof str === "string" && str.substr(0, tag.length) === tag
+        const regex = /^NODE\d+-\d+-\d+$/
+        return typeof str === "string" && regex.test(str)
     }
     
     // creates a string indentifier that is unique between
