@@ -4,8 +4,7 @@
     /* this is set/changed inside a standalone <style /> element */
     --bottom-bar-shift: 0px;
     --drop-animation-time: 0.33s;
-    /* // TODO: try using this after animations work */
-    --sibling-shift: calc(-1 * var(--bottom-bar-shift) + var(--bottom-bar-height));
+    --sibling-shift: calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height));
 }
 
 .DropBar {
@@ -284,7 +283,7 @@ html body .DropBarTransform.raising {
 
 @keyframes DropBar_siblingDropAnimation {
     from {
-        transform: translateY(calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height)));
+        transform: translateY(var(--sibling-shift));
     }
     to {
         transform: translateY(0px);
@@ -296,6 +295,6 @@ html body .DropBarTransform.raising {
         transform: translateY(0px);
     }
     to {
-        transform: translateY(calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height)));
+        transform: translateY(var(--sibling-shift));
     }
 }

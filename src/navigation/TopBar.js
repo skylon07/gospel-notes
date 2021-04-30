@@ -119,8 +119,7 @@ export default class TopBar extends React.PureComponent {
                 {content}
             </TopBarButton>
         );
-
-        // TODO: replace <div className="Spacer" /> with <spacer />
+        
         return [result, <div className="Spacer" />];
     }
     

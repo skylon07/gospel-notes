@@ -45,6 +45,18 @@ function grabContentFrom(dropBar) {
     return dropBar.querySelector("[data-testid='drop-bar-content']");
 }
 
+function renderSeveralDropBars() {
+    return (
+        <React.Fragment>
+            <DropBar />
+            <DropBar />
+            <DropBar />
+            <DropBar />
+            <DropBar />
+        </React.Fragment>
+    );
+}
+
 it("renders without crashing", () => {
     render(<DropBar />, root);
 });
@@ -159,26 +171,112 @@ describe("listener callback tests", () => {
         expect(onMouseHold).toBeCalledTimes(1);
     });
 
-    it("triggers the hidden _beforeDrop(ref, dropped) prop", () => {
-        const _beforeDrop = jest.fn();
+    // NOTE: DropBarGroups are not used anymore; _beforeDrop is obsolete
+    // it("triggers the hidden _beforeDrop(ref, dropped) prop", () => {
+    //     const _beforeDrop = jest.fn();
+    //     act(() => {
+    //         render(<DropBar _beforeDrop={_beforeDrop} />, root);
+    //     });
+    //     const dropBar = grabDropBar();
+    //     const dropButton = grabDropButtonFrom(dropBar);
+
+    //     expect(_beforeDrop).not.toBeCalled();
+
+    //     act(() => {
+    //         dropButton.dispatchEvent(
+    //             new MouseEvent("click", { bubbles: true })
+    //         );
+    //     });
+
+    //     const wasDropped = false; // it was not dropped before the click
+    //     expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
+    //     expect(_beforeDrop).toBeCalledTimes(1);
+    // });
+});
+
+describe("group animation tests", () => {
+    it("applies dropping classes to elements below the one dropping", () => {
+        const base = "DropBarTransform"
+        const dropping = "dropping"
+        const raising = "raising"
         act(() => {
             render(<DropBar _beforeDrop={_beforeDrop} />, root);
         });
-        const dropBar = grabDropBar();
-        const dropButton = grabDropButtonFrom(dropBar);
-
-        expect(_beforeDrop).not.toBeCalled();
-
+        const dropBars = root.children
+    
+        for (const dropBar of dropBars) {
+            // NOTE: not sure, but toHaveClass(base, dropping, raising) was
+            //       avoided since .not is being used, and that behavior isn't
+            //       understood (what if two of three classes were present?)
+            expect(dropBar).not.toHaveClass(base);
+            expect(dropBar).not.toHaveClass(dropping)
+            expect(dropBar).not.toHaveClass(raising)
+        }
+    
+        const dropIdx = 2;
         act(() => {
-            dropButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            );
+            const dropBarToClick = dropBars[dropIdx];
+            const dropButton = grabDropButtonFrom(dropBarToClick);
+            dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
         });
-
-        const wasDropped = false; // it was not dropped before the click
-        expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
-        expect(_beforeDrop).toBeCalledTimes(1);
+    
+        for (let i = 0; i < dropBars.length; i++) {
+            const dropBar = dropBars[i];
+            if (i <= dropIdx) {
+                expect(dropBar).not.toHaveClass(base);
+                expect(dropBar).not.toHaveClass(dropping);
+                expect(dropBar).not.toHaveClass(raising);
+            } else if (i > dropIdx) {
+                expect(dropBar).toHaveClass(base);
+                expect(dropBar).toHaveClass(dropping);
+                expect(dropBar).not.toHaveClass(raising);
+            }
+        }
     });
-});
+    
+    it("applies raising classes to elements below the one raising", () => {
+        const base = "DropBarTransform"
+        const dropping = "dropping"
+        const raising = "raising"
+        act(() => {
+            render(renderSeveralDropBars(), root);
+        });
+        const dropBars = root.children
+    
+        for (const dropBar of dropBars) {
+            // NOTE: not sure, but toHaveClass(base, dropping, raising) was
+            //       avoided since .not is being used, and that behavior isn't
+            //       understood (what if two of three classes were present?)
+            expect(dropBar).not.toHaveClass(base);
+            expect(dropBar).not.toHaveClass(dropping)
+            expect(dropBar).not.toHaveClass(raising)
+        }
+    
+        const dropIdx = 1;
+        const dropBarToClick = dropBars[dropIdx];
+        const dropButton = grabDropButtonFrom(dropBarToClick);
+        act(() => {
+            dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        });
+        // wait for drop (seperate "act()")
+        act(() => {
+            dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        });
+    
+        for (let i = 0; i < dropBars.length; i++) {
+            const dropBar = dropBars[i];
+            if (i <= dropIdx) {
+                expect(dropBar).not.toHaveClass(base);
+                expect(dropBar).not.toHaveClass(dropping);
+                expect(dropBar).not.toHaveClass(raising);
+            } else if (i > dropIdx) {
+                expect(dropBar).toHaveClass(base);
+                expect(dropBar).not.toHaveClass(dropping);
+                expect(dropBar).toHaveClass(raising);
+            }
+        }
+    });
+})
 
-// TODO: implement DropBarGroup tests here
+// TODO: maybe provide some animation tests, since it
+// primarilly applies animations to grouped children
