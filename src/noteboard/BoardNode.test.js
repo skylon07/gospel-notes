@@ -31,6 +31,10 @@ function grabChildFrom(boardNode) {
         boardNode.querySelector("[data-testid='folder']")
 }
 
+function grabDropBarContentFrom(dropBar) {
+    return dropBar.querySelector("[data-testid='drop-bar-content']");
+}
+
 function grabNoteBoxData(noteBox) {
     const titleElem = noteBox.querySelector("textarea.Title");
     const contentElem = noteBox.querySelector("textarea.Content");
@@ -67,9 +71,9 @@ describe("rendering tests", () => {
     it("renders NoteBox nodes", () => {
         const title = "title"
         const content = "content"
-        const nodeId = nodeStore.createNode("NoteBox", {title, content}).id
+        const node = nodeStore.createNode("NoteBox", {title, content})
         act(() => {
-            render(<BoardNode nodeId={nodeId} />, root)
+            render(<BoardNode node={node} />, root)
         })
         const boardNode = grabBoardNode()
         const noteBox = grabChildFrom(boardNode)
@@ -79,11 +83,26 @@ describe("rendering tests", () => {
         expect(noteBoxData).toStrictEqual({title, content})
     })
     
+    it("renders nodes by ID (using NoteBox type)", () => {
+        const title = "title"
+        const content = "content"
+        const nodeId = nodeStore.createNode("NoteBox", { title, content }).id
+        act(() => {
+            render(<BoardNode node={nodeId} />, root)
+        })
+        const boardNode = grabBoardNode()
+        const noteBox = grabChildFrom(boardNode)
+        const noteBoxData = grabNoteBoxData(noteBox)
+        
+        expect(noteBox).toHaveClass("NoteBox")
+        expect(noteBoxData).toStrictEqual({ title, content })
+    })
+    
     it("renders DropBar nodes", () => {
         const title = "title"
-        const nodeId = nodeStore.createNode("DropBar", {title}).id
+        const node = nodeStore.createNode("DropBar", {title})
         act(() => {
-            render(<BoardNode nodeId={nodeId} />, root)
+            render(<BoardNode node={node} />, root)
         })
         const boardNode = grabBoardNode()
         const dropBar = grabChildFrom(boardNode)
@@ -91,6 +110,24 @@ describe("rendering tests", () => {
         
         expect(dropBar).toHaveClass("DropBar")
         expect(dropBarData).toStrictEqual({title})
+    })
+    
+    it("renders DropBar nodes with children", () => {
+        const node = nodeStore.createNode("DropBar")
+        const title = "note title"
+        const content = "note content"
+        const child = nodeStore.createNode("NoteBox", { title, content })
+        node.addChild(child)
+        act(() => {
+            render(<BoardNode node={node} />, root)
+        })
+        const boardNode = grabBoardNode()
+        const dropBar = grabChildFrom(boardNode)
+        const noteBox = grabDropBarContentFrom(dropBar)
+        const noteBoxData = grabNoteBoxData(noteBox)
+        
+        expect(noteBox).toHaveClass("NoteBox")
+        expect(noteBoxData).toStrictEqual({ title, content })
     })
 })
 

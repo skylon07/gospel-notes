@@ -36,7 +36,7 @@ export default class NoteBoard extends React.Component {
                 const id = child
                 return <BoardNode
                     key={id}
-                    nodeId={id}
+                    node={id}
                     onChange={this.on.nodeChange}
                 />
             } else if (Array.isArray(child)) {

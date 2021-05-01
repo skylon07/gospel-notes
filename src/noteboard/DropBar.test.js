@@ -11,6 +11,7 @@ const origSVGIcon = SVGIconModule.SVGIcon;
 
 jest.useFakeTimers("modern");
 
+const origPrompt = window.prompt
 let root = null;
 beforeEach(() => {
     root = document.createElement("div");
@@ -23,6 +24,7 @@ afterEach(() => {
 
     // reset mock
     SVGIconModule.SVGIcon = origSVGIcon;
+    window.prompt = origPrompt
 });
 
 function grabDropBar() {
@@ -63,14 +65,14 @@ it("renders without crashing", () => {
 
 describe("rendering tests", () => {
     it("renders a title", () => {
-        const title = "this is the title string to look for";
+        const initTitle = "this is the title string to look for";
         act(() => {
-            render(<DropBar title={title} />, root);
+            render(<DropBar initTitle={initTitle} />, root);
         });
         const dropBar = grabDropBar();
         const mainBar = grabMainBarFrom(dropBar);
 
-        expect(mainBar).toHaveTextContent(title);
+        expect(mainBar).toHaveTextContent(initTitle);
     });
 
     it("renders the correct icon type", () => {
@@ -146,15 +148,18 @@ describe("drop button tests", () => {
 });
 
 describe("listener callback tests", () => {
-    it("triggers onMouseHold() when holdable bar is held", () => {
-        const onMouseHold = jest.fn();
+    it("triggers onChangeTitle() when holdable bar is held", () => {
+        // mock prompt()
+        window.prompt = () => "newTitle"
+        
+        const onChangeTitle = jest.fn();
         act(() => {
-            render(<DropBar onMouseHold={onMouseHold} />, root);
+            render(<DropBar onChangeTitle={onChangeTitle} />, root);
         });
         const dropBar = grabDropBar();
         const mainBar = grabMainBarFrom(dropBar);
 
-        expect(onMouseHold).not.toBeCalled();
+        expect(onChangeTitle).not.toBeCalled();
 
         act(() => {
             mainBar.dispatchEvent(
@@ -162,13 +167,14 @@ describe("listener callback tests", () => {
             );
         });
 
-        expect(onMouseHold).not.toBeCalled();
+        expect(onChangeTitle).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(5000);
         });
 
-        expect(onMouseHold).toBeCalledTimes(1);
+        expect(onChangeTitle).toBeCalledTimes(1);
+        expect(onChangeTitle).toBeCalledWith("newTitle")
     });
 
     // NOTE: DropBarGroups are not used anymore; _beforeDrop is obsolete
@@ -200,7 +206,7 @@ describe("group animation tests", () => {
         const dropping = "dropping"
         const raising = "raising"
         act(() => {
-            render(<DropBar _beforeDrop={_beforeDrop} />, root);
+            render(renderSeveralDropBars(), root);
         });
         const dropBars = root.children
     
@@ -214,9 +220,9 @@ describe("group animation tests", () => {
         }
     
         const dropIdx = 2;
+        const dropBarToClick = dropBars[dropIdx];
+        const dropButton = grabDropButtonFrom(dropBarToClick);
         act(() => {
-            const dropBarToClick = dropBars[dropIdx];
-            const dropButton = grabDropButtonFrom(dropBarToClick);
             dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
         });
     

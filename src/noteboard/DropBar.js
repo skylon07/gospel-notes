@@ -28,20 +28,32 @@ function getChildIdx(elem) {
     return idx;
 }
 
-export default class DropBar extends React.PureComponent {
+export default class DropBar extends React.Component {
     static propTypes = {
-        title: PropTypes.string,
-        iconType: PropTypes.string,
-        canModify: PropTypes.bool,
-        onMouseHold: PropTypes.func,
+        initTitle: PropTypes.string,
+        initIconType: PropTypes.string,
+        children: PropTypes.node,
+        onChangeTitle: PropTypes.func,
+        onChangeIcon: PropTypes.func,
     };
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        // NOTE: changes in "init..." props can be ignored
+        return nextProps.children !== this.props.children ||
+            nextProps.onChangeTitle !== this.props.onChangeTitle ||
+            nextProps.onChangeIcon !== this.props.onChangeIcon ||
+            nextState.title !== this.state.title ||
+            nextState.iconType !== this.state.iconType ||
+            nextState.dropped !== this.state.dropped
+    }
 
     constructor(props) {
         super(props);
 
         this.state = {
+            title: props.initTitle || "",
+            iconType: props.initIconType || "",
             dropped: false,
-            notes: [], // {title, content, dateID}
         };
 
         this.ref = React.createRef();
@@ -49,10 +61,9 @@ export default class DropBar extends React.PureComponent {
         this.holdIsTouch = false;
 
         this.on = {
-            hold: () => this.triggerOnMouseHold(),
+            hold: () => this.triggerRename(),
             allowTriggerDrop: () => this._allowTriggerDrop(),
             triggerDrop: () => this.triggerDrop(),
-            addNote: () => this.addNote("New Note", "This is the note content"),
         }
     }
 
@@ -66,8 +77,8 @@ export default class DropBar extends React.PureComponent {
                         onTouchEnd={this.on.allowTriggerDrop}
                         onTouchCancel={this.on.allowTriggerDrop}
                     >
-                        <SVGIcon type={this.props.iconType || "blank"} />
-                        {this.props.title}
+                        <SVGIcon type={this.state.iconType || "blank"} />
+                        {this.state.title}
                         <div className="Spacer" />
                         <DropdownButton
                             onClick={this.on.triggerDrop}
@@ -76,27 +87,11 @@ export default class DropBar extends React.PureComponent {
                     </div>
                 </Holdable>
                 <DropBarContent dropped={this.state.dropped}>
-                    {this.renderNotes()}
-                    {this.renderAddButton()}
+                    {this.props.children}
                 </DropBarContent>
                 <div className={this.getBottomBarClass()} />
             </div>
         );
-    }
-
-    renderNotes() {
-        return this.state.notes.map(({ title, content, dateID }) => {
-            return <NoteBox key={dateID} title={title} content={content} />
-        })
-    }
-
-    renderAddButton() {
-        if (this.props.canModify) {
-            return <AddButton onClick={this.on.addNote}>
-                Add Note
-            </AddButton>
-        }
-        return null
     }
 
     getClass() {
@@ -116,30 +111,23 @@ export default class DropBar extends React.PureComponent {
         this._findContentElem();
     }
 
-    addNote(title, content) {
-        const dateID = new Date().getTime()
-        const newNote = { title, content, dateID }
-        this.setState((state) => {
-            const newNotes = state.notes.concat(newNote)
-            return { notes: newNotes }
-        })
-    }
-
-    // TODO: is this the best/safest way to accomplish this...?
     _findContentElem() {
-        let elem = this.ref.current.children[0];
-        while (!elem.classList.contains("DropBarContent")) {
-            elem = elem.nextSibling;
-        }
-        this.contentElem = elem;
+        this.contentElem = this.ref.current.querySelector(".DropBarContent")
     }
 
-    triggerOnMouseHold() {
-        if (typeof this.props.onMouseHold === "function") {
-            this.props.onMouseHold();
-        }
+    triggerRename() {
         // ignore the possible drop after releasing
         this._ignoreTriggerDrop = true;
+        
+        const newTitle = window.prompt("Enter a new title", this.state.title)
+        if (newTitle === null || newTitle === undefined) {
+            return // prompt was cancelled; don't change state
+        }
+        
+        this.setState({title: newTitle})
+        if (typeof this.props.onChangeTitle == "function") {
+            this.props.onChangeTitle(newTitle)
+        }
     }
 
     _allowTriggerDrop() {
