@@ -36,11 +36,11 @@ it("renders without crashing", () => {
     render(<NoteBoard />, root)
 })
 
-it("renders BoardNodes from a node's ID", () => {
+it("renders BoardNodes from nodes or their IDs", () => {
     const children = [
-        nodeStore.createNode("NoteBox").id,
+        nodeStore.createNode("NoteBox"),
         <div key="react shut up">
-           "not a node"
+           "not a node (these should not be checked)"
            {nodeStore.createNode("NoteBox").id}
         </div>,
         "not a node",

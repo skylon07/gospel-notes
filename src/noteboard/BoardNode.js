@@ -114,9 +114,9 @@ export default class BoardNode extends React.PureComponent {
         
     }
     
-    triggerOnChange(type, newData) {
+    triggerOnChange(changeType, newData) {
         if (typeof this.props.onChange === "function") {
-            this.props.onChange(this.node, type, newData)
+            this.props.onChange(this.node, changeType, newData)
         }
     }
 }

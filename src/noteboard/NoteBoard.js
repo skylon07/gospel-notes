@@ -10,6 +10,7 @@ export default class NoteBoard extends React.Component {
     static propTypes = {
         children: PropTypes.array,
         onNoteBoxChange: PropTypes.func,
+        onDropBarChange: PropTypes.func,
     }
     
     constructor(props) {
@@ -57,7 +58,7 @@ export default class NoteBoard extends React.Component {
             break
             
             case types.DropBar: {
-                
+                this.trigger(this.props.onDropBarChange, dataType, newData)
             }
             break
             
@@ -67,7 +68,7 @@ export default class NoteBoard extends React.Component {
             break
             
             default: {
-                throw new TypeError(`Invalid node type requested NoteBoard.onNodeChange()`)
+                throw new TypeError(`Invalid node type requested in NoteBoard.onNodeChange()`)
             }
             break
         }
