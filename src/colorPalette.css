@@ -2,7 +2,8 @@
     /* colors */
     /* (actual color definitions) */
     --color-ghostNavy: 105, 105, 117;
-    --color-softNavy: 57, 57, 69;
+    --color-softNavy: 62, 62, 76;
+    --color-darkNavy: 49, 53, 83;
     --color-deepNavy: 37, 37, 48;
     --color-softWhite: 200, 200, 200;
     --color-darkGrey: 60, 60, 60;
@@ -27,7 +28,7 @@
     --window-shadow: rgba(20, 20, 35, 0.25);
 
     --top-bar-background-color: rgb(var(--color-softNavy));
-    --drop-bar-background-color: rgb(var(--color-softNavy));
+    --drop-bar-background-color: rgb(var(--color-darkNavy));
     --note-box-background-color: rgba(var(--color-softNavy), 0.73);
     --menu-background-color: rgb(var(--color-ghostNavy));
     --note-box-title-border: rgba(var(--color-ghostNavy), 0.75);

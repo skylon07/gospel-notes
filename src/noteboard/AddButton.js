@@ -6,6 +6,7 @@ import { SVGIcon } from "common/svg-icon"
 
 export default class AddButton extends React.Component {
     static propTypes = {
+        children: PropTypes.node,
         onClick: PropTypes.func,
     }
 

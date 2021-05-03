@@ -165,6 +165,7 @@ describe("listener callbacks", () => {
                 <NoteBox
                     // prettier-ignore
                     initTitle={firstTitle}
+                    canChange={true}
                     onChangeTitle={onChangeTitle}
                 />,
                 root
@@ -195,6 +196,7 @@ describe("listener callbacks", () => {
                 <NoteBox
                     // prettier-ignore
                     initContent={firstContent}
+                    canChange={true}
                     onChangeContent={onChangeContent}
                 />,
                 root

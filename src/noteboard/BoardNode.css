@@ -1,4 +1,9 @@
 .BoardNode {
     width: 100%;
-    height: 100%;
+    height: auto;
+}
+
+.BoardNode > * {
+    /* center elements inside nodes */
+    margin: auto;
 }

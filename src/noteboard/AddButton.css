@@ -16,7 +16,6 @@
     /* other */
     position: relative;
     background-color: var(--clear);
-    /* background-color: blue; */
     user-select: none;
 }
 
@@ -25,7 +24,6 @@
 }
 
 .AddButton .SVGIcon {
-    /* background-color: rgba(255,0,0,0.3); */
     width: 2.2em;
     height: 2.2em;
 }
@@ -35,5 +33,5 @@
 }
 
 .AddButton .Spacer {
-    width: 0.44em;
+    width: 0.44em; /* SVGIcon width * 0.2 (space between edge and end of plus) */
 }

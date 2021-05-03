@@ -39,6 +39,12 @@ export default class MainApp extends React.Component {
             }
             const type = types[i++ % types.length]
             ids.push(nodeStore.createNode(type, null).id)
+            if (type === "DropBar") {
+                const node = nodeStore.getNodeById(ids[ids.length - 1])
+                for (let j = 0; j < i - 3; j++) {
+                    node.addChild(nodeStore.createNode("NoteBox", {title: "note " + j}))
+                }
+            }
             this.setState({currentNodeIds: ids}, () => setTimeout(() => {
                 interval()
             }, 400))
@@ -55,6 +61,7 @@ export default class MainApp extends React.Component {
                 />
                 <MainWindow>
                     <NoteBoard
+                        canModifyData={false}
                         onNoteBoxChange={() => alert("// TODO: MainApp > NoteBoard.onNoteBoxChange()")}
                     >
                         {this.renderCurrNotes()}
@@ -78,7 +85,7 @@ export default class MainApp extends React.Component {
     
     renderAddButton() {
         return <AddButton
-            key="React gets mad if this doesn't exist"
+            key="the (l)on(e)ly add button..."
             onClick={() => alert("// TODO: MainApp > AddButton.onClick()")}
         >
             Add Node

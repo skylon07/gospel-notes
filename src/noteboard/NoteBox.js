@@ -6,6 +6,7 @@ export default class NoteBox extends React.Component {
     static propTypes = {
         initTitle: PropTypes.string,
         initContent: PropTypes.string,
+        canChange: PropTypes.bool,
         onChangeTitle: PropTypes.func,
         onChangeContent: PropTypes.func,
     };
@@ -47,19 +48,31 @@ export default class NoteBox extends React.Component {
         if (!title) {
             return null;
         }
-
-        return (
-            <textarea
+        
+        if (this.canChange()) {
+            return (
+                <textarea
+                    ref={this.titleRef}
+                    className="Title"
+                    rows="1"
+                    cols="1"
+                    wrap="off"
+                    onBlur={this.on.blurTitle}
+                    onInput={this.on.titleInput}
+                    defaultValue={title}
+                />
+            )
+        } else {
+            return <textarea
                 ref={this.titleRef}
                 className="Title"
                 rows="1"
                 cols="1"
                 wrap="off"
-                onBlur={this.on.blurTitle}
-                onInput={this.on.titleInput}
-                defaultValue={title}
+                value={title}
+                readOnly={true}
             />
-        )
+        }
     }
 
     renderContent() {
@@ -69,22 +82,42 @@ export default class NoteBox extends React.Component {
         if (!content) {
             return null;
         }
-
-        return (
-            <textarea
-                ref={this.contentRef}
-                className="Content"
-                rows="1"
-                cols="1"
-                onBlur={this.on.blurContent}
-                onInput={this.on.contentInput}
-                defaultValue={content}
-            />
-        );
+        
+        if (this.canChange()) {
+            return (
+                <textarea
+                    ref={this.contentRef}
+                    className="Content"
+                    rows="1"
+                    cols="1"
+                    onBlur={this.on.blurContent}
+                    onInput={this.on.contentInput}
+                    defaultValue={content}
+                />
+            );
+        } else {
+            return (
+                <textarea
+                    ref={this.contentRef}
+                    className="Content"
+                    rows="1"
+                    cols="1"
+                    value={content}
+                    readOnly={true}
+                />
+            );
+        }
     }
 
     componentDidMount() {
         this.initDims();
+    }
+    
+    canChange() {
+        if (typeof this.props.canChange === "boolean") {
+            return this.props.canChange
+        }
+        return true
     }
     
     detectIfTextAreaChanged(newStr, lastStr, onChange) {

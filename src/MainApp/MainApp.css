@@ -40,7 +40,7 @@ html body *::-moz-focus-inner {
     overflow-y: scroll;
 }
 
-.MainApp .MainWindow .NoteBoard {
+.MainApp .NoteBoard {
     /* positioning */
     /* NOTE: having the combination of position: absolute and parent being a flex
              element allows the element to overflow without taking more than the rest
@@ -51,48 +51,31 @@ html body *::-moz-focus-inner {
     left: 0px;
     
     /* dimensions */
-    width: 100%;
-    height: auto;
-
-    /* flex-positioning */
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: start;
-    align-items: center;
-}
-
-.MainApp .MainWindow .BoardNode {
-    width: 100%;
     height: auto;
 }
 
-.MainApp .MainWindow .BoardNode > * {
-    /* center elements inside nodes */
-    margin: auto;
-}
-
-.MainApp .MainWindow .NoteBox {
-    margin-top: 6px;
+.MainApp .NoteBoard > .BoardNode > .NoteBox {
+    margin-top: 0.72em;
     width: 85%;
 }
 
-.MainApp .MainWindow .DropBar {
-    margin-top: 6px;
+.MainApp .NoteBoard > .BoardNode > .DropBar {
+    margin-top: 0.72em;
     width: 95%;
 }
 
 @media (min-width: 31em) {
-    .MainApp .MainWindow .DropBar {
-        margin-top: 16px;
+    .MainApp .DropBar {
+        margin-top: 1.2em;
         width: 83%;
     }
 }
 
-.MainApp .MainWindow .AddButton {
+.MainApp .AddButton {
     margin-top: 20px;
     font-size: 1.3em;
 }
 
-.MainApp .MainWindow .ScrollExtension {
+.MainApp .ScrollExtension {
     height: 10em;
 }

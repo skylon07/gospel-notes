@@ -3,7 +3,7 @@
     --bottom-bar-height: 6px;
     /* this is set/changed inside a standalone <style /> element */
     --bottom-bar-shift: 0px;
-    --drop-animation-time: 0.33s;
+    --drop-animation-time: 0.35s;
     --sibling-shift: calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height));
 }
 
@@ -206,12 +206,12 @@ html .DropBar.initAnimation .DropBarContent {
 
 .DropBarContent .Container {
     width: 100%;
-    max-height: 300px;
+    max-height: 45vh;
     overflow-y: scroll;
 }
 
 .DropBarContent .Container > * {
-    margin: 12px 0px;
+    margin: 0.6em 0em;
 }
 
 .DropBarContent .TopGradient {
@@ -270,7 +270,9 @@ html .DropBar.initAnimation .DropBarContent {
     transform: translateX(-50%);
     
     /* other */
-    font-size: 0.9em;
+    margin-bottom: 1.4em;
+    color: var(--main-link-color);
+    font-size: 1.1em;
 }
 
 html body .DropBarTransform.dropping {

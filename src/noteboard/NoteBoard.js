@@ -9,6 +9,8 @@ import BoardNode from "./BoardNode.js"
 export default class NoteBoard extends React.Component {
     static propTypes = {
         children: PropTypes.array,
+        canAddToDropBars: PropTypes.bool,
+        canChangeData: PropTypes.bool,
         onNoteBoxChange: PropTypes.func,
         onDropBarChange: PropTypes.func,
     }
@@ -29,15 +31,17 @@ export default class NoteBoard extends React.Component {
     
     renderNodes(array) {
         if (!Array.isArray(array)) {
-            return null
+            return "note board must be given an array"
         }
         
         return array.map((child) => {
-            if (nodeStore.isNodeId(child)) {
-                const id = child
+            if (nodeStore.isNodeId(child) || nodeStore.isNode(child)) {
+                const id = typeof child === "string" ? child : child.id
                 return <BoardNode
                     key={id}
-                    node={id}
+                    node={child}
+                    canAddChildren={this.canAddToDropBars()}
+                    canChangeData={this.canChangeData()}
                     onChange={this.on.nodeChange}
                 />
             } else if (Array.isArray(child)) {
@@ -45,6 +49,20 @@ export default class NoteBoard extends React.Component {
             }
             return child
         })
+    }
+    
+    canAddToDropBars() {
+        if (typeof this.props.canAddToDropBars === "boolean") {
+            return this.props.canAddToDropBars
+        }
+        return true
+    }
+    
+    canChangeData() {
+        if (typeof this.props.canChangeData === "boolean") {
+            return this.props.canChangeData
+        }
+        return true
     }
     
     onNodeChange(node, dataType, newData) {

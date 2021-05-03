@@ -6,22 +6,32 @@ import { nodeStore } from './datastore.js'
 
 import NoteBox from "./NoteBox.js"
 import DropBar from "./DropBar.js"
+import AddButton from "./AddButton.js"
 
 const CustomTypes = {
     node(props, propName, componentName) {
         const node = props[propName]
         if (!nodeStore.isNode(node)) {
             const nodeAsStr = typeof node === "symbol" ? "(symbol)" : node + ""
-            throw new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid node, got '${nodeAsStr}'`)
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid node, got '${nodeAsStr}'`)
         }
     },
+    nodeId(props, propName, componentName) {
+        const nodeId = props[propName]
+        if (!nodeStore.isNodeId(nodeId)) {
+            const nodeIdAsStr = typeof nodeId=== "symbol" ? "(symbol)" : nodeId + ""
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid nodeId, got '${nodeIdAsStr}'`)
+        }
+    }
 }
 
 // a base component that provides a launching point for
 // representing note nodes as a UI component
 export default class BoardNode extends React.PureComponent {
     static propTypes = {
-        node: PropTypes.oneOfType([PropTypes.string, CustomTypes.node]).isRequired,
+        node: PropTypes.oneOfType([CustomTypes.node, CustomTypes.nodeId]).isRequired,
+        canAddChildren: PropTypes.bool,
+        canChangeData: PropTypes.bool,
         onChange: PropTypes.func,
     }
 
@@ -91,6 +101,7 @@ export default class BoardNode extends React.PureComponent {
         return <NoteBox
             initTitle={title}
             initContent={content}
+            canChange={this.props.canChangeData}
             onChangeTitle={on.changeTitle}
             onChangeContent={on.changeContent}
         />
@@ -98,11 +109,20 @@ export default class BoardNode extends React.PureComponent {
     
     renderDropBar() {
         const { title } = this.node.data
-        const children = this.node.mapChildren((child) => {
-            return <BoardNode node={child} />
+        let children = this.node.mapChildren((child) => {
+            return <BoardNode key={child.id} node={child} />
         })
+        if (this.props.canAddChildren) {
+            children.push((
+                <AddButton key="add button" onClick={this.on.addChild}>
+                    Add Note
+                </AddButton>
+            ))
+        }
         return <DropBar
             initTitle={title}
+            initIcon="blank"
+            canChange={this.props.canChangeData}
             onChangeTitle={this.on.DropBar.changeTitle}
             onChangeIcon={this.on.DropBar.changeIcon}
         >

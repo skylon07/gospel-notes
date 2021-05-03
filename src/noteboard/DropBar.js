@@ -6,7 +6,6 @@ import { SVGIcon } from "common/svg-icon";
 
 import Holdable from "./Holdable.js";
 import NoteBox from "./NoteBox.js"
-import AddButton from "./AddButton.js"
 
 const GLOBALS = {
     offsetSheet: (() => {
@@ -33,6 +32,7 @@ export default class DropBar extends React.Component {
         initTitle: PropTypes.string,
         initIconType: PropTypes.string,
         children: PropTypes.node,
+        canChange: PropTypes.bool,
         onChangeTitle: PropTypes.func,
         onChangeIcon: PropTypes.func,
     };
@@ -114,19 +114,28 @@ export default class DropBar extends React.Component {
     _findContentElem() {
         this.contentElem = this.ref.current.querySelector(".DropBarContent")
     }
+    
+    canChange() {
+        if (typeof this.props.canChange === "boolean") {
+            return this.props.canChange
+        }
+        return true
+    }
 
     triggerRename() {
-        // ignore the possible drop after releasing
-        this._ignoreTriggerDrop = true;
-        
-        const newTitle = window.prompt("Enter a new title", this.state.title)
-        if (newTitle === null || newTitle === undefined) {
-            return // prompt was cancelled; don't change state
-        }
-        
-        this.setState({title: newTitle})
-        if (typeof this.props.onChangeTitle == "function") {
-            this.props.onChangeTitle(newTitle)
+        if (this.canChange()) {
+            // ignore the possible drop after releasing
+            this._ignoreTriggerDrop = true;
+            
+            const newTitle = window.prompt("Enter a new title", this.state.title)
+            if (newTitle === null || newTitle === undefined) {
+                return // prompt was cancelled; don't change state
+            }
+            
+            this.setState({title: newTitle})
+            if (typeof this.props.onChangeTitle == "function") {
+                this.props.onChangeTitle(newTitle)
+            }
         }
     }
 
@@ -163,16 +172,10 @@ export default class DropBar extends React.Component {
         const parent = elem.parentElement;
         const elemIdx = getChildIdx(elem);
         
-        for (let idx = 0; idx < parent.children.length; idx++) {
+        for (let idx = elemIdx + 1; idx < parent.children.length; idx++) {
             const child = parent.children[idx];
-            // sets previous children (and self) with no animation
-            if (idx <= elemIdx) {
-                this._setAnimationClasses(child, null);
-            }
             // sets children after with the animation
-            else {
-                this._setAnimationClasses(child, direction);
-            }
+            this._setAnimationClasses(child, direction);
         }
         
         // performs the same operations on the parent until hitting the group
