@@ -29,8 +29,11 @@ function getChildIdx(elem) {
 
 export default class DropBar extends React.Component {
     static propTypes = {
+        // update-ignored props
         initTitle: PropTypes.string,
         initIconType: PropTypes.string,
+        
+        // update-honored props
         children: PropTypes.node,
         canChange: PropTypes.bool,
         onChangeTitle: PropTypes.func,
@@ -40,6 +43,7 @@ export default class DropBar extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         // NOTE: changes in "init..." props can be ignored
         return nextProps.children !== this.props.children ||
+            nextProps.canChange !== this.props.canChange ||
             nextProps.onChangeTitle !== this.props.onChangeTitle ||
             nextProps.onChangeIcon !== this.props.onChangeIcon ||
             nextState.title !== this.state.title ||
@@ -52,7 +56,7 @@ export default class DropBar extends React.Component {
 
         this.state = {
             title: props.initTitle || "",
-            iconType: props.initIconType || "",
+            iconType: props.initIconType || "blank",
             dropped: false,
         };
 

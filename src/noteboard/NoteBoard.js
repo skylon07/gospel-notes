@@ -66,17 +66,15 @@ export default class NoteBoard extends React.Component {
     }
     
     onNodeChange(node, dataType, newData) {
-        this.validateNode(node)
-        
         const types = nodeStore.nodeTypes
         switch (node.type) {
             case types.NoteBox: {
-                this.trigger(this.props.onNoteBoxChange, dataType, newData)
+                this.trigger(this.props.onNoteBoxChange, node.id, dataType, newData)
             }
             break
             
             case types.DropBar: {
-                this.trigger(this.props.onDropBarChange, dataType, newData)
+                this.trigger(this.props.onDropBarChange, node.id, dataType, newData)
             }
             break
             

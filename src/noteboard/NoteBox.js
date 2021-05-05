@@ -4,8 +4,11 @@ import "./NoteBox.css";
 
 export default class NoteBox extends React.Component {
     static propTypes = {
+        // update-ignored props
         initTitle: PropTypes.string,
         initContent: PropTypes.string,
+        
+        // update-honored props
         canChange: PropTypes.bool,
         onChangeTitle: PropTypes.func,
         onChangeContent: PropTypes.func,
@@ -13,12 +16,20 @@ export default class NoteBox extends React.Component {
     
     shouldComponentUpdate(nextProps, nextState) {
         // NOTE: changes in "init..." props can be ignored
-        return nextProps.onChangeTitle !== this.props.onChangeTitle ||
-           nextProps.onChangeContent !== this.props.onChangeContent
+        return nextProps.canChange !== this.props.canChange ||
+            nextProps.onChangeTitle !== this.props.onChangeTitle ||
+            nextProps.onChangeContent !== this.props.onChangeContent ||
+            nextState.title !== this.state.title ||
+            nextState.content !== this.state.content
     }
 
     constructor(props) {
         super(props);
+        
+        this.state = {
+            title: props.initTitle,
+            content: props.initContent,
+        }
 
         this.titleRef = React.createRef();
         this.contentRef = React.createRef();
@@ -42,10 +53,9 @@ export default class NoteBox extends React.Component {
     }
 
     renderTitle() {
-        let title = this.props.initTitle;
-        this.lastTitle = title;
-
+        const title = this.state.title
         if (!title) {
+            // remove the element for empty text
             return null;
         }
         
@@ -76,10 +86,9 @@ export default class NoteBox extends React.Component {
     }
 
     renderContent() {
-        let content = this.props.children || this.props.initContent;
-        this.lastContent = content;
-
+        const content = this.state.content
         if (!content) {
+            // remove the element for empty text
             return null;
         }
         
@@ -120,46 +129,61 @@ export default class NoteBox extends React.Component {
         return true
     }
     
-    detectIfTextAreaChanged(newStr, lastStr, onChange) {
-        if (typeof onChange !== "function") {
-            // detecting won't trigger anything...
-            // might as well not try!
-            return
+    // wraps title value getter by returning null if it doesn't exist
+    titleValue() {
+        if (this.titleRef.current) {
+            return this.titleRef.current.value || null
         }
-        
+        return null
+    }
+    
+    // wraps content value getter by returning null if it doesn't exist
+    contentValue() {
+        if (this.contentRef.current) {
+            return this.contentRef.current.value || null
+        }
+        return null
+    }
+    
+    detectIfTextAreaChanged(newStr, lastStr, onChange) {
         if (newStr !== lastStr) {
             // convert breaks to newlines
             // NOTE: eval is used to generate the regex; this is perfectly
             //       safe usage (talking to you eslint)
             // eslint-disable-next-line
             const regex = eval("/<br>/gi")
-            let str = newStr.replace(regex, "\n");
-
-            // ensure first/last characters are ommitted when newlines
-            if (str[0] === "\n") {
-                str = str.slice(1);
-            }
-            if (str[str.length - 1] === "\n") {
-                str = str.slice(0, str.length - 1);
+            let str = newStr
+            if (str !== null) {
+                str.replace(regex, "\n");
+                // ensure first/last characters are ommitted when newlines
+                if (str[0] === "\n") {
+                    str = str.slice(1);
+                }
+                if (str[str.length - 1] === "\n") {
+                    str = str.slice(0, str.length - 1);
+                }
             }
             
-            onChange(str);
+            this._updateStateTitleAndContent()
+            if (typeof onChange === "function") {
+                onChange(str)
+            }
         }
     }
 
     detectIfTitleChanged() {
         // prettier-ignore
         this.detectIfTextAreaChanged(
-            this.titleRef.current.value,
-            this.lastTitle,
+            this.titleValue(),
+            this.state.title,
             this.props.onChangeTitle
         );
     }
     detectIfContentChanged() {
         // prettier-ignore
         this.detectIfTextAreaChanged(
-            this.contentRef.current.value,
-            this.lastContent,
+            this.contentValue(),
+            this.state.content,
             this.props.onChangeContent
         );
     }
@@ -179,6 +203,10 @@ export default class NoteBox extends React.Component {
     }
 
     updateDims(elem, name) {
+        if (!elem) {
+            return
+        }
+        
         elem.style.height = "auto"; // allows shrinking
         elem.style.height = elem.scrollHeight + "px";
 
@@ -197,5 +225,12 @@ export default class NoteBox extends React.Component {
                 elem.style.width = max;
             }
         }
+    }
+    
+    _updateStateTitleAndContent() {
+        this.setState({
+            title: this.titleValue(),
+            content: this.contentValue(),
+        })
     }
 }

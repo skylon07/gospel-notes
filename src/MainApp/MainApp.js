@@ -34,7 +34,7 @@ export default class MainApp extends React.Component {
         this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
         
         interval = () => {
-            if (i >= 15) {
+            if (i >= 4) {
                 return
             }
             const type = types[i++ % types.length]
@@ -52,6 +52,8 @@ export default class MainApp extends React.Component {
     }
     
     render() {
+        // TODO: render shadow at the top of the MainWindow (maybe make a new
+        //       <ShadowBorder />, and use in DropBarContent and TopBar menu?)
         return (
             <div className="MainApp">
                 <BetaDisclaimer />

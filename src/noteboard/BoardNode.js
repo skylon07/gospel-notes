@@ -26,7 +26,7 @@ const CustomTypes = {
 }
 
 // a base component that provides a launching point for
-// representing note nodes as a UI component
+// representing/modifying note nodes as a UI component
 export default class BoardNode extends React.PureComponent {
     static propTypes = {
         node: PropTypes.oneOfType([CustomTypes.node, CustomTypes.nodeId]).isRequired,
@@ -38,35 +38,58 @@ export default class BoardNode extends React.PureComponent {
     constructor(props) {
         super(props)
         
-        this.on = {
-            NoteBox: {
-                changeTitle: (newTitle) => this.triggerOnChange("title", newTitle),
-                changeContent: (newContent) => this.triggerOnChange("content", newContent),
-            },
-            DropBar: {
-                changeTitle: (newTitle) => this.triggerOnChange("title", newTitle),
-                changeIcon: (newIcon) => this.triggerOnChange("icon", newIcon)
-            },
-            Folder: {
-                changeTitle: (newTitle) => this.triggerOnChange("title", newTitle),
-            },
-            addChild: () => alert('// TODO: BoardNode().on.addChild()'),
-            removeChild: () => alert('// TODO: BoardNode().on.removeChild()'),
+        const node = nodeStore.isNode(props.node) ?
+            props.node : nodeStore.getNodeById(props.node)
+        this.node = node
+        
+        let nodeChildren = null
+        if (nodeStore.isNode(node)) {
+            nodeChildren = node.mapChildren((child) => child)
         }
         
-        this.node = null // updated every render
+        this.state = {
+            children: nodeChildren,
+        }
+        
+        this.on = {
+            NoteBox: {
+                changeTitle: (newTitle) => this.onChangeSelf("title", newTitle),
+                changeContent: (newContent) => this.onChangeSelf("content", newContent),
+            },
+            DropBar: {
+                changeTitle: (newTitle) => this.onChangeSelf("title", newTitle),
+                changeIcon: (newIcon) => this.onChangeSelf("icon", newIcon),
+            },
+            Folder: {
+                changeTitle: (newTitle) => this.onChangeSelf("title", newTitle),
+            },
+            addChild: () => {
+                const newNode = this.addChild()
+                this.triggerOnChange(this.node, "children-add", newNode)
+            },
+            changeChild: (...args) => this.onChangeChild(...args),
+        }
     }
 
     render() {
+        // TODO: make prop-enabled ability to grow on mount (when they are dynamically added)
         return <div data-testid="board-node" className="BoardNode">
             {this.renderThisNode()}
         </div>
     }
     
+    componentDidUpdate() {
+        if (this.node && this.node !== this.props.node && this.node.id !== this.props.node) {
+            try {
+                console.warn("BoardNode node props cannot be updated across renders")
+            } catch (error) {
+                // guess you won't know...
+            }
+        }
+    }
+    
     renderThisNode() {
-        const node = nodeStore.isNode(this.props.node) ? 
-            this.props.node : nodeStore.getNodeById(this.props.node)
-        this.node = node
+        const node = this.node
         if (!node || typeof node !== "object") {
             return <h1>INVALID NODE ID</h1>
         }
@@ -97,20 +120,25 @@ export default class BoardNode extends React.PureComponent {
     // abstracted node rendering functions, given the NodeParent they represent
     renderNoteBox() {
         const { title, content } = this.node.data
-        const on = this.on.NoteBox
         return <NoteBox
             initTitle={title}
             initContent={content}
             canChange={this.props.canChangeData}
-            onChangeTitle={on.changeTitle}
-            onChangeContent={on.changeContent}
+            onChangeTitle={this.on.NoteBox.changeTitle}
+            onChangeContent={this.on.NoteBox.changeContent}
         />
     }
     
     renderDropBar() {
         const { title } = this.node.data
-        let children = this.node.mapChildren((child) => {
-            return <BoardNode key={child.id} node={child} />
+        const children = this.state.children.map((node) => {
+            return <BoardNode
+                key={node.id}
+                node={node}
+                canAddChildren={this.props.canAddChildren}
+                canChangeData={this.props.canChangeData}
+                onChange={this.on.changeChild}
+            />
         })
         if (this.props.canAddChildren) {
             children.push((
@@ -134,9 +162,56 @@ export default class BoardNode extends React.PureComponent {
         
     }
     
-    triggerOnChange(changeType, newData) {
+    // change this.node and trigger props.onChange()
+    onChangeSelf(changeType, newData) {
+        this.node.data[changeType] = newData
+        this.triggerOnChange(this.node, changeType, newData)
+    }
+    
+    // handle when a child node changes and trigger props.onChange()
+    onChangeChild(childNode, changeType, newData) {
+        this._removeIfEmptyNoteBox(childNode)
+        this.triggerOnChange(childNode, changeType, newData)
+    }
+    
+    // simply calls onChange() if it exists
+    triggerOnChange(node, changeType, newData) {
         if (typeof this.props.onChange === "function") {
-            this.props.onChange(this.node, changeType, newData)
+            this.props.onChange(node, changeType, newData)
         }
+    }
+    
+    // adds a new node child to this.node and state
+    addChild() {
+        const newNode = nodeStore.createNode("NoteBox", {
+            title: "New Note",
+            content: "This is the note content",
+        })
+        this.node.addChild(newNode)
+        this._updateStateChildren()
+        return newNode
+    }
+    
+    // removes a node child from this.node and state
+    removeChild(idx) {
+        const node = this.node.removeChildAt(idx)
+        this._updateStateChildren()
+        return node
+    }
+    
+    _removeIfEmptyNoteBox(childNode) {
+        const { title, content } = childNode.data
+        const isEmpty = !title && !content
+        if (isEmpty) {
+            const idx = this.node.indexOf(childNode)
+            this.removeChild(idx)
+            this.triggerOnChange(this.node, "children-remove", childNode)
+        }
+    }
+    
+    // keeps state in sync when node children are modified
+    _updateStateChildren() {
+        const newChildren = this.node.mapChildren((child) => child)
+        this.setState({ children: newChildren })
     }
 }
