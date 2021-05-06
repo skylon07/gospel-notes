@@ -16,6 +16,7 @@ const GLOBALS = {
     updateOffsets(offset) {
         GLOBALS.offsetSheet.innerHTML = `.DropBar, .DropBarTransform { --bottom-bar-shift: ${offset}px; }`;
     },
+    bottomBarHeight: 6,
 };
 
 function getChildIdx(elem) {
@@ -176,6 +177,9 @@ export default class DropBar extends React.Component {
         const parent = elem.parentElement;
         const elemIdx = getChildIdx(elem);
         
+        if (direction === "raising") {
+            this._scrollParentIfUnderflow(parent)
+        }
         for (let idx = elemIdx + 1; idx < parent.children.length; idx++) {
             const child = parent.children[idx];
             // sets children after with the animation
@@ -220,6 +224,24 @@ export default class DropBar extends React.Component {
                 elem.classList.remove(base, dropping, raising);
             }
             break;
+        }
+    }
+    
+    _scrollParentIfUnderflow(parent) {
+        const heightChange = this.contentElem.offsetHeight + GLOBALS.bottomBarHeight
+        const maxScrollBottom = parent.scrollHeight - heightChange
+        const scrollBottom = parent.scrollTop + parent.offsetHeight
+        
+        // NOTE: canScroll helps prevent making scrollBy() calls to elements
+        //       that can't scroll (likely because this DropBar is in a wrapper
+        //       element, and therefore taking all the height)
+        const canScroll = parent.scrollTop > 0
+        const scrollDiff = maxScrollBottom - scrollBottom
+        if (scrollDiff < 0 && canScroll) {
+            parent.scrollBy({
+                top: scrollDiff, 
+                behavior: "smooth",
+            })
         }
     }
 }
