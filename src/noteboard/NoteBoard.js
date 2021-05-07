@@ -11,8 +11,8 @@ export default class NoteBoard extends React.Component {
         children: PropTypes.array,
         canAddToDropBars: PropTypes.bool,
         canChangeData: PropTypes.bool,
-        onNoteBoxChange: PropTypes.func,
-        onDropBarChange: PropTypes.func,
+        onChangeNoteBox: PropTypes.func,
+        onChangeDropBar: PropTypes.func,
     }
     
     constructor(props) {
@@ -69,12 +69,12 @@ export default class NoteBoard extends React.Component {
         const types = nodeStore.nodeTypes
         switch (node.type) {
             case types.NoteBox: {
-                this.trigger(this.props.onNoteBoxChange, node.id, dataType, newData)
+                this.trigger(this.props.onChangeNoteBox, node)
             }
             break
             
             case types.DropBar: {
-                this.trigger(this.props.onDropBarChange, node.id, dataType, newData)
+                this.trigger(this.props.onChangeDropBar, node)
             }
             break
             

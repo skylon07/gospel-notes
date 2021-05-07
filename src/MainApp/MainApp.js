@@ -1,7 +1,7 @@
 import React from "react";
 import "./MainApp.css";
 
-import { StorageRegistry } from "lib/storage-registry";
+import { SearchIndex } from "lib/search-index";
 
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
@@ -20,32 +20,46 @@ export default class MainApp extends React.Component {
         this.state = {
             // TODO: maybe pass hide() when rendering (a function child) instead of using props?
             forceMenuHidden: null,
-            // DEBUG: ids
+            // DEBUG: "[...ids]"; should be "[]"
             currentNodeIds: [...ids], // strings
         };
 
-        // NOTE: storage will be a backup in case internet sync is not available
-        this.storage = new StorageRegistry("Notes");
+        this.index = new SearchIndex()
 
         this.on = {
             hideMenu: () => this.hideMenu(),
+            addNode: () => {
+                const newNode = this.promptNewNode()
+                if (newNode) {
+                    this.updateNodeOnIndex(newNode)
+                    this.appendNodeToPage(newNode.id)
+                }
+            },
+            change: {
+                NoteBox: (...args) => this.updateNoteBoxOnIndex(...args),
+                DropBar: (...args) => this.updateDropBarOnIndex(...args),
+            },
+            search: (...args) => this.displaySearch(...args)
         }
         
         this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
         
+        // DEBUG
         interval = () => {
             if (i >= 4) {
                 return
             }
             const type = types[i++ % types.length]
-            ids.push(nodeStore.createNode(type, null).id)
+            let node = nodeStore.createNode(type, null)
+            ids.push(node.id)
             if (type === "DropBar") {
                 const node = nodeStore.getNodeById(ids[ids.length - 1])
                 for (let j = 0; j < i - 3; j++) {
                     node.addChild(nodeStore.createNode("NoteBox", {title: "note " + j}))
                 }
             }
-            this.setState({currentNodeIds: ids}, () => setTimeout(() => {
+            this.updateNodeOnIndex(node)
+            this.setState({ currentNodeIds: ids }, () => setTimeout(() => {
                 interval()
             }, 400))
         }
@@ -58,13 +72,15 @@ export default class MainApp extends React.Component {
             <div className="MainApp">
                 <BetaDisclaimer />
                 <TopBar
-                    menuContent={this.renderMenu()}
+                    menuContent={this._menuContent}
                     forceMenuHidden={this.state.forceMenuHidden}
+                    onSearchClick={this.on.search}
                 />
                 <MainWindow>
                     <NoteBoard
                         canModifyData={false}
-                        onNoteBoxChange={() => alert("// TODO: MainApp > NoteBoard.onNoteBoxChange()")}
+                        onChangeNoteBox={this.on.change.NoteBox}
+                        onChangeDropBar={this.on.change.DropBar}
                     >
                         {this.renderCurrNotes()}
                         {this.renderAddButton()}
@@ -75,12 +91,6 @@ export default class MainApp extends React.Component {
         );
     }
 
-    renderMenu() {
-        // NOTE: the menu stays the same to allow
-        //       TopBar to work as a Pure Component
-        return this._menuContent;
-    }
-
     renderCurrNotes() {
         return this.state.currentNodeIds
     }
@@ -88,13 +98,14 @@ export default class MainApp extends React.Component {
     renderAddButton() {
         return <AddButton
             key="the (l)on(e)ly add button..."
-            onClick={() => alert("// TODO: MainApp > AddButton.onClick()")}
+            onClick={this.on.addNode}
         >
             Add Node
         </AddButton>
     }
     
     componentDidMount() {
+        // DEBUG
         setTimeout(interval, 700)
     }
 
@@ -102,6 +113,70 @@ export default class MainApp extends React.Component {
         this.setState({ forceMenuHidden: true }, () => {
             this.setState({ forceMenuHidden: null });
         });
+    }
+    
+    // TODO: make a custom prompt that is easier to use and looks better
+    //       (can probably rip stuff out of ./origGospelNotes)
+    promptNewNode() {
+        let type = window.prompt("Enter a type")
+        while (type && !nodeStore.nodeTypes[type]) {
+            type = window.prompt('Please enter a valid type ("NoteBox", "DropBar")')
+        }
+        if (!type) {
+            return null // cancelled
+        }
+        
+        const newNode = nodeStore.createNode(type, {
+            title: "New Title",
+            content: "This is the content",
+        })
+        return newNode
+    }
+    
+    appendNodeToPage(nodeOrId) {
+        let nodeId = nodeOrId
+        if (nodeStore.isNode(nodeOrId)) {
+            nodeId = nodeOrId.id
+        }
+        
+        this.setState((state) => {
+            const newIds = state.currentNodeIds.concat(nodeId)
+            return { currentNodeIds: newIds }
+        })
+    }
+    
+    // generic alias for the types of "updateIndex" fuctions below
+    updateNodeOnIndex(node) {
+        const { NoteBox, DropBar } = nodeStore.nodeTypes
+        switch (node.type) {
+            case NoteBox: {
+                this.updateNoteBoxOnIndex(node)
+            }
+            break
+            
+            case DropBar: {
+                this.updateDropBarOnIndex(node)
+            }
+            break
+        }
+    }
+    
+    updateNoteBoxOnIndex(node) {
+        const ref = node.id
+        const { title, content } = node.data
+        this.index.setReference(ref, title, content)
+    }
+    
+    updateDropBarOnIndex(node) {
+        const ref = node.id
+        const { title } = node.data
+        this.index.setReference(ref, title)
+    }
+    
+    displaySearch(queryStr) {
+        const query = this.index.search(queryStr)
+        const resultIds = query.mapResults((id) => id)
+        this.setState({ currentNodeIds: resultIds })
     }
 }
 

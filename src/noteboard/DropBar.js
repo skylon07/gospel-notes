@@ -238,6 +238,7 @@ export default class DropBar extends React.Component {
         const canScroll = parent.scrollTop > 0
         const scrollDiff = maxScrollBottom - scrollBottom
         if (scrollDiff < 0 && canScroll) {
+            // TODO: apply a little slower/over more time...
             parent.scrollBy({
                 top: scrollDiff, 
                 behavior: "smooth",

@@ -152,4 +152,12 @@ class SearchQuery {
         }
         return result.score
     }
+    
+    mapResults(fn, useOrig=false) {
+        return this._results.map((value, index) => {
+            let valToPass = useOrig ? value : value.ref
+            const mapped = fn(valToPass, index)
+            return mapped
+        })
+    }
 }

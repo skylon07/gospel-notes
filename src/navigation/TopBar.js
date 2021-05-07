@@ -93,7 +93,7 @@ export default class TopBar extends React.PureComponent {
                         <div className="Spacer" />
                         <SearchBar
                             ref={this._searchFocusRef}
-                            onSearchClick={this.props.onSearchClick}
+                            onSearch={this.props.onSearchClick}
                         />
                     </div>
                 </div>

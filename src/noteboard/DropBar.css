@@ -270,7 +270,7 @@ html .DropBar.initAnimation .DropBarContent {
     transform: translateX(-50%);
     
     /* other */
-    margin-bottom: 1.4em;
+    margin-bottom: 1em;
     color: var(--main-link-color);
     font-size: 1.1em;
 }
