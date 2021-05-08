@@ -13,6 +13,10 @@ const types = ["NoteBox", "DropBar", "NoteBox"]
 let i = 0
 let interval = null
 
+const DISPLAY_MODES = {
+    all: "all",
+    search: "search",
+}
 export default class MainApp extends React.Component {
     constructor(props) {
         super(props);
@@ -21,7 +25,9 @@ export default class MainApp extends React.Component {
             // TODO: maybe pass hide() when rendering (a function child) instead of using props?
             forceMenuHidden: null,
             // DEBUG: "[...ids]"; should be "[]"
-            currentNodeIds: [...ids], // strings
+            currentNodeIds: [...ids], // array of strings
+            nodeStack: [], // array of [ids]
+            displayMode: DISPLAY_MODES.all,
         };
 
         this.index = new SearchIndex()
@@ -39,7 +45,18 @@ export default class MainApp extends React.Component {
                 NoteBox: (...args) => this.updateNoteBoxOnIndex(...args),
                 DropBar: (...args) => this.updateDropBarOnIndex(...args),
             },
-            search: (...args) => this.displaySearch(...args)
+            search: (...args) => {
+                if (this.state.displayMode !== DISPLAY_MODES.search) {
+                    this.pushNodesToStack()
+                }
+                this.displaySearch(...args)
+            },
+            searchBack: () => {
+                if (this.state.displayMode === DISPLAY_MODES.search) {
+                    this.popNodesFromStack()
+                    this.displayAll()
+                }
+            }
         }
         
         this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
@@ -75,6 +92,7 @@ export default class MainApp extends React.Component {
                     menuContent={this._menuContent}
                     forceMenuHidden={this.state.forceMenuHidden}
                     onSearchClick={this.on.search}
+                    onSearchInactive={this.on.searchBack}
                 />
                 <MainWindow>
                     <NoteBoard
@@ -145,6 +163,28 @@ export default class MainApp extends React.Component {
         })
     }
     
+    pushNodesToStack() {
+        this.setState((state) => {
+            const idsToPush = [state.currentNodeIds]
+            const newStack = state.nodeStack.concat(idsToPush)
+            const newIds = []
+            return { currentNodeIds: newIds, nodeStack: newStack }
+        })
+    }
+    
+    popNodesFromStack() {
+        this.setState((state) => {
+            if (state.nodeStack.length === 0) {
+                throw new Error("MainApp tried to pop from the node stack when it was empty!")
+            }
+            
+            const newEnd = state.nodeStack.length - 1
+            const newStack = state.nodeStack.slice(0, newEnd)
+            const newIds = state.nodeStack[newEnd]
+            return { currentNodeIds: newIds, nodeStack: newStack }
+        })
+    }
+    
     // generic alias for the types of "updateIndex" fuctions below
     updateNodeOnIndex(node) {
         const { NoteBox, DropBar } = nodeStore.nodeTypes
@@ -173,10 +213,16 @@ export default class MainApp extends React.Component {
         this.index.setReference(ref, title)
     }
     
+    displayAll() {
+        const newMode = DISPLAY_MODES.all
+        this.setState({ displayMode: newMode })
+    }
+    
     displaySearch(queryStr) {
         const query = this.index.search(queryStr)
         const resultIds = query.mapResults((id) => id)
-        this.setState({ currentNodeIds: resultIds })
+        const newMode = DISPLAY_MODES.search
+        this.setState({ currentNodeIds: resultIds, displayMode: newMode })
     }
 }
 
