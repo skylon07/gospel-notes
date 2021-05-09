@@ -4,11 +4,6 @@ import { act } from "react-dom/test-utils";
 
 import DropBar from "./DropBar.js";
 
-// NOTE: imported this way to manually mock SVGIcon
-import * as SVGIconModule from "common/svg-icon";
-// TODO: find a better way to mock with jest (that works)
-const origSVGIcon = SVGIconModule.SVGIcon;
-
 jest.useFakeTimers("modern");
 
 const origPrompt = window.prompt
@@ -23,7 +18,6 @@ afterEach(() => {
     root = null;
 
     // reset mock
-    SVGIconModule.SVGIcon = origSVGIcon;
     window.prompt = origPrompt
 });
 
@@ -35,8 +29,10 @@ function grabMainBarFrom(dropBar) {
     return dropBar.querySelector(".Bar");
 }
 
-function grabIconFrom(dropBar) {
-    return dropBar.querySelector("[data-testid='svg-icon']");
+function grabIconTypeFrom(dropBar) {
+    const iconElem = dropBar.querySelector("[data-testid='svg-icon']");
+    const classList = [...iconElem.classList]
+    return classList.filter((name) => name && name !== "SVGIcon")[0]
 }
 
 function grabDropButtonFrom(dropBar) {
@@ -76,21 +72,14 @@ describe("rendering tests", () => {
     });
 
     it("renders the correct icon type", () => {
-        // mock SVGIcon to track "type"
-        SVGIconModule.SVGIcon = class MockSVGIcon extends React.Component {
-            render() {
-                return <div data-testid="svg-icon">{this.props.type}</div>;
-            }
-        };
-
-        const iconType = "this is a fake icon type";
+        const iconType = "burger";
         act(() => {
-            render(<DropBar iconType={iconType} />, root);
+            render(<DropBar initIconType={iconType} />, root);
         });
         const dropBar = grabDropBar();
-        const icon = grabIconFrom(dropBar);
+        const icon = grabIconTypeFrom(dropBar);
 
-        expect(icon).toHaveTextContent(iconType);
+        expect(icon).toBe(iconType);
     });
 });
 

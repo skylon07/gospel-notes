@@ -109,7 +109,10 @@ class NodeParent {
                     // prettier-ignore
                     title: typeof newData.title === "string" ? newData.title :
                         typeof this._data.title === "string" ? this._data.title :
-                        "(bad title data)"
+                        "(bad title data)",
+                    iconType: typeof newData.iconType === "string" ? newData.iconType :
+                        typeof this._data.iconType === "string" ? this._data.iconType :
+                        "blank",
                 }
             }
             break

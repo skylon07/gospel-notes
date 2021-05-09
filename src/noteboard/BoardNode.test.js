@@ -26,22 +26,31 @@ function grabBoardNode() {
 }
 
 function grabChildFrom(boardNode) {
-    return boardNode.querySelector("[data-testid='note-box']") ||
-        boardNode.querySelector("[data-testid='drop-bar']") ||
-        boardNode.querySelector("[data-testid='folder']")
+    return boardNode.children[0]
 }
 
-function grabDropBarContentFrom(dropBar) {
-    return dropBar.querySelector("[data-testid='drop-bar-content']");
+function grabNoteBoxFields(noteBox) {
+    const titleElem = noteBox.querySelector("textarea.Title");
+    const contentElem = noteBox.querySelector("textarea.Content");
+    return [titleElem, contentElem]
 }
 
 function grabNoteBoxData(noteBox) {
-    const titleElem = noteBox.querySelector("textarea.Title");
-    const contentElem = noteBox.querySelector("textarea.Content");
-    
-    const title = (titleElem || {value: null}).value
-    const content = (contentElem || {value: null}).value
-    return {title, content};
+    const [titleElem, contentElem] = grabNoteBoxFields(noteBox)
+
+    const title = (titleElem || { value: null }).value
+    const content = (contentElem || { value: null }).value
+    return { title, content };
+}
+
+function grabDropBarContentChildrenFrom(dropBar) {
+    const content = dropBar.querySelector("[data-testid='drop-bar-content']");
+    return content.querySelector(".Container").children
+}
+
+function grabDropBarChildAt(dropBar, idx) {
+    const children = grabDropBarContentChildrenFrom(dropBar)
+    return grabChildFrom(children[idx])
 }
 
 function grabDropBarData(dropBar) {
@@ -55,7 +64,11 @@ function grabDropBarData(dropBar) {
         }
         title = null
     }
-    return {title}
+    
+    const iconElem = dropBar.querySelector("[data-testid='svg-icon']")
+    const classList = [...iconElem.classList]
+    const iconType = classList.filter((name) => name && name !== "SVGIcon")[0]
+    return { title, iconType }
 }
 
 function grabFolderData(folder) {
@@ -64,7 +77,7 @@ function grabFolderData(folder) {
 
 it("renders without crashing", () => {
     const node = nodeStore.createNode("NoteBox")
-    render(<BoardNode nodeId={node.id} />, root)
+    render(<BoardNode node={node.id} />, root)
 })
 
 describe("rendering tests", () => {
@@ -100,7 +113,8 @@ describe("rendering tests", () => {
     
     it("renders DropBar nodes", () => {
         const title = "title"
-        const node = nodeStore.createNode("DropBar", {title})
+        const iconType = "magGlass"
+        const node = nodeStore.createNode("DropBar", { title, iconType })
         act(() => {
             render(<BoardNode node={node} />, root)
         })
@@ -109,7 +123,7 @@ describe("rendering tests", () => {
         const dropBarData = grabDropBarData(dropBar)
         
         expect(dropBar).toHaveClass("DropBar")
-        expect(dropBarData).toStrictEqual({title})
+        expect(dropBarData).toStrictEqual({ title, iconType })
     })
     
     it("renders DropBar nodes with children", () => {
@@ -123,7 +137,7 @@ describe("rendering tests", () => {
         })
         const boardNode = grabBoardNode()
         const dropBar = grabChildFrom(boardNode)
-        const noteBox = grabDropBarContentFrom(dropBar)
+        const noteBox = grabDropBarChildAt(dropBar, 0)
         const noteBoxData = grabNoteBoxData(noteBox)
         
         expect(noteBox).toHaveClass("NoteBox")

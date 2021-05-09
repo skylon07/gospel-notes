@@ -130,7 +130,7 @@ export default class BoardNode extends React.PureComponent {
     }
     
     renderDropBar() {
-        const { title } = this.node.data
+        const { title, iconType } = this.node.data
         const children = this.state.children.map((node) => {
             return <BoardNode
                 key={node.id}
@@ -147,9 +147,10 @@ export default class BoardNode extends React.PureComponent {
                 </AddButton>
             ))
         }
+        
         return <DropBar
             initTitle={title}
-            initIcon="blank"
+            initIconType={iconType}
             canChange={this.props.canChangeData}
             onChangeTitle={this.on.DropBar.changeTitle}
             onChangeIcon={this.on.DropBar.changeIcon}

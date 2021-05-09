@@ -120,19 +120,22 @@ export class SVGIcon extends React.Component {
         type: PropTypes.oneOf(created.iconNames),
     };
 
-    static defaultProps = {
-        type: "blank",
-    };
-
     static types = created.iconNames;
 
     render() {
-        const { type } = this.props;
-        const svg = created.icons[type];
+        const type = this.props.type || "blank";
+        const svg = created.icons[type] || null;
         return (
-            <div data-testid="svg-icon" className="SVGIcon">
+            <div data-testid="svg-icon" className={this.getClass()}>
                 {svg}
             </div>
         );
+    }
+    
+    getClass() {
+        const base = "SVGIcon"
+        const origType = this.props.type || "blank"
+        const iconType = created.icons[origType] ? origType : "invalid"
+        return `${base} ${iconType}`
     }
 }

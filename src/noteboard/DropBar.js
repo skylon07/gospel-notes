@@ -57,7 +57,7 @@ export default class DropBar extends React.Component {
 
         this.state = {
             title: props.initTitle || "",
-            iconType: props.initIconType || "blank",
+            iconType: props.initIconType,
             dropped: false,
         };
 
@@ -82,7 +82,7 @@ export default class DropBar extends React.Component {
                         onTouchEnd={this.on.allowTriggerDrop}
                         onTouchCancel={this.on.allowTriggerDrop}
                     >
-                        <SVGIcon type={this.state.iconType || "blank"} />
+                        <SVGIcon type={this.state.iconType} />
                         {this.state.title}
                         <div className="Spacer" />
                         <DropdownButton
