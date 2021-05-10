@@ -12,6 +12,7 @@ export default class AddButton extends React.Component {
 
     render() {
         return <button
+            data-testid="add-button"
             className="AddButton"
             onClick={this.props.onClick}
         >

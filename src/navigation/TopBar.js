@@ -176,21 +176,15 @@ export default class TopBar extends React.PureComponent {
 
     showSearch() {
         this.setState({ searchActive: true });
-        // allows animation to play first
-        setTimeout(() => {
-            if (typeof this.props.onSearchActive === "function") {
-                this.props.onSearchActive();
-            }
-        });
+        if (typeof this.props.onSearchActive === "function") {
+            this.props.onSearchActive();
+        }
     }
     hideSearch() {
         this.setState({ searchActive: false });
-        // allows animation to play first
-        setTimeout(() => {
-            if (typeof this.props.onSearchInactive === "function") {
-                this.props.onSearchInactive();
-            }
-        });
+        if (typeof this.props.onSearchInactive === "function") {
+            this.props.onSearchInactive();
+        }
     }
 }
 

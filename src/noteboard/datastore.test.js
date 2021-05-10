@@ -109,10 +109,11 @@ describe("Node tests", () => {
     it("is created with valid DropBar data", () => {
         // NOTE: "valid data" = title (string)
         const title = "title"
+        const iconType = "icon type"
         const dataNotToInclude = "this should not be in the data"
-        const node = nodeStore.createNode("DropBar", { title, dataNotToInclude })
+        const node = nodeStore.createNode("DropBar", { title, iconType, dataNotToInclude })
         
-        expect(node.data).toStrictEqual({ title })
+        expect(node.data).toStrictEqual({ title, iconType })
     })
     
     it("is created with valid Folder data", () => {

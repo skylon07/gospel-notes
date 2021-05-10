@@ -4,13 +4,6 @@ import { act } from "react-dom/test-utils";
 
 import TopBar from "./TopBar.js";
 
-// NOTE: DropMenu shouldn't be mocked in all tests; importing this way
-//       allows mocking in tests only when needed
-import * as DropMenu from "./DropMenu.js";
-// TODO: figure out a way to make mocking this with jest work...
-// keep a memory of the original DropMenu component
-const origDefault = DropMenu.default;
-
 let root = null;
 beforeEach(() => {
     root = document.createElement("div");
@@ -20,10 +13,6 @@ afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
-
-    // restore mock
-    // NOTE: happens here so it is restored in case tests with mocks error
-    DropMenu.default = origDefault;
 });
 
 function grabTopBar() {
@@ -54,25 +43,32 @@ function grabMainAndSearchBoundsFrom(topBar) {
     return [main, search];
 }
 
+function grabMenuChildrenFrom(menu) {
+    const allChildren = [...menu.childNodes]
+    return allChildren.filter((child) => !child.className.includes("Shadow"))
+}
+
 it("renders without crashing", () => {
     render(<TopBar />, root);
 });
 
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<TopBar />, root)
+    })
+    const topBar = grabTopBar()
+    
+    expect(topBar).toHaveClass("TopBar")
+})
+
 describe("menu tests", () => {
     it("renders the correct menu content to the menu", () => {
-        // mock DropMenu component to control children (for comparison later)
-        DropMenu.default = class MockDropMenu extends React.Component {
-            render() {
-                return <div data-testid="drop-menu">{this.props.children}</div>;
-            }
-        };
-
         const menuContent = [
-            <button>b0</button>,
-            <button>b1</button>,
-            <button>b2</button>,
-            <p>p3</p>,
-            <button>b4</button>,
+            <button key="0">b0</button>,
+            <button key="1">b1</button>,
+            <button key="2">b2</button>,
+            <p key="3">p3</p>,
+            <button key="4">b4</button>,
         ];
         act(() => {
             render(<TopBar menuContent={menuContent} />, root);
@@ -81,17 +77,19 @@ describe("menu tests", () => {
         const [mainMenu] = grabMainMenuAndButtonFrom(topBar);
 
         // compare children
-        expect(mainMenu.children.length).toBe(menuContent.length);
-        for (let i = 0; i < mainMenu.children.length; i++) {
-            const renderedChild = mainMenu.children[i];
+        const children = grabMenuChildrenFrom(mainMenu)
+        expect(children.length).toBe(menuContent.length);
+        for (let i = 0; i < children.length; i++) {
+            const renderedChild = children[i];
             const childElement = menuContent[i];
 
             // compare tags
-            expect(renderedChild.tagName.toLowerCase()).toBe(
-                childElement.type.toLowerCase()
-            );
+            const renderedTag = renderedChild.tagName.toLowerCase()
+            const expectedTag = childElement.type.toLowerCase()
+            expect(renderedTag).toBe(expectedTag);
             // compare innerHTML
-            expect(renderedChild).toHaveTextContent(childElement.props.children);
+            const innerHTML = childElement.props.children
+            expect(renderedChild).toHaveTextContent(innerHTML);
         }
     });
 
@@ -266,7 +264,7 @@ describe("listener callback tests", () => {
     //     });
     // });
 
-    it("triggers onSearchActive()", async () => {
+    it("triggers onSearchActive()", () => {
         const onSearchActive = jest.fn();
         act(() => {
             render(<TopBar onSearchActive={onSearchActive} />, root);
@@ -276,18 +274,16 @@ describe("listener callback tests", () => {
 
         expect(onSearchActive).not.toBeCalled();
 
-        await act(async () => {
+        act(() => {
             searchButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
-            // NOTE: timeout is needed since onSearchActive() is called asyncronously
-            await new Promise((res) => setTimeout(res, 10));
         });
 
         expect(onSearchActive).toBeCalledTimes(1);
     });
 
-    it("triggers onSearchInactive()", async () => {
+    it("triggers onSearchInactive()", () => {
         const onSearchInactive = jest.fn();
         act(() => {
             render(<TopBar onSearchInactive={onSearchInactive} />, root);
@@ -305,12 +301,10 @@ describe("listener callback tests", () => {
 
         expect(onSearchInactive).not.toBeCalled();
 
-        await act(async () => {
+        act(() => {
             backButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
-            // NOTE: timeout is needed since onSearchInactive() is called asyncronously
-            await new Promise((res) => setTimeout(res, 10));
         });
 
         expect(onSearchInactive).toBeCalledTimes(1);

@@ -11,12 +11,30 @@ let root = null;
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
+    
+    updateTouchId()
 });
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
 });
+
+let currTouchId = 0
+function updateTouchId() {
+    currTouchId = Date.now()
+}
+
+// NOTE: an object with clientX/Y normally suffices, but
+//       spck env requires me to generate actual touches
+function makeTouch(target, clientX, clientY) {
+    return new Touch({
+        identifier: currTouchId,
+        target,
+        clientX,
+        clientY,
+    })
+}
 
 // just some content for the draggable to have shape...
 function renderDraggableContent() {
@@ -37,6 +55,15 @@ function grabDraggable() {
 it("renders without crashing", () => {
     render(<Draggable />, root);
 });
+
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<Draggable />, root)
+    })
+    const draggable = grabDraggable()
+    
+    expect(draggable).toHaveClass("Draggable")
+})
 
 it("moves when clicked and dragged across the screen", () => {
     // initial render of the component; act() is used since we are using the DOM
@@ -101,10 +128,7 @@ it("moves when touched and dragged across the screen", () => {
             new TouchEvent("touchstart", {
                 bubbles: true,
                 touches: [
-                    {
-                        clientX: 50,
-                        clientY: 50,
-                    },
+                    makeTouch(draggable, 50, 50),
                 ],
             })
         );
@@ -113,10 +137,7 @@ it("moves when touched and dragged across the screen", () => {
             new TouchEvent("touchmove", {
                 bubbles: true,
                 touches: [
-                    {
-                        clientX: 150,
-                        clientY: 150,
-                    },
+                    makeTouch(draggable, 150, 150),
                 ],
             })
         );
@@ -132,10 +153,7 @@ it("moves when touched and dragged across the screen", () => {
                 bubbles: true,
                 cancelable: true,
                 touches: [
-                    {
-                        clientX: 200,
-                        clientY: 200,
-                    },
+                    makeTouch(draggable, 200, 200),
                 ],
             })
         );
@@ -242,11 +260,7 @@ describe("listener callback tests", () => {
             });
 
             expect(onDrag).toBeCalledTimes(1);
-            expect(onDrag).toHaveBeenCalledWith(
-                expect.any(Number),
-                expect.any(Number)
-            );
-            expect(onDrag).toHaveBeenLastCalledWith(100, 100); // dragging distance
+            expect(onDrag).lastCalledWith(100, 100); // dragging distance
         });
 
         it("correctly calls afterDrag()", () => {
@@ -316,10 +330,7 @@ describe("listener callback tests", () => {
                     new TouchEvent("touchstart", {
                         bubbles: true,
                         touches: [
-                            {
-                                clientX: 50,
-                                clientY: 50,
-                            },
+                            makeTouch(draggable, 50, 50),
                         ],
                     })
                 );
@@ -328,10 +339,7 @@ describe("listener callback tests", () => {
                     new TouchEvent("touchmove", {
                         bubbles: true,
                         touches: [
-                            {
-                                clientX: 150,
-                                clientY: 150,
-                            },
+                            makeTouch(draggable, 150, 150),
                         ],
                     })
                 );
@@ -360,10 +368,7 @@ describe("listener callback tests", () => {
                     new TouchEvent("touchstart", {
                         bubbles: true,
                         touches: [
-                            {
-                                clientX: 50,
-                                clientY: 50,
-                            },
+                            makeTouch(draggable, 50, 50),
                         ],
                     })
                 );
@@ -372,21 +377,14 @@ describe("listener callback tests", () => {
                     new TouchEvent("touchmove", {
                         bubbles: true,
                         touches: [
-                            {
-                                clientX: 150,
-                                clientY: 150,
-                            },
+                            makeTouch(draggable, 150, 150),
                         ],
                     })
                 );
             });
 
             expect(onDrag).toBeCalledTimes(1);
-            expect(onDrag).toHaveBeenCalledWith(
-                expect.any(Number),
-                expect.any(Number)
-            );
-            expect(onDrag).toHaveBeenLastCalledWith(100, 100); // dragging distance
+            expect(onDrag).lastCalledWith(100, 100); // dragging distance
         });
 
         it("correctly calls afterDrag()", () => {
@@ -409,10 +407,7 @@ describe("listener callback tests", () => {
                     new TouchEvent("touchstart", {
                         bubbles: true,
                         touches: [
-                            {
-                                clientX: 50,
-                                clientY: 50,
-                            },
+                            makeTouch(draggable, 50, 50),
                         ],
                     })
                 );
@@ -421,10 +416,7 @@ describe("listener callback tests", () => {
                     new TouchEvent("touchmove", {
                         bubbles: true,
                         touches: [
-                            {
-                                clientX: 150,
-                                clientY: 150,
-                            },
+                            makeTouch(draggable, 150, 150),
                         ],
                     })
                 );

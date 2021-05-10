@@ -74,7 +74,7 @@ export default class DropBar extends React.Component {
 
     render() {
         return (
-            <div data-testid="drop-bar" ref={this.ref} className={this.getClass()}>
+            <div ref={this.ref} data-testid="drop-bar" className={this.getClass()}>
                 <Holdable onHold={this.on.hold}>
                     <div
                         className="Bar"

@@ -86,7 +86,7 @@ export default class MainApp extends React.Component {
         // TODO: render shadow at the top of the MainWindow (maybe make a new
         //       <ShadowBorder />, and use in DropBarContent and TopBar menu?)
         return (
-            <div className="MainApp">
+            <div data-testid="main-app" className="MainApp">
                 <BetaDisclaimer />
                 <TopBar
                     menuContent={this._menuContent}

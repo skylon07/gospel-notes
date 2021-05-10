@@ -14,8 +14,21 @@ afterEach(() => {
     root = null;
 });
 
+function grabMainApp() {
+    return document.querySelector("[data-testid='main-app']")
+}
+
 it("renders without crashing", () => {
     render(<MainApp />, root);
 });
+
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<MainApp />, root)
+    })
+    const app = grabMainApp()
+    
+    expect(app).toHaveClass("MainApp")
+})
 
 // TODO: do we need to write more tests for this...?

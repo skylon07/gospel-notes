@@ -29,6 +29,15 @@ it("renders without crashing", () => {
     render(<NoteBox />, root);
 });
 
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<NoteBox />, root)
+    })
+    const noteBox = grabNoteBox()
+    
+    expect(noteBox).toHaveClass("NoteBox")
+})
+
 describe("rendering tests", () => {
     it("renders a title", () => {
         const titleText = "Test Title";
@@ -52,35 +61,36 @@ describe("rendering tests", () => {
         expect(content).toHaveTextContent(contentText);
     });
 
-    it("renders content by children", () => {
-        const contentText = "Test content by children";
-        act(() => {
-            render(<NoteBox>{contentText}</NoteBox>, root);
-        });
-        const noteBox = grabNoteBox();
-        const [_, content] = grabTitleAndContentFrom(noteBox);
+    // NOTE: rendering by children is no longer supported
+    // it("renders content by children", () => {
+    //     const contentText = "Test content by children";
+    //     act(() => {
+    //         render(<NoteBox>{contentText}</NoteBox>, root);
+    //     });
+    //     const noteBox = grabNoteBox();
+    //     const [_, content] = grabTitleAndContentFrom(noteBox);
 
-        expect(content).toHaveTextContent(contentText);
-    });
+    //     expect(content).toHaveTextContent(contentText);
+    // });
 
-    it("renders children over content prop", () => {
-        const contentPropText = "Test content by props";
-        const contentChildText = "Test content by children";
-        act(() => {
-            render(
-                <NoteBox
-                    initContent={contentPropText}
-                >
-                    {contentChildText}
-                </NoteBox>,
-                root
-            );
-        });
-        const noteBox = grabNoteBox();
-        const [_, content] = grabTitleAndContentFrom(noteBox);
+    // it("renders children over content prop", () => {
+    //     const contentPropText = "Test content by props";
+    //     const contentChildText = "Test content by children";
+    //     act(() => {
+    //         render(
+    //             <NoteBox
+    //                 initContent={contentPropText}
+    //             >
+    //                 {contentChildText}
+    //             </NoteBox>,
+    //             root
+    //         );
+    //     });
+    //     const noteBox = grabNoteBox();
+    //     const [_, content] = grabTitleAndContentFrom(noteBox);
 
-        expect(content).toHaveTextContent(contentChildText);
-    });
+    //     expect(content).toHaveTextContent(contentChildText);
+    // });
     
     it("does not rerender when initTitle or initContent changes", () => {
         const ref = React.createRef()

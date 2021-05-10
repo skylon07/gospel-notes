@@ -10,6 +10,8 @@ let root = null;
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
+    
+    updateTouchId()
 });
 afterEach(() => {
     unmountComponentAtNode(root);
@@ -21,9 +23,34 @@ function grabHoldable() {
     return document.querySelector("[data-testid='holdable']");
 }
 
+let currTouchId = 0
+function updateTouchId() {
+    currTouchId = Date.now()
+}
+
+// NOTE: an object with clientX/Y normally suffices, but
+//       spck env requires me to generate actual touches
+function makeTouch(target, clientX, clientY) {
+    return new Touch({
+        identifier: currTouchId,
+        target,
+        clientX,
+        clientY,
+    })
+}
+
 it("renders without crashing", () => {
     render(<Holdable />, root);
 });
+
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<Holdable />, root)
+    })
+    const holdable = grabHoldable()
+    
+    expect(holdable).toHaveClass("Holdable")
+})
 
 describe("holding tests", () => {
     it("calls onHold() when clicked and held", () => {
@@ -41,7 +68,7 @@ describe("holding tests", () => {
         });
 
         // onHold() should not have activated yet
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         // wait some time...
         act(() => {
@@ -49,14 +76,14 @@ describe("holding tests", () => {
         });
 
         // still should not have activated...
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         // wait the rest of the time
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).toHaveBeenCalledTimes(1);
+        expect(onHold).toBeCalledTimes(1);
     });
 
     it("calls onHold() when touched and held", () => {
@@ -74,7 +101,7 @@ describe("holding tests", () => {
         });
 
         // onHold() should not have activated yet
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         // wait some time...
         act(() => {
@@ -82,14 +109,14 @@ describe("holding tests", () => {
         });
 
         // still should not have activated...
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         // wait the rest of the time
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).toHaveBeenCalledTimes(1);
+        expect(onHold).toBeCalledTimes(1);
     });
 });
 
@@ -106,7 +133,7 @@ describe("cancel tests", () => {
                 new MouseEvent("mousedown", { bubbles: true })
             );
         });
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -115,13 +142,13 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
     });
 
     it("cancels when clicked and the mouse moves", () => {
@@ -136,7 +163,7 @@ describe("cancel tests", () => {
                 new MouseEvent("mousedown", { bubbles: true })
             );
         });
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -145,13 +172,13 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
     });
 
     it("cancels when touched and released too quickly", () => {
@@ -166,7 +193,7 @@ describe("cancel tests", () => {
                 new TouchEvent("touchstart", { bubbles: true })
             );
         });
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -175,13 +202,13 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
     });
 
     it("cancels when touched and dragged", () => {
@@ -195,7 +222,7 @@ describe("cancel tests", () => {
             holdable.dispatchEvent(
                 new TouchEvent("touchstart", {
                     bubbles: true,
-                    touches: [{ clientX: 50, clientY: 50 }],
+                    touches: [makeTouch(holdable, 50, 50)],
                 })
             );
             // NOTE: dispatched to allow fake-move-detection to work properly
@@ -203,29 +230,29 @@ describe("cancel tests", () => {
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,
-                    touches: [{ clientX: 50, clientY: 50 }],
+                    touches: [makeTouch(holdable, 50, 50)],
                 })
             );
         });
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,
-                    touches: [{ clientX: 100, clientY: 100 }],
+                    touches: [makeTouch(holdable, 150, 150)],
                 })
             );
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
     });
 
     it("doesn't cancel and ignores 'still' touchmove events", () => {
@@ -239,7 +266,7 @@ describe("cancel tests", () => {
             holdable.dispatchEvent(
                 new TouchEvent("touchstart", {
                     bubbles: true,
-                    touches: [{ clientX: 50, clientY: 50 }],
+                    touches: [makeTouch(holdable, 50, 50)],
                 })
             );
             // NOTE: all touchmove events are on the same coordinate to simulate
@@ -247,34 +274,34 @@ describe("cancel tests", () => {
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,
-                    touches: [{ clientX: 50, clientY: 50 }],
+                    touches: [makeTouch(holdable, 50, 50)],
                 })
             );
         });
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,
-                    touches: [{ clientX: 50, clientY: 50 }],
+                    touches: [makeTouch(holdable, 50, 50)],
                 })
             );
         });
 
-        expect(onHold).not.toHaveBeenCalled();
+        expect(onHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,
-                    touches: [{ clientX: 50, clientY: 50 }],
+                    touches: [makeTouch(holdable, 50, 50)],
                 })
             );
         });
 
-        expect(onHold).toHaveBeenCalledTimes(1);
+        expect(onHold).toBeCalledTimes(1);
     });
 });

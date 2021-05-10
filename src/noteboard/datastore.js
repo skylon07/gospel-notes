@@ -112,7 +112,7 @@ class NodeParent {
                         "(bad title data)",
                     iconType: typeof newData.iconType === "string" ? newData.iconType :
                         typeof this._data.iconType === "string" ? this._data.iconType :
-                        "blank",
+                        "invalid",
                 }
             }
             break

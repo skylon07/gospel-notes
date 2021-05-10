@@ -80,7 +80,17 @@ it("renders without crashing", () => {
     render(<BoardNode node={node.id} />, root)
 })
 
-describe("rendering tests", () => {
+it("renders with a CSS class", () => {
+    const node = nodeStore.createNode("NoteBox")
+    act(() => {
+        render(<BoardNode node={node} />, root)
+    })
+    const boardNode = grabBoardNode()
+    
+    expect(boardNode).toHaveClass("BoardNode")
+})
+
+describe("node rendering tests", () => {
     it("renders NoteBox nodes", () => {
         const title = "title"
         const content = "content"

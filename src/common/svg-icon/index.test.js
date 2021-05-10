@@ -1,6 +1,7 @@
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
+
 import { SVGIcon } from ".";
 
 let root = null;
@@ -25,6 +26,15 @@ function grabSVGFrom(icon) {
 it("renders without crashing", () => {
     render(<SVGIcon />, root);
 });
+
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<SVGIcon />, root)
+    })
+    const icon = grabSVGIcon()
+    
+    expect(icon).toHaveClass("SVGIcon")
+})
 
 it("renders a blank icon by default", () => {
     act(() => {

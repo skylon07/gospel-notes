@@ -50,8 +50,8 @@ export default class Draggable extends React.Component {
         //       used in translating the element absolutely
         return (
             <div
-                data-testid="draggable"
                 ref={(elem) => this.updateDragRef(elem)}
+                data-testid="draggable"
                 className={this.getClass()}
             >
                 <div className="ScaleContainer">{this.props.children}</div>
@@ -167,7 +167,7 @@ export default class Draggable extends React.Component {
     }
 
     startHold(initHoldX, initHoldY) {
-        this.holdTimeout = setTimeout(() => {
+        this.holdTimeout = window.setTimeout(() => {
             this.setState({ holding: true });
         }, 160);
         this.updateShrink(initHoldX, initHoldY);
@@ -178,7 +178,7 @@ export default class Draggable extends React.Component {
         // NOTE: when touching for 0.5 seconds, the "contextmenu" event is fired, preventing further
         // control over preventing default scrolling actions; this cancels the drag operation after
         // the context event fires (bugs arise when applying to the "contextmenu" event itself...)
-        this.holdCancelTimeout = setTimeout(() => this.endHold(), 465);
+        this.holdCancelTimeout = window.setTimeout(() => this.endHold(), 465);
 
         this.triggerBeforeDrag();
     }
@@ -187,7 +187,7 @@ export default class Draggable extends React.Component {
         if (this.state.holding) {
             preventEventDefault();
 
-            clearTimeout(this.holdCancelTimeout);
+            window.clearTimeout(this.holdCancelTimeout);
             this.holdCancelTimeout = null;
 
             const adjust = this.triggerOnDrag(diffX, diffY);
@@ -217,10 +217,10 @@ export default class Draggable extends React.Component {
         this.lastMoveX = null;
         this.lastMoveY = null;
 
-        clearTimeout(this.holdTimeout);
+        window.clearTimeout(this.holdTimeout);
         this.holdTimeout = null;
 
-        clearTimeout(this.holdCancelTimeout);
+        window.clearTimeout(this.holdCancelTimeout);
         this.holdCancelTimeout = null;
 
         this.triggerAfterDrag();

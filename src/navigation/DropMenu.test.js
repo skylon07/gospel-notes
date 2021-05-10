@@ -23,6 +23,15 @@ it("renders without crashing", () => {
     render(<DropMenu hidden />, root);
 });
 
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<DropMenu hidden />, root)
+    })
+    const menu = grabDropMenu()
+    
+    expect(menu).toHaveClass("DropMenu")
+})
+
 describe("class rendering tests", () => {
     it("drops when not hidden", () => {
         act(() => {

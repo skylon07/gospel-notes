@@ -36,10 +36,19 @@ it("renders without crashing", () => {
     render(<NoteBoard />, root)
 })
 
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<NoteBoard />, root)
+    })
+    const board = grabNoteBoard()
+    
+    expect(board).toHaveClass("NoteBoard")
+})
+
 it("renders BoardNodes from nodes or their IDs", () => {
     const children = [
         nodeStore.createNode("NoteBox"),
-        <div key="react shut up">
+        <div key="div that shouldn't be checked">
            "not a node (these should not be checked)"
            {nodeStore.createNode("NoteBox").id}
         </div>,
@@ -63,6 +72,7 @@ it("renders BoardNodes from nodes or their IDs", () => {
     const child1_0 = elem1.childNodes[0]
     expect(child1_0).toHaveTextContent("not a node")
     // test that board nodes nested in elements are NOT rendered
+    // (valid node ids remain strings and are not actual nodes)
     const child1_1 = elem1.childNodes[1]
     expect(child1_1).toHaveTextContent(/NODE\d+-/)
     

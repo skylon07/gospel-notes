@@ -20,3 +20,8 @@
     stroke: var(--main-color);
     stroke-width: 5px;
 }
+
+html body .SVGIcon.invalid svg:not(.these_are_really_important) {
+    stroke: darkred;
+    background-color: lightpink;
+}

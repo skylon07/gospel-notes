@@ -104,6 +104,22 @@ function iconPlus() {
 }
 create("plus", iconPlus);
 
+function iconCross() {
+    const left = 23;
+    const right = 77;
+    const top = 23;
+    const bottom = 77;
+    
+    return (
+        <svg viewBox="0 0 100 100">
+            <line x1={left} x2={right} y1={top} y2={bottom} />
+            <line x1={right} x2={left} y1={top} y2={bottom} />
+        </svg>
+    );
+}
+create("cross", iconCross)
+create("invalid", iconCross)
+
 // custom prop-type function
 export function SVGIconPropType(props, propName, componentName) {
     const svgIcon = props[propName];
@@ -124,7 +140,7 @@ export class SVGIcon extends React.Component {
 
     render() {
         const type = this.props.type || "blank";
-        const svg = created.icons[type] || null;
+        const svg = created.icons[type] || created.icons.invalid;
         return (
             <div data-testid="svg-icon" className={this.getClass()}>
                 {svg}

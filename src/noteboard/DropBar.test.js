@@ -59,6 +59,15 @@ it("renders without crashing", () => {
     render(<DropBar />, root);
 });
 
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<DropBar />, root)
+    })
+    const dropBar = grabDropBar()
+    
+    expect(dropBar).toHaveClass("DropBar")
+})
+
 describe("rendering tests", () => {
     it("renders a title", () => {
         const initTitle = "this is the title string to look for";

@@ -23,6 +23,15 @@ it("renders without crashing", () => {
     render(<SearchBar />, root);
 });
 
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<SearchBar />, root)
+    })
+    const search = grabSearchBar()
+    
+    expect(search).toHaveClass("SearchBar")
+})
+
 it("selects all text in the input field when focused", () => {
     act(() => {
         render(<SearchBar />, root);
@@ -67,8 +76,8 @@ describe("listener callback tests", () => {
         });
 
         expect(inputField.value).toBe(searchString);
-        expect(onSearch).toHaveBeenCalledTimes(1);
-        expect(onSearch).toHaveBeenLastCalledWith(searchString);
+        expect(onSearch).toBeCalledTimes(1);
+        expect(onSearch).lastCalledWith(searchString);
 
         const searchString2 = "this is another test";
         act(() => {
@@ -79,8 +88,8 @@ describe("listener callback tests", () => {
         });
 
         expect(inputField.value).toBe(searchString2);
-        expect(onSearch).toHaveBeenCalledTimes(2);
-        expect(onSearch).toHaveBeenLastCalledWith(searchString2);
+        expect(onSearch).toBeCalledTimes(2);
+        expect(onSearch).lastCalledWith(searchString2);
     });
 
     it("triggers onSearch() when the enter key is pressed", () => {
