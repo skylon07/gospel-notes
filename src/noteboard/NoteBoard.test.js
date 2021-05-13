@@ -46,6 +46,7 @@ it("renders with a CSS class", () => {
 })
 
 it("renders BoardNodes from nodes or their IDs", () => {
+    // TODO: should probably split this into multiple tests
     const children = [
         nodeStore.createNode("NoteBox"),
         <div key="div that shouldn't be checked">

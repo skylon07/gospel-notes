@@ -35,15 +35,30 @@ export default class DropBar extends React.Component {
         initIconType: PropTypes.string,
         
         // update-honored props
+        forceTitle: PropTypes.string,
+        forceIconType: PropTypes.string,
         children: PropTypes.node,
         canChange: PropTypes.bool,
         onChangeTitle: PropTypes.func,
         onChangeIcon: PropTypes.func,
     };
     
+    static getDerivedStateFromProps(props, state) {
+        const { forceTitle, forceIconType } = props
+        if (typeof forceTitle === "string") {
+            state.title = forceTitle
+        }
+        if (typeof forceIconType === "string") {
+            state.iconType = forceIconType
+        }
+        return state
+    }
+    
     shouldComponentUpdate(nextProps, nextState) {
         // NOTE: changes in "init..." props can be ignored
-        return nextProps.children !== this.props.children ||
+        return typeof nextProps.forceTitle === "string" ||
+            typeof nextProps.forceIconType === "string" ||
+            nextProps.children !== this.props.children ||
             nextProps.canChange !== this.props.canChange ||
             nextProps.onChangeTitle !== this.props.onChangeTitle ||
             nextProps.onChangeIcon !== this.props.onChangeIcon ||
@@ -56,8 +71,8 @@ export default class DropBar extends React.Component {
         super(props);
 
         this.state = {
-            title: props.initTitle || "",
-            iconType: props.initIconType,
+            title: props.initTitle || props.forceTitle || "",
+            iconType: props.initIconType || props.forceIconType,
             dropped: false,
         };
 

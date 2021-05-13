@@ -11,15 +11,15 @@ export default class NoteBoard extends React.Component {
         children: PropTypes.array,
         canAddToDropBars: PropTypes.bool,
         canChangeData: PropTypes.bool,
-        onChangeNoteBox: PropTypes.func,
-        onChangeDropBar: PropTypes.func,
+        onChangeChildren: PropTypes.func,
+        onChangeData: PropTypes.func,
     }
     
     constructor(props) {
         super(props)
         
         this.on = {
-            nodeChange: (...args) => this.onNodeChange(...args),
+            changeNode: (...args) => this.onChangeNode(...args),
         }
     }
     
@@ -31,7 +31,7 @@ export default class NoteBoard extends React.Component {
     
     renderNodes(array) {
         if (!Array.isArray(array)) {
-            return "note board must be given an array"
+            throw new TypeError("NoteBoards must be given an array to render!")
         }
         
         return array.map((child) => {
@@ -42,7 +42,7 @@ export default class NoteBoard extends React.Component {
                     node={child}
                     canAddChildren={this.canAddToDropBars()}
                     canChangeData={this.canChangeData()}
-                    onChange={this.on.nodeChange}
+                    onChange={this.on.changeNode}
                 />
             } else if (Array.isArray(child)) {
                 return this.renderNodes(child)
@@ -65,28 +65,12 @@ export default class NoteBoard extends React.Component {
         return true
     }
     
-    onNodeChange(node, dataType, newData) {
-        const types = nodeStore.nodeTypes
-        switch (node.type) {
-            case types.NoteBox: {
-                this.trigger(this.props.onChangeNoteBox, node)
-            }
-            break
-            
-            case types.DropBar: {
-                this.trigger(this.props.onChangeDropBar, node)
-            }
-            break
-            
-            case types.Folder: {
-                
-            }
-            break
-            
-            default: {
-                throw new TypeError(`Invalid node type requested in NoteBoard.onNodeChange()`)
-            }
-            break
+    onChangeNode(node, changeType, newData) {
+        const changeChild = changeType === "children-add" || changeType === "children-remove"
+        if (changeChild) {
+            this.trigger(this.props.onChangeChildren, node, changeType, newData)
+        } else {
+            this.trigger(this.props.onChangeData, node)
         }
     }
     
@@ -99,7 +83,7 @@ export default class NoteBoard extends React.Component {
     // used as a generic wrapper for prop functions (in case they don't exist)
     trigger(func, ...args) {
         if (typeof func === "function") {
-            func.call(null, ...args)
+            func.apply(null, args)
         }
     }
 }

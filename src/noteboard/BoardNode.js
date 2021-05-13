@@ -27,12 +27,21 @@ const CustomTypes = {
 
 // a base component that provides a launching point for
 // representing/modifying note nodes as a UI component
-export default class BoardNode extends React.PureComponent {
+export default class BoardNode extends React.Component {
     static propTypes = {
+        // update-ignored
         node: PropTypes.oneOfType([CustomTypes.node, CustomTypes.nodeId]).isRequired,
+        
+        // update-honored
         canAddChildren: PropTypes.bool,
         canChangeData: PropTypes.bool,
         onChange: PropTypes.func,
+    }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.canAddChildren !== this.props.canAddChildren ||
+            nextProps.canChangeData !== this.props.canChangeData ||
+            nextProps.onChange !== this.props.onChange
     }
 
     constructor(props) {
@@ -41,32 +50,22 @@ export default class BoardNode extends React.PureComponent {
         const node = nodeStore.isNode(props.node) ?
             props.node : nodeStore.getNodeById(props.node)
         this.node = node
-        
-        let nodeChildren = null
-        if (nodeStore.isNode(node)) {
-            nodeChildren = node.mapChildren((child) => child)
-        }
-        
-        this.state = {
-            children: nodeChildren,
-        }
+        this._loggedNodeChanged = false
         
         this.on = {
+            changeNode: () => this.forceUpdate(),
             NoteBox: {
                 changeTitle: (newTitle) => this.onChangeSelf("title", newTitle),
                 changeContent: (newContent) => this.onChangeSelf("content", newContent),
             },
             DropBar: {
                 changeTitle: (newTitle) => this.onChangeSelf("title", newTitle),
-                changeIcon: (newIcon) => this.onChangeSelf("icon", newIcon),
+                changeIcon: (newIcon) => this.onChangeSelf("iconType", newIcon),
             },
             Folder: {
                 changeTitle: (newTitle) => this.onChangeSelf("title", newTitle),
             },
-            addChild: () => {
-                const newNode = this.addChild()
-                this.triggerOnChange(this.node, "children-add", newNode)
-            },
+            addChild: () => this.addChildWithTrigger(),
             changeChild: (...args) => this.onChangeChild(...args),
         }
     }
@@ -78,13 +77,19 @@ export default class BoardNode extends React.PureComponent {
         </div>
     }
     
+    componentDidMount() {
+        if (this.node) {
+            this.node.subscribe(this.on.changeNode)
+        }
+    }
+    
     componentDidUpdate() {
-        if (this.node && this.node !== this.props.node && this.node.id !== this.props.node) {
-            try {
-                console.warn("BoardNode node props cannot be updated across renders")
-            } catch (error) {
-                // guess you won't know...
-            }
+        this._warnOnNodeChange()
+    }
+    
+    componentWillUnmount() {
+        if (this.node) {
+            this.node.unsubscribe(this.on.changeNode)
         }
     }
     
@@ -121,8 +126,8 @@ export default class BoardNode extends React.PureComponent {
     renderNoteBox() {
         const { title, content } = this.node.data
         return <NoteBox
-            initTitle={title}
-            initContent={content}
+            forceTitle={title}
+            forceContent={content}
             canChange={this.props.canChangeData}
             onChangeTitle={this.on.NoteBox.changeTitle}
             onChangeContent={this.on.NoteBox.changeContent}
@@ -131,7 +136,7 @@ export default class BoardNode extends React.PureComponent {
     
     renderDropBar() {
         const { title, iconType } = this.node.data
-        const children = this.state.children.map((node) => {
+        const children = this.node.mapChildren((node) => {
             return <BoardNode
                 key={node.id}
                 node={node}
@@ -149,8 +154,8 @@ export default class BoardNode extends React.PureComponent {
         }
         
         return <DropBar
-            initTitle={title}
-            initIconType={iconType}
+            forceTitle={title}
+            forceIconType={iconType}
             canChange={this.props.canChangeData}
             onChangeTitle={this.on.DropBar.changeTitle}
             onChangeIcon={this.on.DropBar.changeIcon}
@@ -165,7 +170,7 @@ export default class BoardNode extends React.PureComponent {
     
     // change this.node and trigger props.onChange()
     onChangeSelf(changeType, newData) {
-        this.node.data[changeType] = newData
+        this.node.setData({ [changeType]: newData })
         this.triggerOnChange(this.node, changeType, newData)
     }
     
@@ -189,30 +194,40 @@ export default class BoardNode extends React.PureComponent {
             content: "This is the note content",
         })
         this.node.addChild(newNode)
-        this._updateStateChildren()
         return newNode
     }
     
+    addChildWithTrigger() {
+        const newNode = this.addChild()
+        this.triggerOnChange(this.node, "children-add", newNode)
+    }
+    
     // removes a node child from this.node and state
-    removeChild(idx) {
-        const node = this.node.removeChildAt(idx)
-        this._updateStateChildren()
+    removeChild(child) {
+        const node = this.node.removeChild(child)
         return node
+    }
+    
+    removeChildWithTrigger(childNode) {
+        this.removeChild(childNode)
+        this.triggerOnChange(this.node, "children-remove", childNode)
     }
     
     _removeIfEmptyNoteBox(childNode) {
         const { title, content } = childNode.data
         const isEmpty = !title && !content
         if (isEmpty) {
-            const idx = this.node.indexOf(childNode)
-            this.removeChild(idx)
-            this.triggerOnChange(this.node, "children-remove", childNode)
+            this.removeChildWithTrigger(childNode)
         }
     }
     
-    // keeps state in sync when node children are modified
-    _updateStateChildren() {
-        const newChildren = this.node.mapChildren((child) => child)
-        this.setState({ children: newChildren })
+    _warnOnNodeChange() {
+        if (this.node && this.node !== this.props.node && this.node.id !== this.props.node) {
+            try {
+                console.warn("BoardNode node props cannot be updated across renders")
+            } catch (error) {
+                // guess you won't know...
+            }
+        }
     }
 }

@@ -134,7 +134,6 @@ describe("rendering tests", () => {
     })
     
     it("still rerenders when other props change (not initTitle or initContent)", () => {
-        // TODO: make more tests than just for onChangeTitle
         const ref = React.createRef()
         const onChangeTitle = () => {}
         act(() => {
@@ -162,6 +161,72 @@ describe("rendering tests", () => {
         })
         
         expect(wrappedRender).toBeCalledTimes(1)
+    })
+    
+    it("rerenders when forceTitle is given", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        act(() => {
+            render(
+                <NoteBox
+                    ref={ref}
+                    initTitle={initTitle}
+                />,
+                root
+            )
+        })
+        const noteBox = grabNoteBox()
+        const [titleElem] = grabTitleAndContentFrom(noteBox)
+        
+        const origRender = ref.current.render
+        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
+        
+        const newTitle = "new title"
+        act(() => {
+            render(
+                <NoteBox
+                    ref={ref}
+                    forceTitle={newTitle}
+                />,
+                root
+            )
+        })
+        
+        expect(wrappedRender).toBeCalledTimes(1)
+        expect(titleElem).toHaveTextContent(newTitle)
+    })
+    
+    it("rerenders when forceContent is given", () => {
+        const ref = React.createRef()
+        const initContent = "init content"
+        act(() => {
+            render(
+                <NoteBox
+                    ref={ref}
+                    initContent={initContent}
+                />,
+                root
+            )
+        })
+        const noteBox = grabNoteBox()
+        const [_, contentElem] = grabTitleAndContentFrom(noteBox)
+    
+        const origRender = ref.current.render
+        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
+    
+        const newContent = "new content"
+        act(() => {
+            render(
+                <NoteBox
+                    ref={ref}
+                    forceContent={newContent}
+                />,
+                root
+            )
+        })
+    
+        expect(wrappedRender).toBeCalledTimes(1)
+        expect(contentElem).toHaveTextContent(newContent)
     })
 });
 

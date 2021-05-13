@@ -125,6 +125,25 @@ describe("Node tests", () => {
         expect(node.data).toStrictEqual({ title })
     })
     
+    it("merges new data when using setData()", () => {
+        const title = "title"
+        const content = "content"
+        const node = nodeStore.createNode("NoteBox", { title, content })
+        
+        const newTitle = "new title"
+        node.setData({ title: newTitle })
+        
+        expect(node.data).toStrictEqual({ title: newTitle, content })
+    })
+    
+    it("errors when the data is modified directly", () => {
+        const title = "title"
+        const node = nodeStore.createNode("NoteBox", { title })
+        expect(() => {
+            node.data.title = "new title"
+        }).toThrow()
+    })
+    
     it("has a read-only id property that returns a valid id string", () => {
         const node = nodeStore.createNode("NoteBox")
         const nodeIdPrefix = "NODE"
@@ -210,5 +229,54 @@ describe("Node tests", () => {
             
             expect(mainNode.numChildren).toBe(numChildren)
         })
+    })
+})
+
+describe("subscription tests", () => {
+    it("calls subscribed functions on data change", () => {
+        const node = nodeStore.createNode("NoteBox")
+        const listener = jest.fn()
+        node.subscribe(listener)
+        
+        expect(listener).not.toBeCalled()
+        
+        const title = "new title!"
+        node.setData({ title })
+        
+        expect(listener).toBeCalledTimes(1)
+        
+        const anotherListener = jest.fn()
+        node.subscribe(anotherListener)
+        
+        expect(anotherListener).not.toBeCalled()
+        
+        const content = "new content yay!"
+        node.setData({ content })
+        
+        expect(listener).toBeCalledTimes(2)
+        expect(anotherListener).toBeCalledTimes(1)
+    })
+    
+    it("removes and does not call unsubscribed functions", () => {
+        const node = nodeStore.createNode("DropBar")
+        const listener = jest.fn()
+        const anotherListener = jest.fn()
+        node.subscribe(listener)
+        node.subscribe(anotherListener)
+        
+        const title = "new title woot!"
+        node.setData({ title })
+        
+        expect(listener).toBeCalledTimes(1)
+        expect(anotherListener).toBeCalledTimes(1)
+        
+        node.unsubscribe(listener)
+        
+        const newTitle = "another new title YESSSS!"
+        const iconType = "new icon type? ABSOLUTELY STUNNING!"
+        node.setData({ title: newTitle, iconType })
+        
+        expect(listener).toBeCalledTimes(1)
+        expect(anotherListener).toBeCalledTimes(2)
     })
 })

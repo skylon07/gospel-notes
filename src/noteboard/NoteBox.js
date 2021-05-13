@@ -9,14 +9,30 @@ export default class NoteBox extends React.Component {
         initContent: PropTypes.string,
         
         // update-honored props
+        forceTitle: PropTypes.string,
+        forceContent: PropTypes.string,
         canChange: PropTypes.bool,
         onChangeTitle: PropTypes.func,
         onChangeContent: PropTypes.func,
     };
     
+    static getDerivedStateFromProps(props, state) {
+        const { forceTitle, forceContent } = props
+        // NOTE: state must be updated in case textareas were deleted
+        if (typeof forceTitle === "string") {
+            state.title = forceTitle
+        }
+        if (typeof forceContent === "string") {
+            state.content = forceContent
+        }
+        return state
+    }
+    
     shouldComponentUpdate(nextProps, nextState) {
         // NOTE: changes in "init..." props can be ignored
-        return nextProps.canChange !== this.props.canChange ||
+        return typeof nextProps.forceTitle === "string" ||
+            typeof nextProps.forceContent === "string" ||
+            nextProps.canChange !== this.props.canChange ||
             nextProps.onChangeTitle !== this.props.onChangeTitle ||
             nextProps.onChangeContent !== this.props.onChangeContent ||
             nextState.title !== this.state.title ||
@@ -27,8 +43,8 @@ export default class NoteBox extends React.Component {
         super(props);
         
         this.state = {
-            title: props.initTitle,
-            content: props.initContent,
+            title: props.initTitle || props.forceTitle,
+            content: props.initContent || props.forceContent,
         }
 
         this.titleRef = React.createRef();
@@ -122,6 +138,10 @@ export default class NoteBox extends React.Component {
         this.initDims();
     }
     
+    componentDidUpdate() {
+        this.syncForceProps()
+    }
+    
     canChange() {
         if (typeof this.props.canChange === "boolean") {
             return this.props.canChange
@@ -143,6 +163,18 @@ export default class NoteBox extends React.Component {
             return this.contentRef.current.value || null
         }
         return null
+    }
+    
+    syncForceProps() {
+        const { forceTitle, forceContent } = this.props
+        if (typeof forceTitle === "string" && forceTitle !== "") {
+            const title = this.titleRef.current
+            title.value = forceTitle
+        }
+        if (typeof forceContent === "string" && forceContent !== "") {
+            const content = this.contentRef.current
+            content.value = forceContent
+        }
     }
     
     detectIfTextAreaChanged(newStr, lastStr, onChange) {

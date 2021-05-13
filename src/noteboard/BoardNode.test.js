@@ -156,4 +156,4 @@ describe("node rendering tests", () => {
 })
 
 // TODO: onChange tests
-// TODO: remove notebox children nodes when empty
+// TODO: test for removing notebox children nodes when empty

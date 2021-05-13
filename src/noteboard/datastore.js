@@ -66,6 +66,7 @@ class NodeParent {
         
         this._type = type
         this._id = id
+        this._changeListeners = []
         this._children = []
         this._data = {}
         this.data = data
@@ -84,6 +85,10 @@ class NodeParent {
     }
     
     set data(newData) {
+        this.setData(newData)
+    }
+    
+    setData(newData) {
         if (typeof newData !== "object" || !newData) {
             newData = {}
         }
@@ -127,6 +132,30 @@ class NodeParent {
             }
             break
         }
+        
+        Object.freeze(this._data)
+        this._changed()
+    }
+    
+    subscribe(listener) {
+        if (typeof listener !== "function") {
+            throw new TypeError(`Cannot subscribe to node with non-function ${listener}`)
+        }
+        this._changeListeners.push(listener)
+    }
+    
+    unsubscribe(listener) {
+        const idx = this._changeListeners.indexOf(listener)
+        if (idx !== -1) {
+            this._changeListeners.splice(idx, 1)
+        }
+    }
+    
+    _changed() {
+        for (let i = 0; i < this._changeListeners.length; i++) {
+            const listener = this._changeListeners[i]
+            listener()
+        }
     }
     
     addChild(nodeOrId, idx=null) {
@@ -145,13 +174,19 @@ class NodeParent {
         } else {
             this._children.push(node)
         }
+        
+        this._changed()
     }
     
-    removeChildAt(idx) {
-        return this._children.splice(idx, 1)[0]
+    getChild(idx) {
+        return this._children[idx]
     }
     
-    indexOf(nodeOrId, start=0) {
+    get numChildren() {
+        return this._children.length
+    }
+    
+    indexOfChild(nodeOrId, start=0) {
         let id = nodeOrId
         if (typeof nodeOrId !== "string") {
             if (!nodeStore.isNode(nodeOrId)) {
@@ -162,7 +197,7 @@ class NodeParent {
         if (!nodeStore.isNodeId(id)) {
             throw new TypeError(`An invalid node id was passed to NodeParent.indexOf() (got ${id})`)
         }
-        
+    
         for (let i = start; i < this._children.length; i++) {
             const childId = this._children[i].id
             if (childId === id) {
@@ -172,12 +207,18 @@ class NodeParent {
         return -1
     }
     
-    getChild(idx) {
-        return this._children[idx]
+    removeChildAt(idx) {
+        const child = this._children.splice(idx, 1)[0]
+        this._changed()
+        return child
     }
     
-    get numChildren() {
-        return this._children.length
+    removeChild(nodeOrId) {
+        const idx = this.indexOfChild(nodeOrId)
+        if (idx !== -1) {
+            return this.removeChildAt(idx)
+        }
+        return null
     }
     
     mapChildren(fn) {

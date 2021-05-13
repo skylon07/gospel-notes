@@ -42,8 +42,10 @@ export default class MainApp extends React.Component {
                 }
             },
             change: {
-                NoteBox: (...args) => this.updateNoteBoxOnIndex(...args),
-                DropBar: (...args) => this.updateDropBarOnIndex(...args),
+                node: {
+                    data: (...args) => this.onChangeNodeData(...args),
+                    children: (...args) => this.onChangeNodeChildren(...args),
+                },
             },
             search: (...args) => {
                 if (this.state.displayMode !== DISPLAY_MODES.search) {
@@ -96,9 +98,8 @@ export default class MainApp extends React.Component {
                 />
                 <MainWindow>
                     <NoteBoard
-                        canModifyData={false}
-                        onChangeNoteBox={this.on.change.NoteBox}
-                        onChangeDropBar={this.on.change.DropBar}
+                        onChangeData={this.on.change.node.data}
+                        onChangeChildren={this.on.change.node.children}
                     >
                         {this.renderCurrNotes()}
                         {this.renderAddButton()}
@@ -185,7 +186,10 @@ export default class MainApp extends React.Component {
         })
     }
     
-    // generic alias for the types of "updateIndex" fuctions below
+    onChangeNodeData(node) {
+        this.updateNodeOnIndex(node)
+    }
+    
     updateNodeOnIndex(node) {
         const { NoteBox, DropBar } = nodeStore.nodeTypes
         switch (node.type) {
@@ -193,7 +197,7 @@ export default class MainApp extends React.Component {
                 this.updateNoteBoxOnIndex(node)
             }
             break
-            
+        
             case DropBar: {
                 this.updateDropBarOnIndex(node)
             }
@@ -204,6 +208,7 @@ export default class MainApp extends React.Component {
     updateNoteBoxOnIndex(node) {
         const ref = node.id
         const { title, content } = node.data
+        console.log("updated index for: " + title + " " + ref) // DEBUG
         this.index.setReference(ref, title, content)
     }
     
@@ -211,6 +216,28 @@ export default class MainApp extends React.Component {
         const ref = node.id
         const { title } = node.data
         this.index.setReference(ref, title)
+    }
+    
+    onChangeNodeChildren(node, changeType, nodeChild) {
+        switch (changeType) {
+            case "children-add": {
+                this.addNodeToIndex(nodeChild, node)
+            }
+            break
+            
+            case "children-remove": {
+                this.removeNodeFromIndex(nodeChild, node)
+            }
+            break
+        }
+    }
+    
+    addNodeToIndex(node, parent) {
+        this.updateNodeOnIndex(node)
+    }
+    
+    removeNodeFromIndex(node, parent) {
+        this.index.deleteReference(node.id)
     }
     
     displayAll() {

@@ -90,6 +90,141 @@ describe("rendering tests", () => {
 
         expect(icon).toBe(iconType);
     });
+    
+    it("doesn't rerender when initTitle or initIconType changes", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        const initIconType = "plus"
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    initTitle={initTitle}
+                    initIconType={initIconType}
+                />,
+                root
+            )
+        })
+        const dropBar = grabDropBar()
+        const mainBar = grabMainBarFrom(dropBar)
+    
+        const origRender = ref.current.render
+        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
+    
+        const newTitle = "new title"
+        const newIconType = "cross"
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    initTitle={newTitle}
+                    initIconType={newIconType}
+                />,
+                root
+            )
+        })
+    
+        expect(wrappedRender).not.toBeCalled()
+        expect(mainBar).toHaveTextContent(initTitle)
+        const icon = grabIconTypeFrom(dropBar)
+        expect(icon).toBe(initIconType)
+    })
+    
+    it("still rerenders when other props change", () => {
+        const ref = React.createRef()
+        const onChangeTitle = () => {}
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    onChangeTitle={onChangeTitle}
+                />,
+                root
+            )
+        })
+    
+        const origRender = ref.current.render
+        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
+    
+        const newOnChangeTitle = () => {}
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    onChangeTitle={newOnChangeTitle}
+                />,
+                root
+            )
+        })
+    
+        expect(wrappedRender).toBeCalledTimes(1)
+    })
+    
+    it("rerenders when forceTitle is given", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    initTitle={initTitle}
+                />,
+                root
+            )
+        })
+        const dropBar = grabDropBar()
+        const mainBar = grabMainBarFrom(dropBar)
+    
+        const origRender = ref.current.render
+        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
+    
+        const forceTitle = "new title"
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    forceTitle={forceTitle}
+                />,
+                root
+            )
+        })
+    
+        expect(wrappedRender).toBeCalledTimes(1)
+        expect(mainBar).toHaveTextContent(forceTitle)
+    })
+    
+    it("rerenders when forceIconType is given", () => {
+        const ref = React.createRef()
+        const initIconType = "plus"
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    initIconType={initIconType}
+                />,
+                root
+            )
+        })
+        const dropBar = grabDropBar()
+    
+        const origRender = ref.current.render
+        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
+    
+        const forceIconType = "cross"
+        act(() => {
+            render(
+                <DropBar
+                    ref={ref}
+                    forceIconType={forceIconType}
+                />,
+                root
+            )
+        })
+    
+        expect(wrappedRender).toBeCalledTimes(1)
+        const icon = grabIconTypeFrom(dropBar)
+        expect(icon).toBe(forceIconType)
+    })
 });
 
 describe("drop button tests", () => {
