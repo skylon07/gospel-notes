@@ -7,12 +7,6 @@ import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
 import { nodeStore, AddButton, NoteBoard } from "noteboard";
 
-// DEBUG
-const ids = []
-const types = ["NoteBox", "DropBar", "NoteBox"]
-let i = 0
-let interval = null
-
 const DISPLAY_MODES = {
     all: "all",
     search: "search",
@@ -24,8 +18,7 @@ export default class MainApp extends React.Component {
         this.state = {
             // TODO: maybe pass hide() when rendering (a function child) instead of using props?
             forceMenuHidden: null,
-            // DEBUG: "[...ids]"; should be "[]"
-            currentNodeIds: [...ids], // array of strings
+            currentNodeIds: [], // array of strings
             nodeStack: [], // array of [ids]
             displayMode: DISPLAY_MODES.all,
         };
@@ -62,26 +55,6 @@ export default class MainApp extends React.Component {
         }
         
         this._menuContent = <button onClick={this.on.hideMenu}>Close Menu</button>
-        
-        // DEBUG
-        interval = () => {
-            if (i >= 4) {
-                return
-            }
-            const type = types[i++ % types.length]
-            let node = nodeStore.createNode(type, null)
-            ids.push(node.id)
-            if (type === "DropBar") {
-                const node = nodeStore.getNodeById(ids[ids.length - 1])
-                for (let j = 0; j < i - 3; j++) {
-                    node.addChild(nodeStore.createNode("NoteBox", {title: "note " + j}))
-                }
-            }
-            this.updateNodeOnIndex(node)
-            this.setState({ currentNodeIds: ids }, () => setTimeout(() => {
-                interval()
-            }, 400))
-        }
     }
     
     render() {
@@ -121,11 +94,6 @@ export default class MainApp extends React.Component {
         >
             Add Node
         </AddButton>
-    }
-    
-    componentDidMount() {
-        // DEBUG
-        setTimeout(interval, 700)
     }
 
     hideMenu() {
@@ -208,7 +176,6 @@ export default class MainApp extends React.Component {
     updateNoteBoxOnIndex(node) {
         const ref = node.id
         const { title, content } = node.data
-        console.log("updated index for: " + title + " " + ref) // DEBUG
         this.index.setReference(ref, title, content)
     }
     
