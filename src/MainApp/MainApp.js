@@ -88,6 +88,7 @@ export default class MainApp extends React.Component {
     }
     
     renderAddButton() {
+        // BUG: when adding during a search, the node is not rendered in "display all"
         return <AddButton
             key="the (l)on(e)ly add button..."
             onClick={this.on.addNode}
