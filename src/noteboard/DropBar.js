@@ -5,7 +5,6 @@ import "./DropBar.css";
 import { SVGIcon } from "common/svg-icon";
 
 import Holdable from "./Holdable.js";
-import NoteBox from "./NoteBox.js"
 
 const GLOBALS = {
     offsetSheet: (() => {
@@ -221,24 +220,20 @@ export default class DropBar extends React.Component {
         );
 
         switch (state) {
-            case "dropping": {
+            case "dropping":
                 elem.classList.add(base, dropping);
                 elem.classList.remove(raising);
                 listen()
-            }
-            break;
+                break;
 
-            case "raising": {
+            case "raising":
                 elem.classList.add(base, raising);
                 elem.classList.remove(dropping);
                 listen()
-            }
-            break;
+                break;
 
-            default: {
+            default:
                 elem.classList.remove(base, dropping, raising);
-            }
-            break;
         }
     }
     

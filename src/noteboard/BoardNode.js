@@ -101,24 +101,17 @@ export default class BoardNode extends React.Component {
         
         const types = nodeStore.nodeTypes
         switch (node.type) {
-            case types.NoteBox: {
+            case types.NoteBox:
                 return this.renderNoteBox()
-            }
-            break
             
-            case types.DropBar: {
+            case types.DropBar:
                 return this.renderDropBar()
-            }
-            break
             
-            case types.Folder: {
+            case types.Folder:
                 return this.renderFolder()
-            }
-            break
             
-            default: {
+            default:
                 return <h1>INVALID NODE TYPE</h1>
-            }
         }
     }
     

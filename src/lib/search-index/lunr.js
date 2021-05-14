@@ -42,7 +42,7 @@
  *
  */
 var lunr = function (config) {
-  var idx = new lunr.Index
+  var idx = new lunr.Index()
 
   idx.pipeline.add(
     lunr.trimmer,
@@ -196,7 +196,7 @@ lunr.EventEmitter.prototype.hasHandler = function (name) {
  * @returns {Array}
  */
 lunr.tokenizer = function (obj) {
-  if (!arguments.length || obj == null || obj == undefined) return []
+  if (!arguments.length || obj === null || obj === undefined) return []
   if (Array.isArray(obj)) return obj.map(function (t) { return lunr.utils.asString(t).toLowerCase() })
 
   return obj.toString().trim().toLowerCase().split(lunr.tokenizer.separator)
@@ -209,7 +209,7 @@ lunr.tokenizer = function (obj) {
  * @static
  * @see lunr.tokenizer
  */
-lunr.tokenizer.separator = /[\s\-]+/
+lunr.tokenizer.separator = /[\s-]+/
 
 /**
  * Loads a previously serialised tokenizer.
@@ -345,7 +345,7 @@ lunr.Pipeline.warnIfFunctionNotRegistered = function (fn) {
  * @memberOf Pipeline
  */
 lunr.Pipeline.load = function (serialised) {
-  var pipeline = new lunr.Pipeline
+  var pipeline = new lunr.Pipeline()
 
   serialised.forEach(function (fnName) {
     var fn = lunr.Pipeline.registeredFunctions[fnName]
@@ -391,7 +391,7 @@ lunr.Pipeline.prototype.after = function (existingFn, newFn) {
   lunr.Pipeline.warnIfFunctionNotRegistered(newFn)
 
   var pos = this._stack.indexOf(existingFn)
-  if (pos == -1) {
+  if (pos === -1) {
     throw new Error('Cannot find existingFn')
   }
 
@@ -413,7 +413,7 @@ lunr.Pipeline.prototype.before = function (existingFn, newFn) {
   lunr.Pipeline.warnIfFunctionNotRegistered(newFn)
 
   var pos = this._stack.indexOf(existingFn)
-  if (pos == -1) {
+  if (pos === -1) {
     throw new Error('Cannot find existingFn')
   }
 
@@ -428,7 +428,7 @@ lunr.Pipeline.prototype.before = function (existingFn, newFn) {
  */
 lunr.Pipeline.prototype.remove = function (fn) {
   var pos = this._stack.indexOf(fn)
-  if (pos == -1) {
+  if (pos === -1) {
     return
   }
 
@@ -544,7 +544,7 @@ lunr.Vector.prototype.insert = function (idx, val) {
   var prev = list,
       next = list.next
 
-  while (next != undefined) {
+  while (next !== undefined) {
     if (idx < next.idx) {
       prev.next = new lunr.Vector.Node (idx, val, next)
       return this.length++
@@ -642,7 +642,7 @@ lunr.SortedSet = function () {
  * @memberOf SortedSet
  */
 lunr.SortedSet.load = function (serialisedData) {
-  var set = new this
+  var set = new lunr.SortedSet()
 
   set.elements = serialisedData
   set.length = serialisedData.length
@@ -782,7 +782,7 @@ lunr.SortedSet.prototype.locationFor = function (elem) {
  * @memberOf SortedSet
  */
 lunr.SortedSet.prototype.intersect = function (otherSet) {
-  var intersectSet = new lunr.SortedSet,
+  var intersectSet = new lunr.SortedSet(),
       i = 0, j = 0,
       a_len = this.length, b_len = otherSet.length,
       a = this.elements, b = otherSet.elements
@@ -818,7 +818,7 @@ lunr.SortedSet.prototype.intersect = function (otherSet) {
  * @memberOf SortedSet
  */
 lunr.SortedSet.prototype.clone = function () {
-  var clone = new lunr.SortedSet
+  var clone = new lunr.SortedSet()
 
   clone.elements = this.toArray()
   clone.length = clone.elements.length
@@ -878,11 +878,11 @@ lunr.SortedSet.prototype.toJSON = function () {
 lunr.Index = function () {
   this._fields = []
   this._ref = 'id'
-  this.pipeline = new lunr.Pipeline
-  this.documentStore = new lunr.Store
-  this.tokenStore = new lunr.TokenStore
-  this.corpusTokens = new lunr.SortedSet
-  this.eventEmitter =  new lunr.EventEmitter
+  this.pipeline = new lunr.Pipeline()
+  this.documentStore = new lunr.Store()
+  this.tokenStore = new lunr.TokenStore()
+  this.corpusTokens = new lunr.SortedSet()
+  this.eventEmitter =  new lunr.EventEmitter()
   this.tokenizerFn = lunr.tokenizer
 
   this._idfCache = {}
@@ -932,7 +932,7 @@ lunr.Index.load = function (serialisedData) {
     lunr.utils.warn('version mismatch: current ' + lunr.version + ' importing ' + serialisedData.version)
   }
 
-  var idx = new this
+  var idx = new lunr.Index()
 
   idx._fields = serialisedData.fields
   idx._ref = serialisedData.ref
@@ -965,7 +965,7 @@ lunr.Index.load = function (serialisedData) {
  * @memberOf Index
  */
 lunr.Index.prototype.field = function (fieldName, opts) {
-  var opts = opts || {},
+  opts = opts || {},
       field = { name: fieldName, boost: opts.boost || 1 }
 
   this._fields.push(field)
@@ -1032,9 +1032,9 @@ lunr.Index.prototype.tokenizer = function (fn) {
  */
 lunr.Index.prototype.add = function (doc, emitEvent) {
   var docTokens = {},
-      allDocumentTokens = new lunr.SortedSet,
-      docRef = doc[this._ref],
-      emitEvent = emitEvent === undefined ? true : emitEvent
+      allDocumentTokens = new lunr.SortedSet(),
+      docRef = doc[this._ref]
+  emitEvent = emitEvent === undefined ? true : emitEvent
 
   this._fields.forEach(function (field) {
     var fieldTokens = this.pipeline.run(this.tokenizerFn(doc[field.name]))
@@ -1096,8 +1096,8 @@ lunr.Index.prototype.add = function (doc, emitEvent) {
  * @memberOf Index
  */
 lunr.Index.prototype.remove = function (doc, emitEvent) {
-  var docRef = doc[this._ref],
-      emitEvent = emitEvent === undefined ? true : emitEvent
+  var docRef = doc[this._ref]
+  emitEvent = emitEvent === undefined ? true : emitEvent
 
   if (!this.documentStore.has(docRef)) return
 
@@ -1133,7 +1133,7 @@ lunr.Index.prototype.remove = function (doc, emitEvent) {
  * @memberOf Index
  */
 lunr.Index.prototype.update = function (doc, emitEvent) {
-  var emitEvent = emitEvent === undefined ? true : emitEvent
+  emitEvent = emitEvent === undefined ? true : emitEvent
 
   this.remove(doc, false)
   this.add(doc, false)
@@ -1189,7 +1189,7 @@ lunr.Index.prototype.idf = function (term) {
  */
 lunr.Index.prototype.search = function (query) {
   var queryTokens = this.pipeline.run(this.tokenizerFn(query)),
-      queryVector = new lunr.Vector,
+      queryVector = new lunr.Vector(),
       documentSets = [],
       fieldBoosts = this._fields.reduce(function (memo, f) { return memo + f.boost }, 0)
 
@@ -1208,7 +1208,7 @@ lunr.Index.prototype.search = function (query) {
         var pos = self.corpusTokens.indexOf(key),
             idf = self.idf(key),
             similarityBoost = 1,
-            set = new lunr.SortedSet
+            set = new lunr.SortedSet()
 
         // if the expanded key is not an exact match to the token then
         // penalise the score for this key by how different the key is
@@ -1234,7 +1234,7 @@ lunr.Index.prototype.search = function (query) {
         }
 
         return memo.union(set)
-      }, new lunr.SortedSet)
+      }, new lunr.SortedSet())
 
       documentSets.push(set)
     }, this)
@@ -1271,7 +1271,7 @@ lunr.Index.prototype.search = function (query) {
 lunr.Index.prototype.documentVector = function (documentRef) {
   var documentTokens = this.documentStore.get(documentRef),
       documentTokensLength = documentTokens.length,
-      documentVector = new lunr.Vector
+      documentVector = new lunr.Vector()
 
   for (var i = 0; i < documentTokensLength; i++) {
     var token = documentTokens.elements[i],
@@ -1359,7 +1359,7 @@ lunr.Store = function () {
  * @memberOf Store
  */
 lunr.Store.load = function (serialisedData) {
-  var store = new this
+  var store = new lunr.Store()
 
   store.length = serialisedData.length
   store.store = Object.keys(serialisedData.store).reduce(function (memo, key) {
@@ -1517,9 +1517,10 @@ lunr.stemmer = (function(){
   var re3_5 = new RegExp("^" + C + v + "[^aeiouwxy]$");
 
   var porterStemmer = function porterStemmer(w) {
-    var   stem,
+    var stem,
       suffix,
       firstch,
+      fp,
       re,
       re2,
       re3,
@@ -1528,7 +1529,7 @@ lunr.stemmer = (function(){
     if (w.length < 3) { return w; }
 
     firstch = w.substr(0,1);
-    if (firstch == "y") {
+    if (firstch === "y") {
       w = firstch.toUpperCase() + w.substr(1);
     }
 
@@ -1543,14 +1544,14 @@ lunr.stemmer = (function(){
     re = re_1b;
     re2 = re2_1b;
     if (re.test(w)) {
-      var fp = re.exec(w);
+      fp = re.exec(w);
       re = re_mgr0;
       if (re.test(fp[1])) {
         re = re_1b_2;
         w = w.replace(re,"");
       }
     } else if (re2.test(w)) {
-      var fp = re2.exec(w);
+      fp = re2.exec(w);
       stem = fp[1];
       re2 = re_s_v;
       if (re2.test(stem)) {
@@ -1567,7 +1568,7 @@ lunr.stemmer = (function(){
     // Step 1c - replace suffix y or Y by i if preceded by a non-vowel which is not the first letter of the word (so cry -> cri, by -> by, say -> say)
     re = re_1c;
     if (re.test(w)) {
-      var fp = re.exec(w);
+      fp = re.exec(w);
       stem = fp[1];
       w = stem + "i";
     }
@@ -1575,7 +1576,7 @@ lunr.stemmer = (function(){
     // Step 2
     re = re_2;
     if (re.test(w)) {
-      var fp = re.exec(w);
+      fp = re.exec(w);
       stem = fp[1];
       suffix = fp[2];
       re = re_mgr0;
@@ -1587,7 +1588,7 @@ lunr.stemmer = (function(){
     // Step 3
     re = re_3;
     if (re.test(w)) {
-      var fp = re.exec(w);
+      fp = re.exec(w);
       stem = fp[1];
       suffix = fp[2];
       re = re_mgr0;
@@ -1600,14 +1601,14 @@ lunr.stemmer = (function(){
     re = re_4;
     re2 = re2_4;
     if (re.test(w)) {
-      var fp = re.exec(w);
+      fp = re.exec(w);
       stem = fp[1];
       re = re_mgr1;
       if (re.test(stem)) {
         w = stem;
       }
     } else if (re2.test(w)) {
-      var fp = re2.exec(w);
+      fp = re2.exec(w);
       stem = fp[1] + fp[2];
       re2 = re_mgr1;
       if (re2.test(stem)) {
@@ -1618,7 +1619,7 @@ lunr.stemmer = (function(){
     // Step 5
     re = re_5;
     if (re.test(w)) {
-      var fp = re.exec(w);
+      fp = re.exec(w);
       stem = fp[1];
       re = re_mgr1;
       re2 = re_meq1;
@@ -1636,8 +1637,7 @@ lunr.stemmer = (function(){
     }
 
     // and turn initial Y back to y
-
-    if (firstch == "y") {
+    if (firstch === "y") {
       w = firstch.toLowerCase() + w.substr(1);
     }
 
@@ -1861,7 +1861,7 @@ lunr.TokenStore = function () {
  * @memberOf TokenStore
  */
 lunr.TokenStore.load = function (serialisedData) {
-  var store = new this
+  var store = new lunr.TokenStore()
 
   store.root = serialisedData.root
   store.length = serialisedData.length
@@ -1883,9 +1883,9 @@ lunr.TokenStore.load = function (serialisedData) {
  * @memberOf TokenStore
  */
 lunr.TokenStore.prototype.add = function (token, doc, root) {
-  var root = root || this.root,
-      key = token.charAt(0),
+  var key = token.charAt(0),
       rest = token.slice(1)
+  root = root || this.root
 
   if (!(key in root)) root[key] = {docs: {}}
 
@@ -2001,8 +2001,8 @@ lunr.TokenStore.prototype.remove = function (token, ref) {
  */
 lunr.TokenStore.prototype.expand = function (token, memo) {
   var root = this.getNode(token),
-      docs = root.docs || {},
-      memo = memo || []
+      docs = root.docs || {}
+  memo = memo || []
 
   if (Object.keys(docs).length) memo.push(token)
 

@@ -171,6 +171,10 @@ export default class MainApp extends React.Component {
                 this.updateDropBarOnIndex(node)
             }
             break
+            
+            default: {
+                throw new Error(`Cannot update index: Invalid node type ${node.type}`)
+            }
         }
     }
     
@@ -188,15 +192,16 @@ export default class MainApp extends React.Component {
     
     onChangeNodeChildren(node, changeType, nodeChild) {
         switch (changeType) {
-            case "children-add": {
+            case "children-add":
                 this.addNodeToIndex(nodeChild, node)
-            }
-            break
+                break
             
-            case "children-remove": {
+            case "children-remove":
                 this.removeNodeFromIndex(nodeChild, node)
-            }
-            break
+                break
+            
+            default:
+                throw new Error(`Cannot update index: invalid children change type ${changeType}`)
         }
     }
     

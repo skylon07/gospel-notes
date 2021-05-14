@@ -95,7 +95,7 @@ class NodeParent {
         
         const types = this.constructor.types
         switch (this._type) {
-            case types.NoteBox: {
+            case types.NoteBox:
                 this._data = {
                     // prettier-ignore
                     title: typeof newData.title === "string" ? newData.title :
@@ -106,10 +106,9 @@ class NodeParent {
                         typeof this._data.content === "string" ? this._data.content :
                         "(bad content data)",
                 }
-            }
-            break
+                break
             
-            case types.DropBar: {
+            case types.DropBar:
                 this._data = {
                     // prettier-ignore
                     title: typeof newData.title === "string" ? newData.title :
@@ -119,18 +118,18 @@ class NodeParent {
                         typeof this._data.iconType === "string" ? this._data.iconType :
                         "invalid",
                 }
-            }
-            break
+                break
             
-            case types.Folder: {
+            case types.Folder:
                 this._data = {
                     // prettier-ignore
                     title: typeof newData.title === "string" ? newData.title :
                         typeof this._data.title === "string" ? this._data.title :
                         "(bad title data)"
                 }
-            }
-            break
+                break
+            default:
+                throw new Error("Bad node data type (should never happen...?)")
         }
         
         Object.freeze(this._data)
