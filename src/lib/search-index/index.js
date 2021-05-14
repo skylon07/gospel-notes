@@ -1,4 +1,4 @@
-import lunr from './lunr.min.js'
+import lunr from './lunr.js'
 
 class SearchIndexCreationError extends Error {
     constructor(msg) {
