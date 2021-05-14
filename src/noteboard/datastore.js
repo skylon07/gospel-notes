@@ -36,13 +36,13 @@ class NodeStoreSingleton {
         // unique so long as you aren't running on a massive supercomputer...
         const specificTime = parseInt(performance.now())
         // for that one person that one time where their computers
-        // decided to use two of the same times anyway... ("one in a million")
+        // decided to use two of the same times anyway... (it's "one in a million")
         const randNumJustInCase = Math.floor(Math.random() * 1000000)
         let fullId = `NODE${time}-${specificTime}-${randNumJustInCase}`
     
         // okay... let's guarantee this id is unique
-        if (this._nodesById[fullId]) {
-            fullId = this._createIdFor(node)
+        while (this._nodesById[fullId]) {
+            fullId += Math.floor(Math.random() * 10)
         }
         
         return fullId
