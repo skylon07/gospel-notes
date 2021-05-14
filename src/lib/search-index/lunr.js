@@ -550,7 +550,8 @@ lunr.Vector.prototype.insert = function (idx, val) {
       return this.length++
     }
 
-    prev = next, next = next.next
+    prev = next
+    next = next.next
   }
 
   prev.next = new lunr.Vector.Node (idx, val, next)
@@ -791,7 +792,8 @@ lunr.SortedSet.prototype.intersect = function (otherSet) {
 
     if (a[i] === b[j]) {
       intersectSet.add(a[i])
-      i++, j++
+      i++
+      j++
       continue
     }
 
@@ -836,9 +838,11 @@ lunr.SortedSet.prototype.union = function (otherSet) {
   var longSet, shortSet, unionSet
 
   if (this.length >= otherSet.length) {
-    longSet = this, shortSet = otherSet
+    longSet = this
+    shortSet = otherSet
   } else {
-    longSet = otherSet, shortSet = this
+    longSet = otherSet
+    shortSet = this
   }
 
   unionSet = longSet.clone()
@@ -2030,8 +2034,11 @@ lunr.TokenStore.prototype.toJSON = function () {
    * Export code from https://github.com/umdjs/umd/blob/master/returnExports.js
    */
   ;(function (root, factory) {
+    // NOTE: eslint doesn't like how "define" isn't defined (how ironic...)
+    // eslint-disable-next-line
     if (typeof define === 'function' && define.amd) {
       // AMD. Register as an anonymous module.
+      // eslint-disable-next-line
       define(factory)
     } else if (typeof exports === 'object') {
       /**
