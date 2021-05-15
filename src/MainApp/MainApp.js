@@ -162,19 +162,16 @@ export default class MainApp extends React.Component {
     updateNodeOnIndex(node) {
         const { NoteBox, DropBar } = nodeStore.nodeTypes
         switch (node.type) {
-            case NoteBox: {
+            case NoteBox:
                 this.updateNoteBoxOnIndex(node)
-            }
-            break
+                break
         
-            case DropBar: {
+            case DropBar:
                 this.updateDropBarOnIndex(node)
-            }
-            break
+                break
             
-            default: {
+            default:
                 throw new Error(`Cannot update index: Invalid node type ${node.type}`)
-            }
         }
     }
     
