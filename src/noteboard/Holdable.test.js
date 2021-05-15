@@ -31,12 +31,20 @@ function updateTouchId() {
 // NOTE: an object with clientX/Y normally suffices, but
 //       spck env requires me to generate actual touches
 function makeTouch(target, clientX, clientY) {
-    return new Touch({
-        identifier: currTouchId,
-        target,
-        clientX,
-        clientY,
-    })
+    if (window.Touch) {
+        return new Touch({
+            identifier: currTouchId,
+            target,
+            clientX,
+            clientY,
+        })
+    } else {
+        return {
+            target,
+            clientX,
+            clientY,
+        }
+    }
 }
 
 it("renders without crashing", () => {
