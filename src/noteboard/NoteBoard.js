@@ -25,7 +25,7 @@ export default class NoteBoard extends React.Component {
     
     render() {
         return <div data-testid="note-board" className="NoteBoard">
-            {this.renderNodes(this.props.children)}
+            {this.renderNodes(this.props.children || [])}
         </div>
     }
     

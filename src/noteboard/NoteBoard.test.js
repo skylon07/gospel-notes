@@ -50,7 +50,7 @@ it("renders BoardNodes from nodes or their IDs", () => {
     const children = [
         nodeStore.createNode("NoteBox"),
         <div key="div that shouldn't be checked">
-           "not a node (these should not be checked)"
+           "not a node"
            {nodeStore.createNode("NoteBox").id}
         </div>,
         "not a node",
@@ -71,24 +71,24 @@ it("renders BoardNodes from nodes or their IDs", () => {
     const elem1 = board.childNodes[1]
     expect(elem1.tagName.toLowerCase()).toBe("div")
     const child1_0 = elem1.childNodes[0]
-    expect(child1_0).toHaveTextContent("not a node")
+    expect(child1_0.textContent.includes("not a node")).toBe(true)
     // test that board nodes nested in elements are NOT rendered
     // (valid node ids remain strings and are not actual nodes)
     const child1_1 = elem1.childNodes[1]
-    expect(child1_1).toHaveTextContent(/NODE\d+-/)
+    expect(child1_1.textContent.includes("NODE")).toBe(true)
     
     const elem2 = board.childNodes[2]
-    expect(elem2).toHaveTextContent("not a node")
+    expect(elem2.textContent.includes("not a node")).toBe(true)
     
     // test the array was rendered correctly
     const elem3 = board.childNodes[3]
-    expect(elem3).toHaveTextContent("not a node")
+    expect(elem3.textContent.includes("not a node")).toBe(true)
     const elem4 = board.childNodes[4]
     expect(elem4).toHaveClass("BoardNode")
     const child4 = grabChildFrom(elem4)
     expect(child4).toHaveClass("DropBar")
     const elem5 = board.childNodes[5]
-    expect(elem5).toHaveTextContent("not a node")
+    expect(elem5.textContent.includes("not a node")).toBe(true)
 })
 
 // TODO: write more tests
