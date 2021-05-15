@@ -965,8 +965,8 @@ lunr.Index.load = function (serialisedData) {
  * @memberOf Index
  */
 lunr.Index.prototype.field = function (fieldName, opts) {
-  var field = { name: fieldName, boost: opts.boost || 1 }
   opts = opts || {}
+  var field = { name: fieldName, boost: opts.boost || 1 }
 
   this._fields.push(field)
   return this
