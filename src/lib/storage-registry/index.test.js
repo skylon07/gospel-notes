@@ -125,37 +125,37 @@ describe("value storing tests", () => {
     });
 });
 
-describe("key numbering tests", () => {
-    it("numbers one key after one value is stored", () => {
-        storage.setKeyString("key", "val");
-        expect(storage.numberKeys).toBe(1);
-    });
+// describe("key numbering tests", () => {
+//     it("numbers one key after one value is stored", () => {
+//         storage.setKeyString("key", "val");
+//         expect(storage.numberKeys).toBe(1);
+//     });
 
-    it("numbers two keys after two values are stored", () => {
-        storage.setKeyString("key", "val");
-        storage.setKeyString("key2", "val2");
-        expect(storage.numberKeys).toBe(2);
-    });
+//     it("numbers two keys after two values are stored", () => {
+//         storage.setKeyString("key", "val");
+//         storage.setKeyString("key2", "val2");
+//         expect(storage.numberKeys).toBe(2);
+//     });
 
-    it("returns empty === true when no keys are stored", () => {
-        expect(storage.empty).toBe(true);
-    });
+//     it("returns empty === true when no keys are stored", () => {
+//         expect(storage.empty).toBe(true);
+//     });
 
-    it("returns empty === true after keys are stored and deleted", () => {
-        storage.setKeyString("key", "val");
-        storage.setKeyString("key2", "val2");
-        storage.resetKey("key");
-        storage.resetKey("key2");
-        expect(storage.empty).toBe(true);
-    });
+//     it("returns empty === true after keys are stored and deleted", () => {
+//         storage.setKeyString("key", "val");
+//         storage.setKeyString("key2", "val2");
+//         storage.resetKey("key");
+//         storage.resetKey("key2");
+//         expect(storage.empty).toBe(true);
+//     });
 
-    it("returns empty === false when keys are stored", () => {
-        storage.setKeyString("key", "val");
-        storage.setKeyString("key2", "val2");
-        storage.resetKey("key");
-        expect(storage.empty).toBe(false);
-    });
-});
+//     it("returns empty === false when keys are stored", () => {
+//         storage.setKeyString("key", "val");
+//         storage.setKeyString("key2", "val2");
+//         storage.resetKey("key");
+//         expect(storage.empty).toBe(false);
+//     });
+// });
 
 describe("invalid key-value setting tests", () => {
     it("throws an error when setting an empty key to a value", () => {
