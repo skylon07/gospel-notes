@@ -15,8 +15,11 @@ class NodeStoreSingleton {
         return node
     }
     
-    getNodeById(nodeId) {
-        return this._nodesById[nodeId] || null
+    getNodeById(nodeOrId) {
+        if (this.isNode(nodeOrId)) {
+            return nodeOrId
+        }
+        return this._nodesById[nodeOrId] || null
     }
     
     isNode(val) {

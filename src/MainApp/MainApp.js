@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import "./MainApp.css";
 
 import { SearchIndex } from "lib/search-index";
@@ -11,6 +11,93 @@ const DISPLAY_MODES = {
     all: "all",
     search: "search",
 }
+
+function useNodeStack() {
+    const [nodeStack, setNodeStack] = useState([])
+    
+    const pushNodesToStack = (nodeIds) => {
+        setNodeStack((nodeStack) => {
+            return nodeIds.concat(nodeStack)
+        })
+    }
+    
+    const popNodesFromStack = () => {
+        setNodeStack((nodeStack) => {
+            return nodeStack.slice(1)
+        })
+    }
+    
+    return [nodeStack, pushNodesToStack, popNodesFromStack]
+}
+
+function MainApp(props) {
+    // TODO: maybe pass hide() when rendering (a function child) instead of using props?
+    const [forceMenuHidden, setForceMenuHidden] = useState(null)
+    if (forceMenuHidden !== null) {
+        setForceMenuHidden(null)
+    }
+    
+    const [nodeStack, pushNodeStack, popNodeStack] = useNodeStack()
+    const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
+    
+    const [searchIndex] = useState(new NodeSearchIndex())
+    
+    const closeMenu = () => {
+        setForceMenuHidden(true)
+    }
+    const menuContent = renderMenuContent(closeMenu)
+    
+    const onAddNode = (newNode) => {
+        searchIndex.updateNode(newNode)
+        
+        const currNodes = nodeStack[0]
+        popNodeStack()
+        pushNodeStack(currNodes.concat(newNode.id))
+    }
+    const addButton = renderAddButton(onAddNode)
+    
+    return <div data-testid="main-app" className="MainApp">
+        <BetaDisclaimer />
+        <TopBar
+            menuContent={menuContent}
+            forceMenuHidden={forceMenuHidden}
+            onSearchClick={this.on.search}
+            onSearchInactive={this.on.searchBack}
+        />
+        <MainWindow>
+            <NoteBoard
+                onChangeData={this.on.change.node.data}
+                onChangeChildren={this.on.change.node.children}
+            >
+                {this.renderCurrNotes()}
+                {addButton}
+                <div className="ScrollExtension" />
+            </NoteBoard>
+        </MainWindow>
+    </div>
+}
+export default MainApp
+
+function renderMenuContent(onClick) {
+    return <button onClick={onClick}>Close Menu</button>
+}
+
+function renderAddButton(onAddNode) {
+    // BUG: when adding during a search, the node is not rendered in "display all"
+    const addNode = () => {
+        const newNode = promptNewNode()
+        if (newNode) {
+            onAddNode(newNode)
+        }
+    }
+    return <AddButton
+        key="the (l)on(e)ly add button..."
+        onClick={addNode}
+    >
+        Add Node
+    </AddButton>
+}
+
 export default class MainApp extends React.Component {
     constructor(props) {
         super(props);
