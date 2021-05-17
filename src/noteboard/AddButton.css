@@ -1,0 +1,37 @@
+.AddButton {
+    /* dimensions */
+    padding: 0em;
+    border: none;
+    
+    /* flex-positioning */
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    
+    /* font */
+    color: var(--main-link-color);
+    white-space: nowrap;
+    
+    /* other */
+    position: relative;
+    background-color: var(--clear);
+    user-select: none;
+}
+
+.AddButton:active {
+    background-color: var(--active-shadow);
+}
+
+.AddButton .SVGIcon {
+    width: 2.2em;
+    height: 2.2em;
+}
+
+.AddButton .SVGIcon svg{
+    stroke: var(--main-link-color);
+}
+
+.AddButton .Spacer {
+    width: 0.44em; /* SVGIcon width * 0.2 (space between edge and end of plus) */
+}

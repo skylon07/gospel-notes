@@ -13,45 +13,94 @@ const GLOBALS = {
         return e;
     })(),
     updateOffsets(offset) {
-        GLOBALS.offsetSheet.innerHTML = `.DropBar { --bottom-bar-shift: ${offset}px; }`;
+        GLOBALS.offsetSheet.innerHTML = `.DropBar, .DropBarTransform { --bottom-bar-shift: ${offset}px; }`;
     },
+    bottomBarHeight: 6,
 };
+
+function getChildIdx(elem) {
+    let idx = 0;
+    while (elem.previousSibling) {
+        idx++;
+        elem = elem.previousSibling;
+    }
+    return idx;
+}
 
 export default class DropBar extends React.Component {
     static propTypes = {
-        title: PropTypes.string,
-        iconType: PropTypes.string,
-        onMouseHold: PropTypes.func,
-        _beforeDrop: PropTypes.func,
+        // update-ignored props
+        initTitle: PropTypes.string,
+        initIconType: PropTypes.string,
+        
+        // update-honored props
+        forceTitle: PropTypes.string,
+        forceIconType: PropTypes.string,
+        children: PropTypes.node,
+        canChange: PropTypes.bool,
+        onChangeTitle: PropTypes.func,
+        onChangeIcon: PropTypes.func,
     };
+    
+    static getDerivedStateFromProps(props, state) {
+        const { forceTitle, forceIconType } = props
+        if (typeof forceTitle === "string") {
+            state.title = forceTitle
+        }
+        if (typeof forceIconType === "string") {
+            state.iconType = forceIconType
+        }
+        return state
+    }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        // NOTE: changes in "init..." props can be ignored
+        return typeof nextProps.forceTitle === "string" ||
+            typeof nextProps.forceIconType === "string" ||
+            nextProps.children !== this.props.children ||
+            nextProps.canChange !== this.props.canChange ||
+            nextProps.onChangeTitle !== this.props.onChangeTitle ||
+            nextProps.onChangeIcon !== this.props.onChangeIcon ||
+            nextState.title !== this.state.title ||
+            nextState.iconType !== this.state.iconType ||
+            nextState.dropped !== this.state.dropped
+    }
 
     constructor(props) {
         super(props);
 
         this.state = {
+            title: props.initTitle || props.forceTitle || "",
+            iconType: props.initIconType || props.forceIconType,
             dropped: false,
         };
 
         this.ref = React.createRef();
         this.contentElem = null; // set on mount
         this.holdIsTouch = false;
+
+        this.on = {
+            hold: () => this.triggerRename(),
+            allowTriggerDrop: () => this._allowTriggerDrop(),
+            triggerDrop: () => this.triggerDrop(),
+        }
     }
 
     render() {
         return (
-            <div aria-label="drop-bar" ref={this.ref} className="DropBar">
-                <Holdable onHold={() => this.triggerOnMouseHold()}>
+            <div ref={this.ref} data-testid="drop-bar" className={this.getClass()}>
+                <Holdable onHold={this.on.hold}>
                     <div
                         className="Bar"
-                        onMouseUp={() => this._allowTriggerDrop()}
-                        onTouchEnd={() => this._allowTriggerDrop()}
-                        onTouchCancel={() => this._allowTriggerDrop()}
+                        onMouseUp={this.on.allowTriggerDrop}
+                        onTouchEnd={this.on.allowTriggerDrop}
+                        onTouchCancel={this.on.allowTriggerDrop}
                     >
-                        <SVGIcon type={this.props.iconType || "blank"} />
-                        {this.props.title}
+                        <SVGIcon type={this.state.iconType} />
+                        {this.state.title}
                         <div className="Spacer" />
                         <DropdownButton
-                            onClick={() => this.triggerDrop()}
+                            onClick={this.on.triggerDrop}
                             dropped={this.state.dropped}
                         />
                     </div>
@@ -59,20 +108,15 @@ export default class DropBar extends React.Component {
                 <DropBarContent dropped={this.state.dropped}>
                     {this.props.children}
                 </DropBarContent>
-                <div
-                    className={this.getBottomBarClass()}
-                    style={{
-                        animationDuration: this.state.barAnimating
-                            ? null
-                            : "0s",
-                        height:
-                            this.state.dropped || this.state.barAnimating
-                                ? null
-                                : "0px",
-                    }}
-                />
+                <div className={this.getBottomBarClass()} />
             </div>
         );
+    }
+
+    getClass() {
+        const base = "DropBar";
+        const init = !this.mounted ? "initAnimation" : "";
+        return `${base} ${init}`;
     }
 
     getBottomBarClass() {
@@ -82,24 +126,36 @@ export default class DropBar extends React.Component {
     }
 
     componentDidMount() {
+        this.mounted = true
         this._findContentElem();
     }
 
-    // TODO: is this the best/safest way to accomplish this...?
     _findContentElem() {
-        let elem = this.ref.current.children[0];
-        while (!elem.classList.contains("DropBarContent")) {
-            elem = elem.nextSibling;
+        this.contentElem = this.ref.current.querySelector(".DropBarContent")
+    }
+    
+    canChange() {
+        if (typeof this.props.canChange === "boolean") {
+            return this.props.canChange
         }
-        this.contentElem = elem;
+        return true
     }
 
-    triggerOnMouseHold() {
-        if (typeof this.props.onMouseHold === "function") {
-            this.props.onMouseHold();
+    triggerRename() {
+        if (this.canChange()) {
+            // ignore the possible drop after releasing
+            this._ignoreTriggerDrop = true;
+            
+            const newTitle = window.prompt("Enter a new title", this.state.title)
+            if (newTitle === null || newTitle === undefined) {
+                return // prompt was cancelled; don't change state
+            }
+            
+            this.setState({title: newTitle})
+            if (typeof this.props.onChangeTitle == "function") {
+                this.props.onChangeTitle(newTitle)
+            }
         }
-        // ignore the possible drop after releasing
-        this._ignoreTriggerDrop = true;
     }
 
     _allowTriggerDrop() {
@@ -116,12 +172,12 @@ export default class DropBar extends React.Component {
     toggleDrop() {
         this.setState((state, props) => {
             this._prepareAnimationOffset();
-            return { dropped: !state.dropped, barAnimating: true };
+            const newDropped = !state.dropped
+            return { dropped: newDropped };
+        }, () => {
+            const direction = this.state.dropped ? "dropping" : "raising"
+            this._updateSiblingAndParentClasses(this.ref.current, direction)
         });
-        if (typeof this.props._beforeDrop === "function") {
-            // being outside the above setState() allows React to batch/sync animation group setState() calls
-            this.props._beforeDrop(this.ref.current, this.state.dropped);
-        }
     }
 
     _prepareAnimationOffset() {
@@ -129,6 +185,75 @@ export default class DropBar extends React.Component {
         // before transformations are applied
         const currHeight = this.contentElem.offsetHeight;
         GLOBALS.updateOffsets(currHeight);
+    }
+    
+    _updateSiblingAndParentClasses(elem, direction) {
+        const parent = elem.parentElement;
+        const elemIdx = getChildIdx(elem);
+        
+        if (direction === "raising") {
+            this._scrollParentIfUnderflow(parent)
+        }
+        for (let idx = elemIdx + 1; idx < parent.children.length; idx++) {
+            const child = parent.children[idx];
+            // sets children after with the animation
+            this._setAnimationClasses(child, direction);
+        }
+        
+        // performs the same operations on the parent until hitting the group
+        if (parent !== document.body) {
+            this._updateSiblingAndParentClasses(parent, direction);
+        }
+    }
+    
+    _setAnimationClasses(elem, state) {
+        const base = "DropBarTransform"
+        const dropping = "dropping"
+        const raising = "raising"
+        const listen = () => elem.addEventListener(
+            "animationend",
+            () => {
+                // ensures that the same animation can re-run multiple times
+                elem.classList.remove(base, dropping, raising);
+            },
+            { once: true }
+        );
+
+        switch (state) {
+            case "dropping":
+                elem.classList.add(base, dropping);
+                elem.classList.remove(raising);
+                listen()
+                break;
+
+            case "raising":
+                elem.classList.add(base, raising);
+                elem.classList.remove(dropping);
+                listen()
+                break;
+
+            default:
+                elem.classList.remove(base, dropping, raising);
+        }
+    }
+    
+    _scrollParentIfUnderflow(parent) {
+        const heightChange = this.contentElem.offsetHeight + GLOBALS.bottomBarHeight
+        const maxScrollBottom = parent.scrollHeight - heightChange
+        const scrollBottom = parent.scrollTop + parent.offsetHeight
+        
+        // NOTE: canScroll helps prevent making scrollBy() calls to elements
+        //       that can't scroll (likely because this DropBar is in a wrapper
+        //       element, and therefore taking all the height)
+        const canScroll = parent.scrollTop > 0
+        const scrollDiff = maxScrollBottom - scrollBottom
+        if (scrollDiff < 0 && canScroll) {
+            // TODO: apply a little slower/over more time...
+            parent.scrollBy({
+                top: scrollDiff, 
+                behavior: "smooth",
+            })
+        }
     }
 }
 
@@ -160,7 +285,7 @@ class DropdownButton extends React.Component {
         const offset = 1.0606601717; // for w = 3px
         return (
             <svg
-                aria-label="drop-button"
+                data-testid="dropdown-button"
                 className={this.getClass()}
                 viewBox="0 0 40 40"
                 onClick={this.props.onClick}
@@ -174,8 +299,7 @@ class DropdownButton extends React.Component {
     getClass() {
         const base = "DropdownButton";
         const dropped = this.props.dropped ? "dropped" : "raised";
-        const init = !this.mounted ? "initAnimation" : "";
-        return `${base} ${dropped} ${init}`;
+        return `${base} ${dropped}`;
     }
 
     componentDidMount() {
@@ -197,7 +321,7 @@ class DropBarContent extends React.Component {
 
     render() {
         return (
-            <div aria-label="drop-content" className={this.getClass()}>
+            <div data-testid="drop-bar-content" className={this.getClass()}>
                 <div className="Container">{this.props.children}</div>
                 <div className="TopGradient" />
                 <div className="BottomGradient" />
@@ -208,8 +332,7 @@ class DropBarContent extends React.Component {
     getClass() {
         const base = "DropBarContent";
         const dropped = this.props.dropped ? "dropped" : "raised";
-        const init = !this.mounted ? "initAnimation" : "";
-        return `${base} ${dropped} ${init}`;
+        return `${base} ${dropped}`;
     }
 
     componentDidMount() {

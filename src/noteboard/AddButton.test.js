@@ -1,7 +1,8 @@
-import React from "react";
+import React from 'react'
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import MainApp from "./MainApp.js";
+
+import AddButton from "./AddButton.js";
 
 let root = null;
 beforeEach(() => {
@@ -14,21 +15,21 @@ afterEach(() => {
     root = null;
 });
 
-function grabMainApp() {
-    return document.querySelector("[data-testid='main-app']")
+// TODO: these grab functions should probably be imported
+//       instead of rewritten...
+function grabAddButton() {
+    return document.querySelector("[data-testid='add-button']")
 }
 
 it("renders without crashing", () => {
-    render(<MainApp />, root);
-});
+    render(<AddButton />, root)
+})
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<MainApp />, root)
+        render(<AddButton />, root)
     })
-    const app = grabMainApp()
+    const addButton = grabAddButton()
     
-    expect(app).toHaveClass("MainApp")
+    expect(addButton).toHaveClass("AddButton")
 })
-
-// TODO: do we need to write more tests for this...?

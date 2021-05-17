@@ -28,33 +28,48 @@ export default class DropBarGroup extends React.Component {
         };
 
         this._groupRef = React.createRef();
+        
+        this.on = {
+            childDrop: (...args) => this.whenChildDrops(...args),
+        }
     }
 
     render() {
         return (
-            <div ref={this._groupRef} className="DropBarGroup">
+            <div data-testid="drop-bar-group" ref={this._groupRef} className="DropBarGroup">
                 {this.wrapChildren()}
             </div>
         );
     }
 
     componentDidUpdate() {
-        this.updateAnimationOffsets();
-        this.updateAllChildClasses();
+        if (this.state.animatingElement) {
+            // NOTE: crashes when DropBarGroup updates after being created
+            //       and never running a dropping animation; only update when
+            //       the element is not null to avoid errors
+            this.updateAnimationOffsets();
+            this.updateAllChildClasses();
+        }
     }
 
     wrapChildren() {
-        return React.Children.map(this.props.children, (child) => {
+        let children = this._processFragments(this.props.children)
+        return React.Children.map(children, (child) => {
             return this._trackIfDropBar(child);
         });
+    }
+
+    _processFragments(children) {
+        while (typeof children === "object" && children.type === React.Fragment) {
+            children = children.props.children
+        }
+        return children
     }
 
     _trackIfDropBar(child) {
         if (child.type === DropBar) {
             return React.cloneElement(child, {
-                _beforeDrop: (elem, dropped) => {
-                    this.whenChildDrops(elem, dropped);
-                },
+                _beforeDrop: this.on.childDrop,
             });
         }
         return child;
@@ -66,7 +81,6 @@ export default class DropBarGroup extends React.Component {
         this.setState({
             animationDirection,
             animatingElement,
-            animating: true,
         });
     }
 
@@ -85,10 +99,10 @@ export default class DropBarGroup extends React.Component {
 
         const activeDropdown = this.state.animatingElement;
         const direction = this.state.animationDirection;
-        if (
-            direction === this._lastAnimationDirection &&
-            activeDropdown === this._lastAnimatedElement
-        ) {
+
+        const isLastDirection = direction === this._lastAnimationDirection;
+        const isLastAnimated = activeDropdown === this._lastAnimatedElement;
+        if (isLastDirection && isLastAnimated) {
             return; // only animate for changes
         }
         this._lastAnimationDirection = direction;

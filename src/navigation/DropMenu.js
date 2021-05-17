@@ -20,6 +20,7 @@ export default class DropMenu extends React.Component {
             <div
                 aria-label={this.props.ariaLabel}
                 role="menu"
+                data-testid="drop-menu"
                 className={this.getClass()}
                 onClick={() => this.props.onClick()}
             >

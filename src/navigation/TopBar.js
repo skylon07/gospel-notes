@@ -4,7 +4,6 @@ import "./TopBar.css";
 
 import { SVGIcon } from "common/svg-icon";
 
-import TopBarButton from "./TopBarButton.js";
 import DropMenu from "./DropMenu.js";
 import SearchBar from "./SearchBar.js";
 
@@ -20,7 +19,7 @@ const MENU_BUTTONS = [
     */
 ];
 
-export default class TopBar extends React.Component {
+export default class TopBar extends React.PureComponent {
     static propTypes = {
         menuContent: PropTypes.oneOfType([
             PropTypes.element,
@@ -28,6 +27,7 @@ export default class TopBar extends React.Component {
             PropTypes.array,
         ]),
 
+        // TODO: write test (after there are buttons...)
         selectedIdx: PropTypes.number,
         forceMenuHidden: PropTypes.bool,
 
@@ -49,6 +49,17 @@ export default class TopBar extends React.Component {
 
         this._searchFocusRef = React.createRef();
         this._menuClicked = false;
+
+        this.on = {
+            searchSlideIn: () => this.showSearch(),
+            searchSlideOut: () => this.hideSearch(),
+            menuToggle: () => this.clickedMenuToggle(),
+            menuClick: () => this.clickedMenu(),
+            buttonClickFor: (content, idx) => {
+                // idx/content reversed for user convenience
+                return () => this.clickedButton(idx, content)
+            },
+        }
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -64,39 +75,34 @@ export default class TopBar extends React.Component {
 
         // the order is weird because the animation bounds need to be "behind" the menu
         return (
-            <div className="TopBar">
+            <div data-testid="top-bar" className={this.getClass()}>
                 <div className="AnimationBounds">
                     <div className={this.getMainClass()}>
                         {buttons.map((button, idx) =>
                             this.renderButton(button, idx)
                         )}
                         <div className="Spacer" />
-                        <TopBarButton onClick={() => this.showSearch()}>
+                        <TopBarButton onClick={this.on.searchSlideIn}>
                             <SVGIcon type="magGlass" />
                         </TopBarButton>
                     </div>
                     <div className={this.getSearchClass()}>
-                        <TopBarButton onClick={() => this.hideSearch()}>
+                        <TopBarButton onClick={this.on.searchSlideOut}>
                             <SVGIcon type="backArrow" />
                         </TopBarButton>
-                        {/* TODO: replace with <Spacer /> */}
                         <div className="Spacer" />
                         <SearchBar
                             ref={this._searchFocusRef}
-                            onSearchClick={this.props.onSearchClick}
+                            onSearch={this.props.onSearchClick}
                         />
                     </div>
                 </div>
-                <TopBarButton
-                    ariaLabel="main-menu-button"
-                    onClick={() => this.clickedMenuToggle()}
-                >
+                <TopBarButton onClick={this.on.menuToggle}>
                     <SVGIcon type="bars" />
                 </TopBarButton>
                 <DropMenu
-                    ariaLabel="main-menu"
                     hidden={this.state.menuHidden}
-                    onClick={() => this.clickedMenu()}
+                    onClick={this.on.menuClick}
                 >
                     {this.props.menuContent}
                 </DropMenu>
@@ -108,30 +114,31 @@ export default class TopBar extends React.Component {
         const result = (
             <TopBarButton
                 selected={idx === this.props.selectedIdx}
-                onClick={() => this.clickedButton(idx, content)}
+                onClick={this.on.buttonClickFor(content, idx)}
             >
                 {content}
             </TopBarButton>
         );
-
-        // TODO: replace <div className="Spacer" /> with <spacer />
+        
         return [result, <div className="Spacer" />];
+    }
+    
+    getClass() {
+        const base = "TopBar"
+        const initAnimation = !this.mounted ? "initAnimation" : "";
+        return `${base} ${initAnimation}`
     }
 
     getMainClass() {
         const base = "Main";
         const collapsed = this.state.searchActive ? "Collapsed" : "Uncollapsed";
-        const initAnimation = !this.mounted ? "initAnimation" : "";
-        return `${base} ${collapsed} ${initAnimation}`;
+        return `${base} ${collapsed}`;
     }
 
     getSearchClass() {
         const base = "Search";
-        const collapsed = !this.state.searchActive
-            ? "Collapsed"
-            : "Uncollapsed";
-        const initAnimation = !this.mounted ? "initAnimation" : "";
-        return `${base} ${collapsed} ${initAnimation}`;
+        const collapsed = this.state.searchActive ? "Uncollapsed" : "Collapsed";
+        return `${base} ${collapsed}`;
     }
 
     componentDidMount() {
@@ -147,9 +154,9 @@ export default class TopBar extends React.Component {
         window.removeEventListener("click", this._clickEventListener);
     }
 
-    clickedButton(idx) {
+    clickedButton(idx, content) {
         if (typeof this.props.onButtonClick === "function") {
-            this.props.onButtonClick(idx);
+            this.props.onButtonClick(idx, content);
         }
     }
 
@@ -168,21 +175,36 @@ export default class TopBar extends React.Component {
     }
 
     showSearch() {
-        this.setState({ searchActive: true, sliding: true });
-        // allows animation to play first
-        setTimeout(() => {
-            if (typeof this.props.onSearchActive === "function") {
-                this.props.onSearchActive();
-            }
-        });
+        this.setState({ searchActive: true });
+        if (typeof this.props.onSearchActive === "function") {
+            this.props.onSearchActive();
+        }
     }
     hideSearch() {
-        this.setState({ searchActive: false, sliding: true });
-        // allows animation to play first
-        setTimeout(() => {
-            if (typeof this.props.onSearchInactive === "function") {
-                this.props.onSearchInactive();
-            }
-        });
+        this.setState({ searchActive: false });
+        if (typeof this.props.onSearchInactive === "function") {
+            this.props.onSearchInactive();
+        }
+    }
+}
+
+class TopBarButton extends React.Component {
+    static propTypes = {
+        onClick: PropTypes.func,
+        selected: PropTypes.bool,
+    };
+
+    render() {
+        return (
+            <button
+                data-testid="top-bar-button"
+                className={`TopBarButton ${
+                    this.props.selected ? "selected" : ""
+                }`}
+                onClick={() => this.props.onClick()}
+            >
+                {this.props.children}
+            </button>
+        );
     }
 }

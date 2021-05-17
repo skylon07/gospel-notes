@@ -1,8 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { render } from "react-dom";
+// import { act } from "react-dom/test-utils";
 import BetaDisclaimer from "./BetaDisclaimer.js";
 
 it("renders without crashing", () => {
     const div = document.createElement("div");
-    ReactDOM.render(<BetaDisclaimer hidden />, div);
+    render(<BetaDisclaimer hidden />, div);
 });
+
+// NOTE: not many tests needed for this component
+//       since it is just a temporary disclosure

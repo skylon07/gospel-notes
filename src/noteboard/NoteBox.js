@@ -4,22 +4,64 @@ import "./NoteBox.css";
 
 export default class NoteBox extends React.Component {
     static propTypes = {
-        title: PropTypes.string,
-        content: PropTypes.string,
-        onTitleChange: PropTypes.func,
-        onContentChange: PropTypes.func,
+        // update-ignored props
+        initTitle: PropTypes.string,
+        initContent: PropTypes.string,
+        
+        // update-honored props
+        forceTitle: PropTypes.string,
+        forceContent: PropTypes.string,
+        canChange: PropTypes.bool,
+        onChangeTitle: PropTypes.func,
+        onChangeContent: PropTypes.func,
     };
+    
+    static getDerivedStateFromProps(props, state) {
+        const { forceTitle, forceContent } = props
+        // NOTE: state must be updated in case textareas were deleted
+        if (typeof forceTitle === "string") {
+            state.title = forceTitle
+        }
+        if (typeof forceContent === "string") {
+            state.content = forceContent
+        }
+        return state
+    }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        // NOTE: changes in "init..." props can be ignored
+        return typeof nextProps.forceTitle === "string" ||
+            typeof nextProps.forceContent === "string" ||
+            nextProps.canChange !== this.props.canChange ||
+            nextProps.onChangeTitle !== this.props.onChangeTitle ||
+            nextProps.onChangeContent !== this.props.onChangeContent ||
+            nextState.title !== this.state.title ||
+            nextState.content !== this.state.content
+    }
 
     constructor(props) {
         super(props);
+        
+        this.state = {
+            title: props.initTitle || props.forceTitle,
+            content: props.initContent || props.forceContent,
+        }
 
         this.titleRef = React.createRef();
         this.contentRef = React.createRef();
+        
+        this.on = {
+            // NOTE: onBlur() is used because onChange() isn't working as expected...
+            blurTitle: () => this.detectIfTitleChanged(),
+            blurContent: () => this.detectIfContentChanged(),
+            titleInput: () => this.updateDims(this.titleRef.current, "title"),
+            contentInput: () => this.updateDims(this.contentRef.current, "content"),
+        }
     }
 
     render() {
         return (
-            <div className="NoteBox">
+            <div data-testid="note-box" className="NoteBox">
                 {this.renderTitle()}
                 {this.renderContent()}
             </div>
@@ -27,117 +69,154 @@ export default class NoteBox extends React.Component {
     }
 
     renderTitle() {
-        let title = this.props.title;
-        if (Array.isArray(title)) {
-            title = title.join("\n");
-        }
-        this.lastTitle = title;
-
+        const title = this.state.title
         if (!title) {
+            // remove the element for empty text
             return null;
         }
-
-        return (
-            <textarea
-                aria-label="note-title"
+        
+        if (this.canChange()) {
+            return (
+                <textarea
+                    ref={this.titleRef}
+                    className="Title"
+                    rows="1"
+                    cols="1"
+                    wrap="off"
+                    onBlur={this.on.blurTitle}
+                    onInput={this.on.titleInput}
+                    defaultValue={title}
+                />
+            )
+        } else {
+            return <textarea
                 ref={this.titleRef}
                 className="Title"
                 rows="1"
                 cols="1"
                 wrap="off"
-                onBlur={() =>
-                    this.detectIfTitleChanged(this.titleRef.current.value)
-                }
-                onInput={() => this.updateDims(this.titleRef.current, "title")}
-                defaultValue={title}
+                value={title}
+                readOnly={true}
             />
-        );
+        }
     }
 
     renderContent() {
-        let content = this.props.children || this.props.content;
-        if (Array.isArray(content)) {
-            content = content.join("\n");
-        }
-        this.lastContent = content;
-
+        const content = this.state.content
         if (!content) {
+            // remove the element for empty text
             return null;
         }
-
-        return (
-            <textarea
-                aria-label="note-content"
-                ref={this.contentRef}
-                className="Content"
-                rows="1"
-                cols="1"
-                onBlur={() =>
-                    this.detectIfContentChanged(this.contentRef.current.value)
-                }
-                onInput={() =>
-                    this.updateDims(this.contentRef.current, "content")
-                }
-                defaultValue={content}
-            />
-        );
+        
+        if (this.canChange()) {
+            return (
+                <textarea
+                    ref={this.contentRef}
+                    className="Content"
+                    rows="1"
+                    cols="1"
+                    onBlur={this.on.blurContent}
+                    onInput={this.on.contentInput}
+                    defaultValue={content}
+                />
+            );
+        } else {
+            return (
+                <textarea
+                    ref={this.contentRef}
+                    className="Content"
+                    rows="1"
+                    cols="1"
+                    value={content}
+                    readOnly={true}
+                />
+            );
+        }
     }
 
     componentDidMount() {
         this.initDims();
     }
-
+    
     componentDidUpdate() {
-        if (!this.props.preventOverwrite) {
-            const title = this.titleRef.current;
-            if (title) {
-                title.value = this.lastTitle;
-                this.updateDims(title);
-            }
-
-            const content = this.contentRef.current;
-            if (content) {
-                content.value = this.lastContent;
-                this.updateDims(content);
-            }
+        this.syncForceProps()
+    }
+    
+    canChange() {
+        if (typeof this.props.canChange === "boolean") {
+            return this.props.canChange
+        }
+        return true
+    }
+    
+    // wraps title value getter by returning null if it doesn't exist
+    titleValue() {
+        if (this.titleRef.current) {
+            return this.titleRef.current.value || null
+        }
+        return null
+    }
+    
+    // wraps content value getter by returning null if it doesn't exist
+    contentValue() {
+        if (this.contentRef.current) {
+            return this.contentRef.current.value || null
+        }
+        return null
+    }
+    
+    syncForceProps() {
+        const { forceTitle, forceContent } = this.props
+        if (typeof forceTitle === "string" && forceTitle !== "") {
+            const title = this.titleRef.current
+            title.value = forceTitle
+        }
+        if (typeof forceContent === "string" && forceContent !== "") {
+            const content = this.contentRef.current
+            content.value = forceContent
         }
     }
-
-    // NOTE: these are used during onBlur() because onChange() isnt working
-    detectIfPropChanged(str, compStr, onChangeName) {
-        if (str !== compStr) {
+    
+    detectIfTextAreaChanged(newStr, lastStr, onChange) {
+        if (newStr !== lastStr) {
             // convert breaks to newlines
-            str = str.replace(/<br>/gi, "\n");
-
-            // ensure first/last characters are ommitted when newlines
-            if (str[0] === "\n") {
-                str = str.slice(1);
+            // NOTE: eval is used to generate the regex; this is perfectly
+            //       safe usage (talking to you eslint)
+            // eslint-disable-next-line
+            const regex = eval("/<br>/gi")
+            let str = newStr
+            if (str !== null) {
+                str.replace(regex, "\n");
+                // ensure first/last characters are ommitted when newlines
+                if (str[0] === "\n") {
+                    str = str.slice(1);
+                }
+                if (str[str.length - 1] === "\n") {
+                    str = str.slice(0, str.length - 1);
+                }
             }
-            if (str[str.length - 1] === "\n") {
-                str = str.slice(0, str.length - 1);
-            }
-
-            const onChange = this.props[onChangeName];
-            if (onChange) {
-                onChange(str);
+            
+            this._updateStateTitleAndContent()
+            if (typeof onChange === "function") {
+                onChange(str)
             }
         }
     }
 
-    detectIfTitleChanged(titleStr) {
+    detectIfTitleChanged() {
         // prettier-ignore
-        this.detectIfPropChanged(
-            titleStr,
-            this.lastTitle,
-            "onTitleChange"
+        this.detectIfTextAreaChanged(
+            this.titleValue(),
+            this.state.title,
+            this.props.onChangeTitle
         );
     }
-    detectIfContentChanged(contentStr) {
+    detectIfContentChanged() {
         // prettier-ignore
-        this.detectIfPropChanged(
-            contentStr,
-            this.lastContent,
-            "onContentChange"
+        this.detectIfTextAreaChanged(
+            this.contentValue(),
+            this.state.content,
+            this.props.onChangeContent
         );
     }
 
@@ -156,6 +235,10 @@ export default class NoteBox extends React.Component {
     }
 
     updateDims(elem, name) {
+        if (!elem) {
+            return
+        }
+        
         elem.style.height = "auto"; // allows shrinking
         elem.style.height = elem.scrollHeight + "px";
 
@@ -174,5 +257,12 @@ export default class NoteBox extends React.Component {
                 elem.style.width = max;
             }
         }
+    }
+    
+    _updateStateTitleAndContent() {
+        this.setState({
+            title: this.titleValue(),
+            content: this.contentValue(),
+        })
     }
 }

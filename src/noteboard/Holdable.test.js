@@ -1,35 +1,315 @@
 import React from "react";
-import ReactDOM, { unmountComponentAtNode } from "react-dom";
-import { render, fireEvent, screen, act } from "@testing-library/react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 
 import Holdable from "./Holdable.js";
 
 jest.useFakeTimers("modern");
 
-it("renders without crashing", () => {
-    const div = document.createElement("div");
-    ReactDOM.render(<Holdable />, div);
+let root = null;
+beforeEach(() => {
+    root = document.createElement("div");
+    document.body.appendChild(root);
+    
+    updateTouchId()
+});
+afterEach(() => {
+    unmountComponentAtNode(root);
+    document.body.removeChild(root);
+    root = null;
 });
 
-it("calls onHold() when clicked and held", () => {
-    const onHold = jest.fn();
-    render(<Holdable onHold={onHold} />);
+function grabHoldable() {
+    return document.querySelector("[data-testid='holdable']");
+}
 
-    const holdable = screen.getByLabelText("holdable");
+let currTouchId = 0
+function updateTouchId() {
+    currTouchId = Date.now()
+}
 
-    // click on the holdable
-    fireEvent.mouseDown(holdable);
+// NOTE: an object with clientX/Y normally suffices, but
+//       spck env requires me to generate actual touches
+function makeTouch(target, clientX, clientY) {
+    if (window.Touch) {
+        return new Touch({
+            identifier: currTouchId,
+            target,
+            clientX,
+            clientY,
+        })
+    } else {
+        return {
+            target,
+            clientX,
+            clientY,
+        }
+    }
+}
 
-    // onHold() should not have activated yet
-    expect(onHold).not.toHaveBeenCalled();
+it("renders without crashing", () => {
+    render(<Holdable />, root);
+});
 
-    // wait some time...
-    jest.advanceTimersByTime(100);
+it("renders with a CSS class", () => {
+    act(() => {
+        render(<Holdable />, root)
+    })
+    const holdable = grabHoldable()
+    
+    expect(holdable).toHaveClass("Holdable")
+})
 
-    // still should not have activated...
-    expect(onHold).not.toHaveBeenCalled();
+describe("holding tests", () => {
+    it("calls onHold() when clicked and held", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
 
-    // wait the rest of the time
-    jest.advanceTimersByTime(1000);
-    expect(onHold).toHaveBeenCalledTimes(1);
+        // click on the holdable
+        act(() => {
+            holdable.dispatchEvent(
+                new MouseEvent("mousedown", { bubbles: true })
+            );
+        });
+
+        // onHold() should not have activated yet
+        expect(onHold).not.toBeCalled();
+
+        // wait some time...
+        act(() => {
+            jest.advanceTimersByTime(100);
+        });
+
+        // still should not have activated...
+        expect(onHold).not.toBeCalled();
+
+        // wait the rest of the time
+        act(() => {
+            jest.advanceTimersByTime(1000);
+        });
+
+        expect(onHold).toBeCalledTimes(1);
+    });
+
+    it("calls onHold() when touched and held", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
+
+        // click on the holdable
+        act(() => {
+            holdable.dispatchEvent(
+                new TouchEvent("touchstart", { bubbles: true })
+            );
+        });
+
+        // onHold() should not have activated yet
+        expect(onHold).not.toBeCalled();
+
+        // wait some time...
+        act(() => {
+            jest.advanceTimersByTime(100);
+        });
+
+        // still should not have activated...
+        expect(onHold).not.toBeCalled();
+
+        // wait the rest of the time
+        act(() => {
+            jest.advanceTimersByTime(1000);
+        });
+
+        expect(onHold).toBeCalledTimes(1);
+    });
+});
+
+describe("cancel tests", () => {
+    it("cancels when clicked and released too quickly", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
+
+        act(() => {
+            holdable.dispatchEvent(
+                new MouseEvent("mousedown", { bubbles: true })
+            );
+        });
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(100);
+            holdable.dispatchEvent(
+                new MouseEvent("mouseup", { bubbles: true })
+            );
+        });
+
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(1000);
+        });
+
+        expect(onHold).not.toBeCalled();
+    });
+
+    it("cancels when clicked and the mouse moves", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
+
+        act(() => {
+            holdable.dispatchEvent(
+                new MouseEvent("mousedown", { bubbles: true })
+            );
+        });
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(100);
+            holdable.dispatchEvent(
+                new MouseEvent("mousemove", { bubbles: true })
+            );
+        });
+
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(1000);
+        });
+
+        expect(onHold).not.toBeCalled();
+    });
+
+    it("cancels when touched and released too quickly", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
+
+        act(() => {
+            holdable.dispatchEvent(
+                new TouchEvent("touchstart", { bubbles: true })
+            );
+        });
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(100);
+            holdable.dispatchEvent(
+                new TouchEvent("touchend", { bubbles: true })
+            );
+        });
+
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(1000);
+        });
+
+        expect(onHold).not.toBeCalled();
+    });
+
+    it("cancels when touched and dragged", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
+
+        act(() => {
+            holdable.dispatchEvent(
+                new TouchEvent("touchstart", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
+            );
+            // NOTE: dispatched to allow fake-move-detection to work properly
+            //       (see the "ignores 'still'..." test below; it ensures this logic works correctly)
+            holdable.dispatchEvent(
+                new TouchEvent("touchmove", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
+            );
+        });
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(100);
+            holdable.dispatchEvent(
+                new TouchEvent("touchmove", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 150, 150)],
+                })
+            );
+        });
+
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(1000);
+        });
+
+        expect(onHold).not.toBeCalled();
+    });
+
+    it("doesn't cancel and ignores 'still' touchmove events", () => {
+        const onHold = jest.fn();
+        act(() => {
+            render(<Holdable onHold={onHold} />, root);
+        });
+        const holdable = grabHoldable();
+
+        act(() => {
+            holdable.dispatchEvent(
+                new TouchEvent("touchstart", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
+            );
+            // NOTE: all touchmove events are on the same coordinate to simulate
+            //       the odd behavior of these events being fired without actually moving
+            holdable.dispatchEvent(
+                new TouchEvent("touchmove", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
+            );
+        });
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(100);
+            holdable.dispatchEvent(
+                new TouchEvent("touchmove", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
+            );
+        });
+
+        expect(onHold).not.toBeCalled();
+
+        act(() => {
+            jest.advanceTimersByTime(1000);
+            holdable.dispatchEvent(
+                new TouchEvent("touchmove", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
+            );
+        });
+
+        expect(onHold).toBeCalledTimes(1);
+    });
 });

@@ -1,5 +1,4 @@
-html,
-body {
+html, body {
     margin: 0px;
 
     /* NOTE: these next two disable page scrolling */
@@ -7,7 +6,15 @@ body {
     overflow: hidden;
 }
 
-.MainWindow {
+html body *:focus {
+    outline: none;
+}
+
+html body *::-moz-focus-inner {
+    border: none;
+}
+
+.MainApp {
     /* positioning */
     position: absolute;
     top: 0px;
@@ -26,25 +33,49 @@ body {
     color: var(--main-color);
 }
 
-.MainWindow .PageViewer {
+.MainApp .MainWindow {
     position: relative;
     width: 100%;
     flex: 1;
+    overflow-y: scroll;
 }
 
-.MainWindow .PageViewer .DropBarGroup {
+.MainApp .NoteBoard {
     /* positioning */
     /* NOTE: having the combination of position: absolute and parent being a flex
              element allows the element to overflow without taking more than the rest
              of the document space
     */
     position: absolute;
-    overflow-y: scroll;
     top: 0px;
     left: 0px;
+    
+    /* dimensions */
+    height: auto;
+}
 
-    /* flex-positioning */
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
+.MainApp .NoteBoard > .BoardNode > .NoteBox {
+    margin-top: 0.72em;
+    width: 85%;
+}
+
+.MainApp .NoteBoard > .BoardNode > .DropBar {
+    margin-top: 0.72em;
+    width: 95%;
+}
+
+@media (min-width: 31em) {
+    .MainApp .DropBar {
+        margin-top: 1.2em;
+        width: 83%;
+    }
+}
+
+.MainApp .AddButton {
+    margin-top: 20px;
+    font-size: 1.3em;
+}
+
+.MainApp .ScrollExtension {
+    height: 10em;
 }

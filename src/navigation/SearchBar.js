@@ -6,27 +6,27 @@ import { SVGIcon } from "common/svg-icon";
 
 export default class SearchBar extends React.Component {
     static propTypes = {
-        onSearchClick: PropTypes.func,
+        onSearch: PropTypes.func,
     };
 
     constructor(props) {
         super(props);
 
-        this._inputRef = React.createRef();
+        this.inputRef = React.createRef();
     }
 
     render() {
         return (
-            <div className="SearchBar">
+            <div data-testid="search-bar" className="SearchBar">
                 <input
-                    ref={this._inputRef}
+                    ref={this.inputRef}
                     onFocus={() => this.select()}
                     onKeyDown={(event) => this.searchOnEnter(event)}
                 />
                 <div className="SearchButton">
                     <button
                         aria-label="search-button"
-                        onClick={() => this.triggerSearchClick()}
+                        onClick={() => this.triggerSearch()}
                     >
                         <SVGIcon type="magGlass" />
                     </button>
@@ -36,30 +36,30 @@ export default class SearchBar extends React.Component {
     }
 
     focus() {
-        this._inputRef.current.focus();
+        this.inputRef.current.focus();
     }
 
     blur() {
-        this._inputRef.current.blur();
+        this.inputRef.current.blur();
     }
 
     select() {
-        this._inputRef.current.select();
+        this.inputRef.current.select();
     }
 
     searchOnEnter(event) {
         if (event.key === "Enter") {
             event.preventDefault();
-            this.triggerSearchClick();
+            this.triggerSearch();
         }
     }
 
-    triggerSearchClick() {
+    triggerSearch() {
         this.blur();
-        if (typeof this.props.onSearchClick === "function") {
-            const elem = this._inputRef.current;
+        if (typeof this.props.onSearch === "function") {
+            const elem = this.inputRef.current;
             const text = elem.value;
-            this.props.onSearchClick(text);
+            this.props.onSearch(text);
         }
     }
 }

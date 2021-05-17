@@ -1,11 +1,11 @@
-class RegistryCreationError extends Error {
+export class RegistryCreationError extends Error {
     constructor(msg) {
         super(msg);
         this.name = "RegistryCreationError";
     }
 }
 
-class RegistryStoreError extends Error {
+export class RegistryStoreError extends Error {
     constructor(msg) {
         super(msg);
         this.name = "RegistryStoreError";
@@ -39,15 +39,10 @@ export class StorageRegistry {
         this._initStoredStrs();
     }
 
-    onStoreFinish() {
-        // overridden by implementation
-    }
-    onStoreFull() {
-        // overridden by implementation
-    }
-    onStoreError(error) {
-        // overridden by implementation
-    }
+    // overridden by implementation
+    onStoreFinish() {}
+    onStoreFull() {}
+    onStoreError(error) {}
 
     get keys() {
         return Object.keys(this._strs);
@@ -107,10 +102,11 @@ export class StorageRegistry {
     }
 
     _initStoredStrs() {
-        const storageStr = localStorage[this._storageKey] || "";
+        const storageStr = localStorage.getItem(this._storageKey);
         this._strs = {};
 
         if (!storageStr) {
+            this._requestUpdate();
             return;
         }
 
@@ -140,7 +136,10 @@ export class StorageRegistry {
         }
 
         try {
-            localStorage[this._storageKey] = storageList.join(SEPARATORS.item);
+            localStorage.setItem(
+                this._storageKey,
+                storageList.join(SEPARATORS.item)
+            );
             this.onStoreFinish();
         } catch (error) {
             if (error.name === "QuotaExceededError") {
