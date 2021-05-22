@@ -65,35 +65,22 @@ export class SearchIndex {
         }
     }
     
+    // can set by (name, ...fields) or by (name, fields[])
     setReference(refName, ...fields) {
-        this._checkRefType(refName)
-        
         if (fields.length === 1 && Array.isArray(fields[0])) {
             fields = fields[0]
         }
         
-        this._ensureFieldsCanHold(fields)
-        
         const doc = this._createDoc(refName, fields)
-        // NOTE: allows both adding and updating documents at the same time
+        
+        this._ensureIndexCanHold(fields)
+        // NOTE: remove/add allows both adding and updating documents
         this._idx.remove(doc)
         this._idx.add(doc)
     }
     
-    _createDoc(refName, fields) {
-        const doc = {ref: refName}
-        for (let i = 0; i < fields.length; i++) {
-            const fieldType = typeof fields[i]
-            if (fieldType !== "string" && fieldType !== "number") {
-                throw new SearchIndexDocumentError(`An invalid field type (${fieldType}) was given; string expected`)
-            }
-            doc[i] = fields[i]
-        }
-        return doc
-    }
-    
     deleteReference(refName) {
-        const shallowDoc = {ref: refName}
+        const shallowDoc = this._createDoc(refName, [])
         this._idx.remove(shallowDoc)
     }
     
@@ -104,16 +91,36 @@ export class SearchIndex {
         return new SearchQuery(search)
     }
     
-    _ensureFieldsCanHold(fields) {
+    _ensureIndexCanHold(fields) {
         while (fields.length > this._numFields) {
             this._idx.field(this._numFields)
             this._numFields += 1
         }
     }
     
+    // TODO: move into its own helper class
+    _createDoc(refName, fields) {
+        this._checkRefType(refName)
+        const doc = { ref: refName }
+        
+        for (let i = 0; i < fields.length; i++) {
+            const fieldName = fields[i]
+            this._checkFieldType(fieldName)
+            doc[i] = fieldName
+        }
+        
+        return doc
+    }
+    
     _checkRefType(refName) {
         if (typeof refName !== "string" && typeof refName !== "number") {
             throw new SearchIndexDocumentError(`The given reference type (${typeof refName}) is invalid; string expected`)
+        }
+    }
+    
+    _checkFieldType(fieldName) {
+        if (typeof fieldName !== "string" && typeof fieldName !== "number") {
+            throw new SearchIndexDocumentError(`An invalid field type (${fieldName}) was given; string (or number) expected`)
         }
     }
 }
@@ -124,11 +131,11 @@ class SearchQuery {
     }
     
     get refName() {
-        return this._results[0].ref
+        return this.getRefName(0)
     }
     
     get score() {
-        return this._results[0].score
+        return this.getScore(0)
     }
     
     get numResults() {
@@ -153,10 +160,9 @@ class SearchQuery {
         return result.score
     }
     
-    mapResults(fn, useOrig=false) {
+    mapResults(fn) {
         return this._results.map((value, index) => {
-            let valToPass = useOrig ? value : value.ref
-            const mapped = fn(valToPass, index)
+            const mapped = fn(value.ref, index)
             return mapped
         })
     }
