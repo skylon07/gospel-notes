@@ -1,6 +1,10 @@
 // represents the database for all notes
 class NodeStoreSingleton {
     constructor() {
+        this._construct()
+    }
+    // NOTE: having a re-callable initializer allows resetting the singleton
+    _construct() {
         this._nodesById = {}
     }
     
@@ -50,11 +54,21 @@ class NodeStoreSingleton {
         
         return fullId
     }
+    
+    // in case one is using nodeStore as an imported value, this will simulate
+    // creating a new nodeStore (obviously keeping the reference the same)
+    DANGEROUS_clearForTestingOnly() {
+        this._construct()
+    }
 }
-export let nodeStore = new NodeStoreSingleton()
+export const nodeStore = new NodeStoreSingleton()
+
+// NOTE: this only simulates creating a new node store, since NodeParents
+//       reference the singleton directly (and allows other modules to test and
+//       reset via nodeStore.clearForTesting())
 export function createNodeStoreForTesting() {
-    // NOTE: resets nodeStore to correct the references used by NodeParents
-    return nodeStore = new NodeStoreSingleton()
+    nodeStore.DANGEROUS_clearForTestingOnly()
+    return nodeStore
 }
 
 // represents a set of data accessible by the database by a unique ID
