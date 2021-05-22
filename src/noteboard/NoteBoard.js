@@ -11,7 +11,8 @@ export default class NoteBoard extends React.Component {
         children: PropTypes.array,
         canAddToDropBars: PropTypes.bool,
         canChangeData: PropTypes.bool,
-        onChangeChildren: PropTypes.func,
+        onAddChild: PropTypes.func,
+        onRemoveChild: PropTypes.func,
         onChangeData: PropTypes.func,
     }
     
@@ -66,11 +67,19 @@ export default class NoteBoard extends React.Component {
     }
     
     onChangeNode(node, changeType, newData) {
-        const changeChild = changeType === "children-add" || changeType === "children-remove"
-        if (changeChild) {
-            this.trigger(this.props.onChangeChildren, node, changeType, newData)
-        } else {
-            this.trigger(this.props.onChangeData, node)
+        switch (changeType) {
+            case "children-add":
+                const addedNode = newData
+                this.trigger(this.props.onAddChild, addedNode, node)
+                break
+        
+            case "children-remove":
+                const removedNode = newData
+                this.trigger(this.props.onRemoveChild, removedNode, node)
+                break
+        
+            default:
+                this.trigger(this.props.onChangeData, node, changeType, newData)
         }
     }
     
