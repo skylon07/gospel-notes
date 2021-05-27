@@ -65,7 +65,8 @@
     animation-duration: var(--slide-animation-time);
 }
 
-html .TopBar.initAnimation * {
+html .TopBar.initAnimation .Main,
+html .TopBar.initAnimation .Search {
     animation-duration: 0s;
 }
 
@@ -88,7 +89,7 @@ html .TopBar.initAnimation * {
     height: 40px;
 }
 
-.TopBar .DropMenu {
+.TopBar .DropMenuBox {
     position: absolute;
     top: 100%;
     left: 10px;
