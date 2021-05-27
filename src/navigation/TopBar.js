@@ -97,15 +97,7 @@ export default class TopBar extends React.PureComponent {
                         />
                     </div>
                 </div>
-                <TopBarButton onClick={this.on.menuToggle}>
-                    <SVGIcon type="bars" />
-                </TopBarButton>
-                <DropMenu
-                    hidden={this.state.menuHidden}
-                    onClick={this.on.menuClick}
-                >
-                    {this.props.menuContent}
-                </DropMenu>
+                <DropMenu menuContent={this.props.menuContent} />
             </div>
         );
     }

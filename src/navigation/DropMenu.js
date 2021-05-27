@@ -1,41 +1,87 @@
-import React from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useMountedState } from "common/hooks"
 import PropTypes from "prop-types";
 import "./DropMenu.css";
 
-export default class DropMenu extends React.Component {
-    static propTypes = {
-        hidden: PropTypes.bool.isRequired,
-        onClick: PropTypes.func,
-    };
+import { SVGIcon } from "common/svg-icon"
 
-    constructor(props) {
-        super(props);
-
-        this.mounted = false;
+function DropMenu(props) {
+    const [hidden, setHidden] = useState(props.initHidden)
+    const toggleHidden = () => {
+        setHidden((hidden) => !hidden)
     }
-
-    render() {
-        return (
-            <div
-                data-testid="drop-menu"
-                className={this.getClass()}
-                onClick={() => this.props.onClick()}
-            >
-                {/* TODO: replace with <Shadow /> */}
-                <div className="Shadow" />
-                {this.props.children}
-            </div>
-        );
+    
+    const hideFromWindowPrevented = useRef()
+    hideFromWindowPrevented.current = false
+    const preventHideFromWindow = () => {
+        hideFromWindowPrevented.current = true
     }
+    const hideFromWindow = useCallback(() => {
+        if (!hideFromWindowPrevented.current) {
+            setHidden(true)
+        }
+        hideFromWindowPrevented.current = false
+    }, [])
+    useEffect(() => {
+        if (!hidden) {
+            window.addEventListener("click", hideFromWindow)
+            return () => {
+                window.removeEventListener("click", hideFromWindow)
+            }
+        }
+    }, [hidden, hideFromWindow])
+    
+    return <div
+        data-testid="drop-menu"
+        className="DropMenu"
+        onClick={preventHideFromWindow}
+    >
+        <button className="ToggleButton" onClick={toggleHidden}>
+            <SVGIcon type="bars" />
+        </button>
+        <DropMenuBox hidden={hidden}>
+            {renderMenuContent(props, () => setHidden(true))}
+        </DropMenuBox>
+    </div>
+}
+DropMenu.propTypes = {
+    initHidden: PropTypes.bool,
+    menuContent: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+}
+DropMenu.defaultProps = {
+    initHidden: true,
+}
+export default DropMenu
 
-    getClass() {
-        const base = "DropMenu";
-        const hidden = this.props.hidden ? "hiding" : "showing";
-        const init = !this.mounted ? "initAnimation" : "";
-        return `${base} ${hidden} ${init}`;
+function renderMenuContent(props, forceHideMenu) {
+    let content = props.menuContent
+    if (typeof props.menuContent === "function") {
+        content = props.menuContent(forceHideMenu)
     }
+    return content
+}
 
-    componentDidMount() {
-        this.mounted = true;
-    }
+function DropMenuBox(props) {
+    const mounted = useMountedState()
+    
+    return <div
+        data-testid="drop-menu-box"
+        className={getDropMenuBoxClass(props, mounted)}
+        onClick={props.onClick}
+    >
+        <div className="Shadow" />
+        {props.children}
+    </div>
+}
+DropMenuBox.propTypes = {
+    hidden: PropTypes.bool.isRequired,
+    onClick: PropTypes.func,
+    children: PropTypes.node,
+}
+
+function getDropMenuBoxClass(props, mounted) {
+    const base = "DropMenuBox";
+    const hidden = props.hidden ? "hiding" : "showing";
+    const init = !mounted ? "initAnimation" : "";
+    return `${base} ${hidden} ${init}`;
 }
