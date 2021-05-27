@@ -1,4 +1,19 @@
-.DropMenu {
+.DropMenu .ToggleButton {
+    background-color: var(--clear);
+    height: 40px;
+    padding: 0px 10px;
+
+    color: var(--main-color);
+    border: none;
+
+    margin: 0px;
+    font-size: calc(15px + 0.16em);
+}
+.DropMenu .ToggleButton:active {
+    background-color: var(--window-background-color);
+}
+
+.DropMenuBox {
     /* positioning */
     z-index: 10;
 
@@ -19,17 +34,17 @@
     --animation-time: 0.28s;
 }
 
-html .DropMenu.initAnimation {
+html .DropMenuBox.initAnimation {
     animation-duration: 0s;
 }
 
-.DropMenu.showing {
+.DropMenuBox.showing {
     opacity: 1;
-    animation: DropMenu-FadeIn var(--animation-time) forwards;
+    animation: DropMenuBox-FadeIn var(--animation-time) forwards;
     animation-timing-function: ease-out;
 }
 
-@keyframes DropMenu-FadeIn {
+@keyframes DropMenuBox-FadeIn {
     from {
         opacity: 0;
         transform: translateY(-50%) scaleY(0);
@@ -39,13 +54,13 @@ html .DropMenu.initAnimation {
     }
 }
 
-.DropMenu.hiding {
+.DropMenuBox.hiding {
     opacity: 0;
-    animation: DropMenu-FadeOut var(--animation-time) forwards;
+    animation: DropMenuBox-FadeOut var(--animation-time) forwards;
     animation-timing-function: ease-in;
 }
 
-@keyframes DropMenu-FadeOut {
+@keyframes DropMenuBox-FadeOut {
     from {
         opacity: 1;
     }
@@ -55,7 +70,7 @@ html .DropMenu.initAnimation {
     }
 }
 
-.DropMenu > * {
+.DropMenuBox > * {
     margin: 0px;
     width: 35%;
     height: 26px;
@@ -63,7 +78,7 @@ html .DropMenu.initAnimation {
     color: var(--main-color);
 }
 
-.DropMenu .Shadow {
+.DropMenuBox .Shadow {
     /* positioning */
     position: absolute;
     top: 0px;
@@ -82,24 +97,24 @@ html .DropMenu.initAnimation {
     );
 }
 
-.DropMenu > button {
+.DropMenuBox > button {
     font-size: 11pt;
     padding: 0px;
     border: none;
     background-color: rgba(57, 57, 69, 0.5);
 }
 
-.DropMenu > button:active {
+.DropMenuBox > button:active {
     background-color: var(--active-dark);
 }
 
-.DropMenu > button:disabled {
+.DropMenuBox > button:disabled {
     border: none;
     background-color: var(--disabled-dark);
     opacity: 0.8;
 }
 
-.DropMenu > p {
+.DropMenuBox > p {
     /* positioning */
     position: relative;
     left: -6px;

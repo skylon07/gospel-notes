@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
+import { useStaticValue } from "common/hooks"
 import "./MainApp.css";
 
 import { NodeSearchIndex } from "./nodeindex.js";
@@ -20,7 +21,7 @@ export function useNodeStack(initNodes=[]) {
     
     const pushNodesToStack = (nodeIds) => {
         setNodeStack((nodeStack) => {
-            return [nodeIds].concat(nodeStack)
+            return [nodeIds, ...nodeStack]
         })
     }
     
@@ -30,7 +31,8 @@ export function useNodeStack(initNodes=[]) {
                 return nodeStack.slice(1)
             } else {
                 // guarantees there is always a "current list" on the stack
-                return [[]]
+                const nodes = []
+                return [nodes]
             }
         })
     }
@@ -39,17 +41,11 @@ export function useNodeStack(initNodes=[]) {
 }
 
 function MainApp(props) {
-    // TODO: maybe pass hide() when rendering (a function child) instead of using props?
-    const [forceMenuHidden, setForceMenuHidden] = useState(null)
-    if (forceMenuHidden !== null) {
-        setForceMenuHidden(null)
-    }
-    
     const [nodeStack, pushToNodeStack, popFromNodeStack] = useNodeStack()
     const currNodeIds = nodeStack[0]
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
     
-    const [searchIndex] = useState(new NodeSearchIndex())
+    const searchIndex = useStaticValue(() => new NodeSearchIndex())
     
     const updateNodeInIndex = (newNode, parentNode) => {
         searchIndex.updateNode(newNode)
@@ -75,11 +71,6 @@ function MainApp(props) {
         setDisplayMode(DISPLAY_MODES.search)
     }
     
-    const closeMenu = () => {
-        setForceMenuHidden(true)
-    }
-    const menuContent = renderMenuContent(closeMenu)
-    
     const onAddNode = (newNode) => {
         searchIndex.updateNode(newNode)
         
@@ -91,8 +82,7 @@ function MainApp(props) {
     return <div data-testid="main-app" className="MainApp">
         <BetaDisclaimer />
         <TopBar
-            menuContent={menuContent}
-            forceMenuHidden={forceMenuHidden}
+            menuContent={renderMenuContent}
             onSearchClick={displaySearch}
             onSearchInactive={displayAll}
         />
@@ -111,8 +101,8 @@ function MainApp(props) {
 }
 export default MainApp
 
-function renderMenuContent(onClick) {
-    return <button onClick={onClick}>Close Menu</button>
+function renderMenuContent(hideMenu) {
+    return <button onClick={hideMenu}>Close Menu</button>
 }
 
 function renderAddButton(onAddNode) {
