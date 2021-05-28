@@ -1,62 +1,50 @@
-import React from "react";
+import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import "./SearchBar.css";
 
 import { SVGIcon } from "common/svg-icon";
 
-export default class SearchBar extends React.Component {
-    static propTypes = {
-        onSearch: PropTypes.func,
-    };
-
-    constructor(props) {
-        super(props);
-
-        this.inputRef = React.createRef();
+function SearchBar(props) {
+    const inputRef = useRef(null)
+    const select = () => {
+        inputRef.current.select()
     }
-
-    render() {
-        return (
-            <div data-testid="search-bar" className="SearchBar">
-                <input
-                    ref={this.inputRef}
-                    onFocus={() => this.select()}
-                    onKeyDown={(event) => this.searchOnEnter(event)}
-                />
-                <div className="SearchButton">
-                    <button onClick={() => this.triggerSearch()}>
-                        <SVGIcon type="magGlass" />
-                    </button>
-                </div>
-            </div>
-        );
+    const focus = () => {
+        inputRef.current.focus()
     }
-
-    focus() {
-        this.inputRef.current.focus();
+    const blur = () => {
+        inputRef.current.blur()
     }
-
-    blur() {
-        this.inputRef.current.blur();
+    
+    const triggerSearch = () => {
+        blur()
+        if (typeof props.onSearch === "function") {
+            const input = inputRef.current;
+            const text = input.value;
+            props.onSearch(text);
+        }
     }
-
-    select() {
-        this.inputRef.current.select();
-    }
-
-    searchOnEnter(event) {
+    const searchOnEnter = (event) => {
         if (event.key === "Enter") {
             event.preventDefault();
-            this.triggerSearch();
+            triggerSearch();
         }
     }
-
-    triggerSearch() {
-        this.blur();
-        if (typeof this.props.onSearch === "function") {
-            const elem = this.inputRef.current;
-            const text = elem.value;
-            this.props.onSearch(text);
-        }
-    }
+    
+    return <div data-testid="search-bar" className="SearchBar">
+        <input
+            ref={inputRef}
+            onFocus={select}
+            onKeyDown={searchOnEnter}
+        />
+        <div className="SearchButton">
+            <button onClick={triggerSearch}>
+                <SVGIcon type="magGlass" />
+            </button>
+        </div>
+    </div>
 }
+SearchBar.propTypes = {
+    onSearch: PropTypes.func,
+}
+export default SearchBar
