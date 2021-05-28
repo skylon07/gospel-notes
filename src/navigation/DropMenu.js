@@ -16,20 +16,20 @@ function DropMenu(props) {
     const preventHideFromWindow = () => {
         hideFromWindowPrevented.current = true
     }
-    const hideFromWindow = useCallback(() => {
-        if (!hideFromWindowPrevented.current) {
-            setHidden(true)
-        }
-        hideFromWindowPrevented.current = false
-    }, [])
     useEffect(() => {
         if (!hidden) {
+            const hideFromWindow = () => {
+                if (!hideFromWindowPrevented.current) {
+                    setHidden(true)
+                }
+                hideFromWindowPrevented.current = false
+            }
             window.addEventListener("click", hideFromWindow)
             return () => {
                 window.removeEventListener("click", hideFromWindow)
             }
         }
-    }, [hidden, hideFromWindow])
+    }, [hidden])
     
     return <div
         data-testid="drop-menu"
