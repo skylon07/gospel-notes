@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useMountedState } from "common/hooks"
 import PropTypes from "prop-types";
 import "./TopBar.css";
 
@@ -18,6 +19,59 @@ const MENU_BUTTONS = [
     { fullName: "Discussions", shortName: "Disc" },
     */
 ];
+
+const MODES = {
+    nav: "nav", // navigation buttons are showing
+    search: "search", // search bar is showing
+}
+
+function TopBar(props) {
+    const [mode, setMode] = useState(MODES.nav)
+    const mounted = useMountedState()
+
+    const buttons = MENU_BUTTONS.map((button) => button.fullName);
+
+    // the order is weird because the animation bounds need to be "behind" the menu
+    return <div data-testid="top-bar" className={getTopBarClass(mounted)}>
+        <div className="AnimationBounds">
+            <div className={this.getMainClass()}>
+                {buttons.map((button, idx) =>
+                    this.renderButton(button, idx)
+                )}
+                <div className="Spacer" />
+                <TopBarButton onClick={this.on.searchSlideIn}>
+                    <SVGIcon type="magGlass" />
+                </TopBarButton>
+            </div>
+            <div className={this.getSearchClass()}>
+                <TopBarButton onClick={this.on.searchSlideOut}>
+                    <SVGIcon type="backArrow" />
+                </TopBarButton>
+                <div className="Spacer" />
+                <SearchBar
+                    onSearch={this.props.onSearchClick}
+                />
+            </div>
+        </div>
+        <DropMenu menuContent={this.props.menuContent} />
+    </div>
+}
+TopBar.propTypes = {
+    menuContent: PropTypes.node,
+    // TODO: write test (after there are buttons...)
+    selectedIdx: PropTypes.number,
+    onButtonClick: PropTypes.func,
+    onSearchClick: PropTypes.func,
+    onSearchActive: PropTypes.func,
+    onSearchInactive: PropTypes.func,
+}
+export default TopBar
+
+function getTopBarClass(mounted) {
+    const base = "TopBar"
+    const initAnimation = !mounted ? "initAnimation" : "";
+    return `${base} ${initAnimation}`
+}
 
 export default class TopBar extends React.PureComponent {
     static propTypes = {
@@ -92,7 +146,6 @@ export default class TopBar extends React.PureComponent {
                         </TopBarButton>
                         <div className="Spacer" />
                         <SearchBar
-                            ref={this._searchFocusRef}
                             onSearch={this.props.onSearchClick}
                         />
                     </div>
@@ -122,7 +175,7 @@ export default class TopBar extends React.PureComponent {
     }
 
     getMainClass() {
-        const base = "Main";
+        const base = "Nav";
         const collapsed = this.state.searchActive ? "Collapsed" : "Uncollapsed";
         return `${base} ${collapsed}`;
     }

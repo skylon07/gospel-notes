@@ -45,7 +45,7 @@
     min-width: 5px;
 }
 
-.TopBar .Main {
+.TopBar .Nav {
     /* positioning */
     position: absolute;
     top: 0px;
@@ -65,19 +65,19 @@
     animation-duration: var(--slide-animation-time);
 }
 
-html .TopBar.initAnimation .Main,
+html .TopBar.initAnimation .Nav,
 html .TopBar.initAnimation .Search {
     animation-duration: 0s;
 }
 
 /* .Uncollapsed wont work as a generic *.Uncollapsed class */
-.TopBar .Main.Uncollapsed {
+.TopBar .Nav.Uncollapsed {
     animation-name: TopBar-FadeIn, TopBar-UnslideLeft;
     animation-timing-function: ease-out;
 }
 
 /* .Collapsed wont work as a generic *.Collapsed class */
-.TopBar .Main.Collapsed {
+.TopBar .Nav.Collapsed {
     opacity: 0;
     pointer-events: none;
     animation-name: TopBar-FadeOut, TopBar-SlideLeft;
@@ -111,6 +111,12 @@ html .TopBar.initAnimation .Search {
 }
 .TopBarButton.selected {
     background-color: var(--window-shadow);
+}
+
+.TopBar .DropMenu .ToggleButton {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
 }
 
 .TopBar .Search {

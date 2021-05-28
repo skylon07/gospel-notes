@@ -186,7 +186,7 @@ describe("menuContent tests", () => {
         expect(buttonChild).toHaveTextContent("Clicky button")
     })
 
-    it("runs a function amd renders the content it generates", () => {
+    it("runs a function and renders the content it generates", () => {
         const contentFunc = () => <button>Clicky button</button>
         act(() => {
             render(<DropMenu menuContent={contentFunc} />, root);
