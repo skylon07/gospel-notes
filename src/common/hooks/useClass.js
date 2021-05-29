@@ -2,7 +2,16 @@ import { useRef } from "react"
 import { useMountedState } from './'
 
 // NOTE: this deals with CSS classes, not JS classes
-function useClass(options) {
+// options objects have these parameters:
+//      base - a string representing the component name or base class
+//      noMountingAnimation - a boolean telling useClass() to return
+//          "noMountingAnimation" on the initial render
+//      choices - an array of { values, selection } objects to pick from/branch
+//          multiple CSS classes (if "selection" is a boolean, it will be mapped
+//          to an index of 0 or 1)
+//      choiceValues, choiceSelections - alternative interface for "choices",
+//          which can process both lists of values as well as single values
+function useClass(options={}) {
     validateArgs(options)
     preprocessOptions(options)
     
@@ -13,12 +22,12 @@ function useClass(options) {
     const baseClass = processBaseClass(options, state)
     
     // prevents animations on initial render
-    const noFirstAnimation = processNoFirstAnimation(options, state)
+    const noMountingAnimation = processNoMountingAnimation(options, state)
     
     // selects a class from each list of classes
     const choiceClasses = processChoiceClasses(options, state)
     
-    const fullClassString = joinClassStrings(baseClass, noFirstAnimation, choiceClasses)
+    const fullClassString = joinClassStrings(baseClass, noMountingAnimation, choiceClasses)
     return fullClassString
 }
 export default useClass
@@ -42,9 +51,8 @@ function validateArgs(options) {
     const choiceValuesCount = choiceValuesIs2DArray ?
         options.choiceValues.length : options.choiceValues ?
         1 : null
-    const choiceSelectionsIntOrTruthy = options.choiceSelections === 0 || options.choiceSelections
     const choiceSelectionsCount = Array.isArray(options.choiceSelections) ?
-        options.choiceSelections.length : choiceSelectionsIntOrTruthy ?
+        options.choiceSelections.length : options.choiceSelections !== undefined ?
         1 : null
     if (choiceValuesCount !== choiceSelectionsCount) {
         throw new TypeError(`Custom hook useClass received choiceValues/choiceSelections of differing lengths`)
@@ -84,8 +92,8 @@ function _combineChoices(options) {
     
     for (let i = 0; i < options.choiceValues.length; i++) {
         const values = options.choiceValues[i]
-        if (!Array.isArray(value)) {
-            throw new TypeError(`Custom hook useClass received an invalid choiceValue: ${value}`)
+        if (!Array.isArray(values)) {
+            throw new TypeError(`Custom hook useClass received an invalid choiceValue: ${values}`)
         }
         const selection = options.choiceSelections[i]
         
@@ -116,9 +124,9 @@ function processBaseClass(options, state) {
     return options.base || ""
 }
 
-function processNoFirstAnimation(options, state) {
-    if (options.noFirstAnimation && !state.mounted) {
-        return "noAnimation"
+function processNoMountingAnimation(options, state) {
+    if (options.noMountingAnimation && !state.mounted) {
+        return "noMountingAnimation"
     }
     return ""
 }
@@ -132,12 +140,17 @@ function processChoiceClasses(options, state) {
         
         const { values, selection } = choice
         if (!values || !Array.isArray(values)) {
-            throw new TypeError(`Custom hook useClass received an invalid value list inside a choice: ${value}`)
+            throw new TypeError(`Custom hook useClass received an invalid value list inside a choice: ${values}`)
         }
         let selectionIdx = selection
         if (typeof selection !== "number") {
             // this converts boolean/truthy selections for 2-choice value arrays
-            selectionIdx = selection ? 1 : 0
+            selectionIdx = values.length === 1 ? 
+                (selection ? 0 : null) : (selection ? 1 : 0)
+        }
+        
+        if (selectionIdx !== null && (selectionIdx < 0 || selectionIdx >= values.length)) {
+            throw new TypeError(`Custom hook useClass received a selection number (${selectionIdx}) that is outside the bounds of the choice list (0..${values.length})`)
         }
         
         const chosenClass = values[selectionIdx] || ""
