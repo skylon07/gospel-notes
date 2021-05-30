@@ -80,11 +80,15 @@ function MainApp(props) {
     const addButton = renderAddButton(onAddNode)
     
     return <div data-testid="main-app" className="MainApp">
-        <BetaDisclaimer />
+        <BetaDisclaimer /> 
         <TopBar
             menuContent={renderMenuContent}
             onSearchClick={displaySearch}
-            onSearchInactive={displayAll}
+            onModeChange={(newMode) => {
+                if (newMode === "nav") {
+                    displayAll()
+                }
+            }}
         />
         <MainWindow>
             <NoteBoard

@@ -115,7 +115,7 @@ export default class DropBar extends React.Component {
 
     getClass() {
         const base = "DropBar";
-        const init = !this.mounted ? "initAnimation" : "";
+        const init = !this.mounted ? "noMountingAnimation" : "";
         return `${base} ${init}`;
     }
 

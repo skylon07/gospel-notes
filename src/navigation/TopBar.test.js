@@ -19,17 +19,14 @@ function grabTopBar() {
     return document.querySelector("[data-testid='top-bar']");
 }
 
-function grabMainMenuAndButtonFrom(topBar) {
+function grabMainMenuFrom(topBar) {
     const mainMenu = topBar.querySelector("[data-testid='drop-menu']");
-    const mainMenuButton = topBar.querySelector(
-        ".AnimationBounds + [data-testid='top-bar-button']"
-    );
-    return [mainMenu, mainMenuButton];
+    return mainMenu;
 }
 
 function grabSearchAndBackButtonFrom(topBar) {
     const search = topBar.querySelector(
-        ".AnimationBounds .Main [data-testid='top-bar-button']:last-child"
+        ".AnimationBounds .Nav [data-testid='top-bar-button']:last-child"
     );
     const back = topBar.querySelector(
         ".AnimationBounds .Search [data-testid='top-bar-button']"
@@ -37,14 +34,15 @@ function grabSearchAndBackButtonFrom(topBar) {
     return [search, back];
 }
 
-function grabMainAndSearchBoundsFrom(topBar) {
-    const main = topBar.querySelector(".AnimationBounds .Main");
+function grabNavAndSearchBoundsFrom(topBar) {
+    const nav = topBar.querySelector(".AnimationBounds .Nav");
     const search = topBar.querySelector(".AnimationBounds .Search");
-    return [main, search];
+    return [nav, search];
 }
 
 function grabMenuChildrenFrom(menu) {
-    const allChildren = [...menu.childNodes]
+    const menuBox = menu.querySelector("[data-testid='drop-menu-box']")
+    const allChildren = [...menuBox.childNodes]
     return allChildren.filter((child) => !child.className.includes("Shadow"))
 }
 
@@ -74,7 +72,7 @@ describe("menu tests", () => {
             render(<TopBar menuContent={menuContent} />, root);
         });
         const topBar = grabTopBar();
-        const [mainMenu] = grabMainMenuAndButtonFrom(topBar);
+        const mainMenu = grabMainMenuFrom(topBar);
 
         // compare children
         const children = grabMenuChildrenFrom(mainMenu)
@@ -92,116 +90,6 @@ describe("menu tests", () => {
             expect(renderedChild).toHaveTextContent(innerHTML);
         }
     });
-
-    it("shows the main menu when the menu button is clicked", () => {
-        act(() => {
-            render(<TopBar />, root);
-        });
-        const topBar = grabTopBar();
-        const [mainMenu, mainMenuButton] = grabMainMenuAndButtonFrom(topBar);
-
-        // Make sure the main menu is not visible by default
-        // TODO: Should probably find a better way than just to check for the class
-        expect(mainMenu).toHaveClass("hiding");
-        //expect(screen.getByLabelText("main-menu")).toHaveClass("hiding");
-
-        // Click the main menu button
-        act(() => {
-            mainMenuButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            );
-        });
-        //fireEvent.click(screen.getByRole("button", { label: /main-menu-button/i }));
-
-        // Make sure the main menu is displayed now
-        expect(mainMenu).toHaveClass("showing");
-        //expect(screen.getByLabelText("main-menu")).toHaveClass("showing");
-    });
-
-    it("hides the main menu when the menu button is clicked twice", () => {
-        act(() => {
-            render(<TopBar />, root);
-        });
-        const topBar = grabTopBar();
-        const [mainMenu, mainMenuButton] = grabMainMenuAndButtonFrom(topBar);
-
-        // Make sure the main menu is not visible by default
-        expect(mainMenu).toHaveClass("hiding");
-        //expect(screen.getByLabelText("main-menu")).toHaveClass("hiding");
-
-        // Click the main menu button
-        //fireEvent.click(screen.getByRole("button", { label: /main-menu-button/i }));
-        act(() => {
-            mainMenuButton.dispatchEvent(
-                new MouseEvent("click", { blubbles: true })
-            );
-            mainMenuButton.dispatchEvent(
-                new MouseEvent("click", { blubbles: true })
-            );
-        });
-
-        // Make sure the main menu is hidden now
-        expect(mainMenu).toHaveClass("hiding");
-        //expect(screen.getByLabelText("main-menu")).toHaveClass("showing");
-    });
-
-    it("force-hides/shows the menu when a boolean is given", () => {
-        act(() => {
-            render(<TopBar forceMenuHidden={true} />, root);
-        });
-        const topBar = grabTopBar();
-        const [mainMenu, mainMenuButton] = grabMainMenuAndButtonFrom(topBar);
-
-        expect(mainMenu).toHaveClass("hiding");
-
-        act(() => {
-            render(<TopBar forceMenuHidden={false} />, root);
-        });
-
-        expect(mainMenu).toHaveClass("showing");
-
-        act(() => {
-            mainMenuButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            );
-            render(<TopBar forceMenuHidden={false} />, root);
-        });
-
-        expect(mainMenu).toHaveClass("showing");
-    });
-
-    it("does not force-hide/show the menu when null or undefined", () => {
-        act(() => {
-            // this prop is intended to be undefined
-            render(<TopBar forceMenuHidde={undefined} />, root);
-        });
-        const topBar = grabTopBar();
-        const [mainMenu, mainMenuButton] = grabMainMenuAndButtonFrom(topBar);
-
-        expect(mainMenu).toHaveClass("hiding");
-
-        act(() => {
-            render(<TopBar forceMenuHidden={null} />, root);
-        });
-
-        expect(mainMenu).toHaveClass("hiding");
-
-        act(() => {
-            mainMenuButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            );
-            render(<TopBar forceMenuHidden={null} />, root);
-        });
-
-        expect(mainMenu).toHaveClass("showing");
-
-        act(() => {
-            // this prop is intended to be undefined
-            render(<TopBar forceMenuHidden={undefined} />, root);
-        });
-
-        expect(mainMenu).toHaveClass("showing");
-    });
 });
 
 describe("search bar tests", () => {
@@ -210,10 +98,10 @@ describe("search bar tests", () => {
             render(<TopBar />, root);
         });
         const topBar = grabTopBar();
-        const [main, search] = grabMainAndSearchBoundsFrom(topBar);
+        const [nav, search] = grabNavAndSearchBoundsFrom(topBar);
         const [searchButton] = grabSearchAndBackButtonFrom(topBar);
 
-        expect(main).toHaveClass("Uncollapsed");
+        expect(nav).toHaveClass("Uncollapsed");
         expect(search).toHaveClass("Collapsed");
 
         // Click the main menu button
@@ -224,7 +112,7 @@ describe("search bar tests", () => {
             );
         });
 
-        expect(main).toHaveClass("Collapsed");
+        expect(nav).toHaveClass("Collapsed");
         expect(search).toHaveClass("Uncollapsed");
     });
 
@@ -233,10 +121,10 @@ describe("search bar tests", () => {
             render(<TopBar />, root);
         });
         const topBar = grabTopBar();
-        const [main, search] = grabMainAndSearchBoundsFrom(topBar);
+        const [nav, search] = grabNavAndSearchBoundsFrom(topBar);
         const [searchButton, backButton] = grabSearchAndBackButtonFrom(topBar);
 
-        expect(main).toHaveClass("Uncollapsed");
+        expect(nav).toHaveClass("Uncollapsed");
         expect(search).toHaveClass("Collapsed");
 
         // Click the main menu button
@@ -250,7 +138,7 @@ describe("search bar tests", () => {
             );
         });
 
-        expect(main).toHaveClass("Uncollapsed");
+        expect(nav).toHaveClass("Uncollapsed");
         expect(search).toHaveClass("Collapsed");
     });
 });
@@ -264,34 +152,15 @@ describe("listener callback tests", () => {
     //     });
     // });
 
-    it("triggers onSearchActive()", () => {
-        const onSearchActive = jest.fn();
+    it("triggers onModeChange()", () => {
+        const onModeChange = jest.fn();
         act(() => {
-            render(<TopBar onSearchActive={onSearchActive} />, root);
-        });
-        const topBar = grabTopBar();
-        const [searchButton] = grabSearchAndBackButtonFrom(topBar);
-
-        expect(onSearchActive).not.toBeCalled();
-
-        act(() => {
-            searchButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            );
-        });
-
-        expect(onSearchActive).toBeCalledTimes(1);
-    });
-
-    it("triggers onSearchInactive()", () => {
-        const onSearchInactive = jest.fn();
-        act(() => {
-            render(<TopBar onSearchInactive={onSearchInactive} />, root);
+            render(<TopBar onModeChange={onModeChange} />, root);
         });
         const topBar = grabTopBar();
         const [searchButton, backButton] = grabSearchAndBackButtonFrom(topBar);
 
-        expect(onSearchInactive).not.toBeCalled();
+        expect(onModeChange).not.toBeCalled();
 
         act(() => {
             searchButton.dispatchEvent(
@@ -299,14 +168,16 @@ describe("listener callback tests", () => {
             );
         });
 
-        expect(onSearchInactive).not.toBeCalled();
-
+        expect(onModeChange).toBeCalledTimes(1);
+        expect(onModeChange).lastCalledWith("search")
+        
         act(() => {
             backButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
         });
-
-        expect(onSearchInactive).toBeCalledTimes(1);
-    });
+        
+        expect(onModeChange).toBeCalledTimes(2);
+        expect(onModeChange).lastCalledWith("nav")
+    })
 });
