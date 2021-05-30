@@ -2,17 +2,19 @@ import React from 'react'
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 
-import useClass from "./useClass.js"
+import useClassName from "./useClassName.js"
 
 function TestComponent(props) {
     try {
-        const value = useClass(props.options)
-        if (typeof props.onUseClass === "function") {
-            props.onUseClass(value)
+        const value = useClassName(props.options)
+        if (typeof props.onUseClassName === "function") {
+            props.onUseClassName(value)
         }
     } catch (error) {
         if (typeof props.onError === "function") {
             props.onError(error)
+        } else {
+            console.error("An error was thrown during render: " + error)
         }
     }
     return null
@@ -40,7 +42,7 @@ it("can take and return a base class", () => {
     act(() => {
         render(<TestComponent
             options={options}
-            onUseClass={(str) => fullClass = str}
+            onUseClassName={(str) => fullClass = str}
         />, root)
     })
     
@@ -54,7 +56,7 @@ describe("noMountingAnimation tests", () => {
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
         
@@ -71,18 +73,18 @@ describe("noMountingAnimation tests", () => {
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
         
         expect(fullClass).not.toBe("noMountingAnimation")
-        // in fact, let's be more specific...
+        // in fact, let's be more generic...
         expect(fullClass.includes("noMountingAnimation")).toBe(false)
         
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
         
@@ -90,181 +92,67 @@ describe("noMountingAnimation tests", () => {
     })
 })
 
-describe("choice list tests", () => {
-    describe("...using 'choices' option", () => {
-        it("can choose given an index", () => {
-            const choice = {
-                values: ["class0", "class1", "class2"],
-                selection: 2,
-            }
-            const options = { choices: [choice] }
-            let fullClass = null
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-           
-            expect(fullClass).toBe("class2")
-            
-            choice.selection = 1
-            options.choices = [choice]
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-            
-            expect(fullClass).toBe("class1")
-        })
-        
-        it("can choose given a boolean (converting to an index)", () => {
-            const choice = {
-                values: ["class0", "class1", "class2"],
-                selection: false,
-            }
-            const options = { choices: [choice] }
-            let fullClass = null
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-            
-            expect(fullClass).toBe("class0")
-            
-            choice.selection = true
-            options.choices = [choice]
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-            
-            expect(fullClass).toBe("class1")
-        })
-        
-        it("returns a singular value or not, given a boolean", () => {
-            const choice = {
-                values: ["someClass"],
-                selection: true,
-            }
-            const options = { choices: [choice] }
-            let fullClass = null
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-            
-            expect(fullClass).toBe("someClass")
-            
-            choice.selection = false
-            options.choices = [choice]
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-            
-            expect(fullClass).toBe("")
-        })
-    })
-    
-    describe("...using 'choiceValues' and 'choiceSelections' options (also tests using single ones; no lists!)", () => {
-        it("can choose given an index", () => {
-            const choiceValues = ["class0", "class1", "class2"]
-            const choiceSelections = 1
-            const options = { choiceValues, choiceSelections }
-            let fullClass = null
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-        
-            expect(fullClass).toBe("class1")
-            
-            // lets try an array this time...
-            options.choiceSelections = [2]
-            options.choices = []
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-        
-            expect(fullClass).toBe("class2")
-        })
-        
-        it("can choose given a boolean (converting to an index)", () => {
-            const choiceValues = ["class0", "class1", "class2"]
-            const choiceSelections = true
-            const options = { choiceValues, choiceSelections }
-            let fullClass = null
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-        
-            expect(fullClass).toBe("class1")
-        
-            options.choiceSelections = false
-            options.choices = []
-            act(() => {
-                render(<TestComponent
-                    options={options}
-                    onUseClass={(str) => fullClass = str}
-                />, root)
-            })
-        
-            expect(fullClass).toBe("class0")
-        })
-    })
-    
-    it("can handle both lists at the same time (which would never actually happen... Still a good final test)", () => {
-        const choices = [
-            {
-                values: ["choice0Value0", "choice0Value1"],
-                selection: 0,
-            },
-            {
-                values: ["choice1Value0", "choice1Value1", "choice1Value2", "choice1Value3"],
-                selection: 2,
-            },
-        ]
-        const choiceValues = [
-            ["choiceValues0Value0", "choiceValues0Value1", "choiceValues0Value2"],
-            ["choiceValues1Value0", "choiceValues1Value1"],
-            ["choiceValues2Value0", "choiceValues2Value1", "choiceValues2Value2", "choiceValues2Value3"]
-        ]
-        const choiceSelections = [true, false, 2]
-        const options = { choices, choiceValues, choiceSelections }
+describe("choices list tests", () => {
+    it("can choose given a key", () => {
+        let choice = {
+            values: ["class0", "class1", "class2"],
+            selection: 2,
+        }
+        let options = { choices: [choice] }
         let fullClass = null
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
-        
-        expect(fullClass.includes("choice0Value0")).toBe(true)
-        expect(fullClass.includes("choice1Value2")).toBe(true)
-        expect(fullClass.includes("choiceValues0Value1")).toBe(true)
-        expect(fullClass.includes("choiceValues1Value0")).toBe(true)
-        expect(fullClass.includes("choiceValues2Value2")).toBe(true)
-        // just make sure those were the only classes...
-        expect(fullClass.split(' ').length).toBe(5)
+
+        expect(fullClass).toBe("class2")
+
+        choice = {
+            values: { good: "goodClass", bad: "badClass" },
+            selection: "bad",
+        }
+        options = { choices: [choice] }
+        act(() => {
+            render(<TestComponent
+                options={options}
+                onUseClassName={(str) => fullClass = str}
+            />, root)
+        })
+
+        expect(fullClass).toBe("badClass")
+    })
+
+    it("can choose given a boolean (converting to an integer index)", () => {
+        let choice = {
+            values: ["class0", "class1", "class2"],
+            selection: false,
+        }
+        let options = { choices: [choice] }
+        let fullClass = null
+        act(() => {
+            render(<TestComponent
+                options={options}
+                onUseClassName={(str) => fullClass = str}
+            />, root)
+        })
+
+        expect(fullClass).toBe("class0")
+
+        choice = {
+            values: ["class0", "class1", "class2"],
+            selection: true,
+        }
+        options = { choices: [choice] }
+        act(() => {
+            render(<TestComponent
+                options={options}
+                onUseClassName={(str) => fullClass = str}
+            />, root)
+        })
+
+        expect(fullClass).toBe("class1")
     })
 })
 
@@ -281,7 +169,7 @@ describe("class joining tests", () => {
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
         
@@ -303,7 +191,7 @@ describe("class joining tests", () => {
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
         
@@ -325,7 +213,7 @@ describe("class joining tests", () => {
         act(() => {
             render(<TestComponent
                 options={options}
-                onUseClass={(str) => fullClass = str}
+                onUseClassName={(str) => fullClass = str}
             />, root)
         })
         
@@ -438,7 +326,7 @@ describe("a crap ton of throw-an-error tests", () => {
             }).not.toThrow()
         })
         
-        it("throws when an invalid choice is given", () => {
+        it("throws when an invalid choice-value is given", () => {
             expect(() => {
                 const options = { choices: [4, 3] }
                 renderErrorTestWith(options)
@@ -455,14 +343,13 @@ describe("a crap ton of throw-an-error tests", () => {
                         "bad",
                         "choice",
                         "list",
-                        "(would be valid if in choiceValues)",
                     ]
                 }
                 renderErrorTestWith(options)
             }).toThrow(TypeError)
         })
         
-        it("throws when a bad choice.values list is given", () => {
+        it("throws when a bad choice-values list is given", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -488,7 +375,7 @@ describe("a crap ton of throw-an-error tests", () => {
             }).toThrow(TypeError)
         })
         
-        it("throws when the selection is out-of-bounds of the values list", () => {
+        it("throws when the selection is out-of-bounds of the choice-values list", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -506,15 +393,27 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: ["val0", "val1"],
-                            selection: -1,
+                            selection: "bad selection!",
                         }
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = {
+                    choices: [
+                        {
+                            values: { see: "how", im: "not", an: "array" },
+                            selection: 7,
+                        },
                     ],
                 }
                 renderErrorTestWith(options)
             }).toThrow(TypeError)
         })
         
-        it("throws when a non-string (truthy) class value is returned", () => {
+        it("throws when a non-string (truthy) value is returned", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -548,62 +447,6 @@ describe("a crap ton of throw-an-error tests", () => {
                             selection: 0,
                         },
                     ],
-                }
-                renderErrorTestWith(options)
-            }).not.toThrow()
-        })
-    })
-    
-    describe("option: choiceValues, choiceSelections", () => {
-        it("throws when a different number of values/selections are given", () => {
-            expect(() => {
-                const options = {
-                    choiceValues: [["values0"], ["values1"]],
-                    choiceSelections: [0, 1, 2],
-                }
-                renderErrorTestWith(options)
-            }).toThrow(TypeError)
-            
-            expect(() => {
-                const options = {
-                    choiceValues: [["values0"], ["values1"]],
-                    choiceSelections: "single (truthy/valid) selection",
-                }
-                renderErrorTestWith(options)
-            }).toThrow(TypeError)
-        })
-        
-        it("throws when non-array value lists are given", () => {
-            expect(() => {
-                const options = {
-                    choiceValues: [["valid", "list"], "invalid list"],
-                    choiceSelections: [0],
-                }
-                renderErrorTestWith(options)
-            }).toThrow(TypeError)
-            
-            expect(() => {
-                const options = {
-                    choiceValues: [["valid", "list"], { also: "an", invalid: "list" }],
-                    choiceSelections: [0],
-                }
-                renderErrorTestWith(options)
-            }).toThrow(TypeError)
-            
-            // these are VALID
-            expect(() => {
-                const options = {
-                    // turns into [["..."]], which is valid
-                    choiceValues: ["an actually valid list"],
-                    choiceSelections: [0],
-                }
-                renderErrorTestWith(options)
-            }).not.toThrow()
-            
-            expect(() => {
-                const options = {
-                    choiceValues: "a valid single value",
-                    choiceSelections: "some truthy/falsey value",
                 }
                 renderErrorTestWith(options)
             }).not.toThrow()

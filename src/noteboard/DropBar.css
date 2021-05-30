@@ -52,7 +52,7 @@
 }
 
 /* html overrides specificity */
-html .DropBar.initAnimation .BottomBar {
+html .DropBar.noMountingAnimation .BottomBar {
     animation-duration: 0s;
     opacity: 0;
     transform: translateY(calc(-1 * var(--bottom-bar-shift) + 500px));
@@ -102,7 +102,7 @@ html .DropBar.initAnimation .BottomBar {
 }
 
 /* html overrides specificity */
-html .DropBar.initAnimation .DropdownButton {
+html .DropBar.noMountingAnimation .DropdownButton {
     animation-duration: 0s;
     transform: rotateX(180deg);
 }
@@ -159,7 +159,7 @@ html .DropBar.initAnimation .DropdownButton {
 }
 
 /* html overrides specificity */
-html .DropBar.initAnimation .DropBarContent {
+html .DropBar.noMountingAnimation .DropBarContent {
     animation-duration: 0s;
     opacity: 0;
     transform: translateY(calc(-50% + 500px)) scaleY(0);

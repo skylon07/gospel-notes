@@ -1,0 +1,3 @@
+html *.noMountingAnimation:not(.__thisIsReallyImportant__) {
+    animation-duration: 0s;
+}

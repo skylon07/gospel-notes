@@ -34,10 +34,6 @@
     --animation-time: 0.28s;
 }
 
-html .DropMenuBox.initAnimation {
-    animation-duration: 0s;
-}
-
 .DropMenuBox.showing {
     opacity: 1;
     animation: DropMenuBox-FadeIn var(--animation-time) forwards;

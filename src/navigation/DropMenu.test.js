@@ -42,7 +42,7 @@ it("renders with a CSS class", () => {
     expect(box).toHaveClass("DropMenuBox")
 })
 
-describe("class rendering/animation stunting tests", () => {
+describe("class rendering tests", () => {
     it("drops when not hidden", () => {
         act(() => {
             render(<DropMenu initHidden={false} />, root);
@@ -52,7 +52,7 @@ describe("class rendering/animation stunting tests", () => {
 
         // NOTE: this doesn't seem to work (see the test below)
         // expect(dropMenu).toBeVisible();
-        expect(menuBox).toHaveClass("showing");
+        expect(menuBox).toHaveClass("showing", "noMountingAnimation");
     });
 
     it("is raised when hidden", () => {
@@ -68,7 +68,7 @@ describe("class rendering/animation stunting tests", () => {
         // const style = window.getComputedStyle(dropMenu)
         // expect(style.height).toBe(0)
         // expect(style.display).toBe("flex") // is "block"?
-        expect(menuBox).toHaveClass("hiding");
+        expect(menuBox).toHaveClass("hiding", "noMountingAnimation");
     });
 })
 
@@ -82,7 +82,7 @@ describe("toggle button (and more class rendering) tests", () => {
         const menuBox = grabMenuBoxFrom(dropMenu)
         const toggleButton = grabToggleButtonFrom(dropMenu)
         
-        expect(menuBox).toHaveClass("showing", "initAnimation");
+        expect(menuBox).toHaveClass("showing", "noMountingAnimation");
 
         act(() => {
             toggleButton.dispatchEvent(
@@ -101,7 +101,7 @@ describe("toggle button (and more class rendering) tests", () => {
         const menuBox = grabMenuBoxFrom(dropMenu)
         const toggleButton = grabToggleButtonFrom(dropMenu)
         
-        expect(menuBox).toHaveClass("hiding", "initAnimation");
+        expect(menuBox).toHaveClass("hiding", "noMountingAnimation");
         
         act(() => {
             toggleButton.dispatchEvent(
