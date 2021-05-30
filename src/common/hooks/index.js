@@ -1,5 +1,5 @@
 import useStaticValue from "./useStaticValue.js"
 import useMountedState from "./useMountedState.js"
-import useClass from "./useClass.js"
+import useClassName from "./useClassName.js"
 
-export { useStaticValue, useMountedState, useClass }
+export { useStaticValue, useMountedState, useClassName }

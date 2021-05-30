@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useMountedState } from "common/hooks"
+import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 import "./DropMenu.css";
 
@@ -62,11 +62,18 @@ function renderMenuContent(props, forceHideMenu) {
 }
 
 function DropMenuBox(props) {
-    const mounted = useMountedState()
+    const className = useClassName({
+        base: "DropMenuBox",
+        noMountingAnimation: true,
+        choices: [{
+            values: ["showing", "hiding"],
+            selection: props.hidden,
+        }]
+    })
     
     return <div
         data-testid="drop-menu-box"
-        className={getDropMenuBoxClass(props, mounted)}
+        className={className}
         onClick={props.onClick}
     >
         <div className="Shadow" />
@@ -77,11 +84,4 @@ DropMenuBox.propTypes = {
     hidden: PropTypes.bool.isRequired,
     onClick: PropTypes.func,
     children: PropTypes.node,
-}
-
-function getDropMenuBoxClass(props, mounted) {
-    const base = "DropMenuBox";
-    const hidden = props.hidden ? "hiding" : "showing";
-    const init = !mounted ? "initAnimation" : "";
-    return `${base} ${hidden} ${init}`;
 }
