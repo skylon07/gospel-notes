@@ -1,4 +1,5 @@
 import React from "react";
+import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 import "./styles.css";
 
@@ -130,28 +131,26 @@ export function SVGIconPropType(props, propName, componentName) {
     }
 }
 
-// main interface class that wraps everything together
-export class SVGIcon extends React.Component {
-    static propTypes = {
-        type: PropTypes.oneOf(created.iconNames),
-    };
-
-    static types = created.iconNames;
-
-    render() {
-        const type = this.props.type || "blank";
-        const svg = created.icons[type] || created.icons.invalid;
-        return (
-            <div data-testid="svg-icon" className={this.getClass()}>
-                {svg}
-            </div>
-        );
-    }
+// main interface component that wraps everything together
+function SVGIcon(props) {
+    const className = useClassName({
+        base: "SVGIcon",
+        choices: [{
+            values: ["invalid", props.type],
+            selection: created.icons[props.type],
+        }],
+    })
     
-    getClass() {
-        const base = "SVGIcon"
-        const origType = this.props.type || "blank"
-        const iconType = created.icons[origType] ? origType : "invalid"
-        return `${base} ${iconType}`
-    }
+    const svg = created.icons[props.type] || created.icons.invalid;
+    return <div data-testid="svg-icon" className={className}>
+        {svg}
+    </div>
 }
+SVGIcon.propTypes = {
+    type: PropTypes.oneOf(created.iconNames),
+}
+SVGIcon.defaultProps = {
+    type: "blank",
+}
+SVGIcon.types = created.iconNames
+export { SVGIcon }
