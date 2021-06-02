@@ -93,27 +93,13 @@ describe("noMountingAnimation tests", () => {
 })
 
 describe("choices list tests", () => {
-    it("can choose given a key", () => {
-        let choice = {
-            values: ["class0", "class1", "class2"],
-            selection: 2,
-        }
-        let options = { choices: [choice] }
-        let fullClass = null
-        act(() => {
-            render(<TestComponent
-                options={options}
-                onUseClassName={(str) => fullClass = str}
-            />, root)
-        })
-
-        expect(fullClass).toBe("class2")
-
-        choice = {
+    it("can return a class from a dictionary of choices", () => {
+        const choice = {
             values: { good: "goodClass", bad: "badClass" },
             selection: "bad",
         }
-        options = { choices: [choice] }
+        const options = { choices: [choice] }
+        let fullClass = null
         act(() => {
             render(<TestComponent
                 options={options}
@@ -123,13 +109,13 @@ describe("choices list tests", () => {
 
         expect(fullClass).toBe("badClass")
     })
-
-    it("can choose given a boolean (converting to an integer index)", () => {
-        let choice = {
+    
+    it("can return a class from a list of choices", () => {
+        const choice = {
             values: ["class0", "class1", "class2"],
-            selection: false,
+            selection: 2,
         }
-        let options = { choices: [choice] }
+        const options = { choices: [choice] }
         let fullClass = null
         act(() => {
             render(<TestComponent
@@ -137,34 +123,78 @@ describe("choices list tests", () => {
                 onUseClassName={(str) => fullClass = str}
             />, root)
         })
+        
+        expect(fullClass).toBe("class2")
+    })
+})
 
-        expect(fullClass).toBe("class0")
-
-        choice = {
-            values: ["class0", "class1", "class2"],
-            selection: true,
+describe("filters list tests", () => {
+    it("returns the filtered item when given 'true'", () => {
+        const filter = {
+            value: "value",
+            useIf: true,
         }
-        options = { choices: [choice] }
+        const options = { filters: [filter] }
+        let fullClass = null
         act(() => {
             render(<TestComponent
                 options={options}
                 onUseClassName={(str) => fullClass = str}
             />, root)
         })
-
-        expect(fullClass).toBe("class1")
+        
+        expect(fullClass).toBe("value")
+    })
+    
+    it("returns a blank string when given 'false'", () => {
+        const filter = {
+            value: "value",
+            useIf: false,
+        }
+        const options = { filters: [filter] }
+        let fullClass = null
+        act(() => {
+            render(<TestComponent
+                options={options}
+                onUseClassName={(str) => fullClass = str}
+            />, root)
+        })
+    
+        expect(fullClass).toBe("")
+    })
+    
+    it("returns the default item when given 'false'", () => {
+        const filter = {
+            value: "value",
+            useIf: false,
+            otherwise: "defaultClass",
+        }
+        const options = { filters: [filter] }
+        let fullClass = null
+        act(() => {
+            render(<TestComponent
+                options={options}
+                onUseClassName={(str) => fullClass = str}
+            />, root)
+        })
+    
+        expect(fullClass).toBe("defaultClass")
     })
 })
 
 describe("class joining tests", () => {
-    it("returns all classes separated by space", () => {
+    it("returns all classes separated by spaces", () => {
         const base = "SomeBase"
         const noMountingAnimation = true
         const choices = [{
             values: ["choice0", "choice1"],
-            selection: true,
+            selection: 1,
         }]
-        const options = { base, noMountingAnimation, choices }
+        const filters = [{
+            value: "IamValue",
+            useIf: true,
+        }]
+        const options = { base, noMountingAnimation, choices, filters }
         let fullClass = null
         act(() => {
             render(<TestComponent
@@ -176,7 +206,8 @@ describe("class joining tests", () => {
         expect(fullClass.includes("SomeBase")).toBe(true)
         expect(fullClass.includes("noMountingAnimation")).toBe(true)
         expect(fullClass.includes("choice1")).toBe(true)
-        expect(fullClass.split(' ').length).toBe(3)
+        expect(fullClass.includes("IamValue")).toBe(true)
+        expect(fullClass.split(' ').length).toBe(4)
     })
     
     it("does NOT strip already given spaces", () => {
@@ -184,9 +215,13 @@ describe("class joining tests", () => {
         const noMountingAnimation = true
         const choices = [{
             values: ["choice0 c0", "choice1 c1"],
-            selection: true,
+            selection: 0,
         }]
-        const options = { base, noMountingAnimation, choices }
+        const filters = [{
+            value: "dang why even filter this",
+            useIf: true,
+        }]
+        const options = { base, noMountingAnimation, choices, filters }
         let fullClass = null
         act(() => {
             render(<TestComponent
@@ -197,8 +232,9 @@ describe("class joining tests", () => {
         
         expect(fullClass.includes("SomeBase with some space")).toBe(true)
         expect(fullClass.includes("noMountingAnimation")).toBe(true)
-        expect(fullClass.includes("choice1 c1")).toBe(true)
-        expect(fullClass.split(' ').length).toBe(7)
+        expect(fullClass.includes("choice0 c0")).toBe(true)
+        expect(fullClass.includes("dang why even filter this")).toBe(true)
+        expect(fullClass.split(' ').length).toBe(12)
     })
     
     it("ignores empty strings (ie does not join with spaces between them)", () => {
@@ -206,7 +242,11 @@ describe("class joining tests", () => {
         const noMountingAnimation = true
         const choices = [{
             values: ["", ""],
-            selection: true,
+            selection: 1,
+        }]
+        const filters = [{
+            value: "not going to be used because...",
+            useIf: false,
         }]
         const options = { base, noMountingAnimation, choices }
         let fullClass = null
@@ -270,7 +310,7 @@ describe("a crap ton of throw-an-error tests", () => {
             }).not.toThrow()
             
             expect(() => {
-                const options = { base: null }
+                const options = { base: "" }
                 renderErrorTestWith(options)
             }).not.toThrow()
         })
@@ -326,7 +366,7 @@ describe("a crap ton of throw-an-error tests", () => {
             }).not.toThrow()
         })
         
-        it("throws when an invalid choice-value is given", () => {
+        it("throws when an invalid choice is given", () => {
             expect(() => {
                 const options = { choices: [4, 3] }
                 renderErrorTestWith(options)
@@ -373,6 +413,31 @@ describe("a crap ton of throw-an-error tests", () => {
                 }
                 renderErrorTestWith(options)
             }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = {
+                    choices: [
+                        {
+                            values: { not: "gonna work" },
+                            selection: false,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            // these are VALID
+            expect(() => {
+                const options = {
+                    choices: [
+                        {
+                            values: { good: "", values: ""},
+                            selection: "good",
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).not.toThrow()
         })
         
         it("throws when the selection is out-of-bounds of the choice-values list", () => {
@@ -413,7 +478,7 @@ describe("a crap ton of throw-an-error tests", () => {
             }).toThrow(TypeError)
         })
         
-        it("throws when a non-string (truthy) value is returned", () => {
+        it("throws when a non-string value is returned", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -438,13 +503,166 @@ describe("a crap ton of throw-an-error tests", () => {
                 renderErrorTestWith(options)
             }).toThrow(TypeError)
             
-            // these are VALID
             expect(() => {
                 const options = {
                     choices: [
                         {
                             values: [null],
                             selection: 0,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+        })
+    })
+    
+    describe("option: filters", () => {
+        it("throws when an array is not given (and something else was)", () => {
+            expect(() => {
+                const options = { filters: {} }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = { filters: 12 }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            // these are VALID
+            expect(() => {
+                const options = { filters: [] }
+                renderErrorTestWith(options)
+            }).not.toThrow()
+            
+            expect(() => {
+                const options = {}
+                renderErrorTestWith(options)
+            }).not.toThrow()
+        })
+        
+        it("throws when an invalid filter is given", () => {
+            expect(() => {
+                const options = { filters: [9, 4] }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = { filters: [null] }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = {
+                    filters: [
+                        "bad",
+                        "filter",
+                        "list",
+                    ]
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+        })
+        
+        it("throws when a bad filter-value is given", () => {
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: null,
+                            useIf: 0,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+        
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: { bad: "value" },
+                            useIf: 0,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+        
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: 5678,
+                            useIf: true,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+        
+            // these are VALID
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: "yes",
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).not.toThrow()
+        })
+        
+        it("throws when a bad filter-otherwise is given", () => {
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: "yes",
+                            otherwise: true,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: "ahuh",
+                            otherwise: null,
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: "yessir",
+                            otherwise: ["lots", "of", "values?"],
+                        },
+                    ],
+                }
+                renderErrorTestWith(options)
+            }).toThrow(TypeError)
+            
+            // these are VALID
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: "yup",
+                            otherwise: "",
                         },
                     ],
                 }
