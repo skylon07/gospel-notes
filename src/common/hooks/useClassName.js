@@ -12,7 +12,7 @@ const ERROR = {
 }
 
 const WARN = {
-    optionName(str) {
+    extraOption(str) {
         console.warn(`Custom hook useClassName() got an extra option "${str}"; Did you mean to do this?`)
     },
 }
@@ -22,9 +22,10 @@ const WARN = {
 //      base - a string representing the component name or base class
 //      noMountingAnimation - a boolean telling useClassName() to return
 //          "noMountingAnimation" on the initial render
-//      choices - an array of { values, selection } objects to pick from/branch
-//          multiple CSS classes (if "selection" is a boolean, it will be mapped
-//          to an index of 0 or 1)
+//      choices - an array of { values, useKey } objects to pick from/branch
+//          multiple CSS classes
+//      filters - an array of { value, useIf, otherwise="" } objects to filter
+//          values from (and possibly give defaults)
 function useClassName(options={}) {
     const mounted = useMountedState()
     const trackers = {
@@ -142,14 +143,14 @@ class Processor {
         
         const choiceType = Validator.type({
             values: "object",
-            selection: "any",
+            useKey: "any",
         })
         const chosenClassType = Validator.type("string", true)
         const choiceStrings = option.reduce((lastResult, choice) => {
-            const choiceError = `Option 'choices' must have a values property (object) and a selection property (any)`
+            const choiceError = `Option 'choices' must have a values property (object) and a useKey property (any)`
             choiceType.ensureIsValid(choiceError, choice)
             
-            const chosenClass = choice.values[choice.selection]
+            const chosenClass = choice.values[choice.useKey]
             const chosenClassError = `Returned choice class was not a string: ${chosenClass}`
             chosenClassType.ensureIsValid(chosenClassError, chosenClass)
             

@@ -38,8 +38,8 @@ export default class DropBar extends React.Component {
         forceIconType: PropTypes.string,
         children: PropTypes.node,
         canChange: PropTypes.bool,
-        onChangeTitle: PropTypes.func,
-        onChangeIcon: PropTypes.func,
+        onTitleChange: PropTypes.func,
+        onIconChange: PropTypes.func,
     };
     
     static getDerivedStateFromProps(props, state) {
@@ -59,8 +59,8 @@ export default class DropBar extends React.Component {
             typeof nextProps.forceIconType === "string" ||
             nextProps.children !== this.props.children ||
             nextProps.canChange !== this.props.canChange ||
-            nextProps.onChangeTitle !== this.props.onChangeTitle ||
-            nextProps.onChangeIcon !== this.props.onChangeIcon ||
+            nextProps.onTitleChange !== this.props.onTitleChange ||
+            nextProps.onIconChange !== this.props.onIconChange ||
             nextState.title !== this.state.title ||
             nextState.iconType !== this.state.iconType ||
             nextState.dropped !== this.state.dropped
@@ -87,6 +87,7 @@ export default class DropBar extends React.Component {
     }
 
     render() {
+        // console.log("RENDERED: DropBar") // DEBUG
         return (
             <div ref={this.ref} data-testid="drop-bar" className={this.getClass()}>
                 <Holdable onHold={this.on.hold}>
@@ -152,8 +153,8 @@ export default class DropBar extends React.Component {
             }
             
             this.setState({title: newTitle})
-            if (typeof this.props.onChangeTitle == "function") {
-                this.props.onChangeTitle(newTitle)
+            if (typeof this.props.onTitleChange == "function") {
+                this.props.onTitleChange(newTitle)
             }
         }
     }
