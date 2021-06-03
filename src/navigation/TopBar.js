@@ -29,7 +29,7 @@ function TopBar(props) {
         noMountingAnimation: true,
         choices: [{
             values: { nav: "Uncollapsed", search: "Collapsed" },
-            selection: mode,
+            useKey: mode,
         }]
     })
     const searchClassName = useClassName({
@@ -37,7 +37,7 @@ function TopBar(props) {
         noMountingAnimation: true,
         choices: [{
             values: { nav: "Collapsed", search: "Uncollapsed" },
-            selection: mode,
+            useKey: mode,
         }]
     })
 
@@ -84,7 +84,7 @@ function TopBar(props) {
     </div>
 }
 TopBar.propTypes = {
-    menuContent: PropTypes.node,
+    menuContent: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     // TODO: write test (after there are buttons...)
     navButtons: PropTypes.arrayOf(PropTypes.shape({
         key: PropTypes.any.isRequired,
@@ -105,10 +105,9 @@ export default TopBar
 function TopBarButton(props) {
     const className = useClassName({
         base: "TopBarButton",
-        // TODO: use filterValues/filterSelections
-        choices: [{
-            values: ["", "selected"],
-            selection: props.selected,
+        filters: [{
+            value: "selected",
+            useIf: props.selected,
         }]
     })
     

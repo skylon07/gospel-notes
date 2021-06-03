@@ -12,8 +12,8 @@ export default class NoteBox extends React.Component {
         forceTitle: PropTypes.string,
         forceContent: PropTypes.string,
         canChange: PropTypes.bool,
-        onChangeTitle: PropTypes.func,
-        onChangeContent: PropTypes.func,
+        onTitleChange: PropTypes.func,
+        onContentChange: PropTypes.func,
     };
     
     static getDerivedStateFromProps(props, state) {
@@ -33,8 +33,8 @@ export default class NoteBox extends React.Component {
         return typeof nextProps.forceTitle === "string" ||
             typeof nextProps.forceContent === "string" ||
             nextProps.canChange !== this.props.canChange ||
-            nextProps.onChangeTitle !== this.props.onChangeTitle ||
-            nextProps.onChangeContent !== this.props.onChangeContent ||
+            nextProps.onTitleChange !== this.props.onTitleChange ||
+            nextProps.onContentChange !== this.props.onContentChange ||
             nextState.title !== this.state.title ||
             nextState.content !== this.state.content
     }
@@ -60,6 +60,7 @@ export default class NoteBox extends React.Component {
     }
 
     render() {
+        // console.log("RENDERED: NoteBox") // DEBUG
         return (
             <div data-testid="note-box" className="NoteBox">
                 {this.renderTitle()}
@@ -109,6 +110,7 @@ export default class NoteBox extends React.Component {
         }
         
         if (this.canChange()) {
+            // console.log("CAN CHANGE") // DEBUG
             return (
                 <textarea
                     ref={this.contentRef}
@@ -178,6 +180,7 @@ export default class NoteBox extends React.Component {
     }
     
     detectIfTextAreaChanged(newStr, lastStr, onChange) {
+        // console.log("DETECT") // DEBUG
         if (newStr !== lastStr) {
             // convert breaks to newlines
             // NOTE: eval is used to generate the regex; this is perfectly
@@ -208,7 +211,7 @@ export default class NoteBox extends React.Component {
         this.detectIfTextAreaChanged(
             this.titleValue(),
             this.state.title,
-            this.props.onChangeTitle
+            this.props.onTitleChange
         );
     }
     detectIfContentChanged() {
@@ -216,7 +219,7 @@ export default class NoteBox extends React.Component {
         this.detectIfTextAreaChanged(
             this.contentValue(),
             this.state.content,
-            this.props.onChangeContent
+            this.props.onContentChange
         );
     }
 

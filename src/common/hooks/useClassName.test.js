@@ -96,7 +96,7 @@ describe("choices list tests", () => {
     it("can return a class from a dictionary of choices", () => {
         const choice = {
             values: { good: "goodClass", bad: "badClass" },
-            selection: "bad",
+            useKey: "bad",
         }
         const options = { choices: [choice] }
         let fullClass = null
@@ -113,7 +113,7 @@ describe("choices list tests", () => {
     it("can return a class from a list of choices", () => {
         const choice = {
             values: ["class0", "class1", "class2"],
-            selection: 2,
+            useKey: 2,
         }
         const options = { choices: [choice] }
         let fullClass = null
@@ -188,7 +188,7 @@ describe("class joining tests", () => {
         const noMountingAnimation = true
         const choices = [{
             values: ["choice0", "choice1"],
-            selection: 1,
+            useKey: 1,
         }]
         const filters = [{
             value: "IamValue",
@@ -215,7 +215,7 @@ describe("class joining tests", () => {
         const noMountingAnimation = true
         const choices = [{
             values: ["choice0 c0", "choice1 c1"],
-            selection: 0,
+            useKey: 0,
         }]
         const filters = [{
             value: "dang why even filter this",
@@ -242,7 +242,7 @@ describe("class joining tests", () => {
         const noMountingAnimation = true
         const choices = [{
             values: ["", ""],
-            selection: 1,
+            useKey: 1,
         }]
         const filters = [{
             value: "not going to be used because...",
@@ -395,7 +395,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: null,
-                            selection: 0,
+                            useKey: 0,
                         },
                     ],
                 }
@@ -407,7 +407,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: { bad: "list" },
-                            selection: 0,
+                            useKey: 0,
                         },
                     ],
                 }
@@ -419,7 +419,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: { not: "gonna work" },
-                            selection: false,
+                            useKey: false,
                         },
                     ],
                 }
@@ -432,7 +432,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: { good: "", values: ""},
-                            selection: "good",
+                            useKey: "good",
                         },
                     ],
                 }
@@ -440,13 +440,13 @@ describe("a crap ton of throw-an-error tests", () => {
             }).not.toThrow()
         })
         
-        it("throws when the selection is out-of-bounds of the choice-values list", () => {
+        it("throws when the useKey is out-of-bounds of the choice-values list", () => {
             expect(() => {
                 const options = {
                     choices: [
                         {
                             values: ["val0", "val1"],
-                            selection: 2,
+                            useKey: 2,
                         },
                     ],
                 }
@@ -458,7 +458,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: ["val0", "val1"],
-                            selection: "bad selection!",
+                            useKey: "bad key!",
                         }
                     ],
                 }
@@ -470,7 +470,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: { see: "how", im: "not", an: "array" },
-                            selection: 7,
+                            useKey: 7,
                         },
                     ],
                 }
@@ -484,7 +484,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: [true],
-                            selection: 0,
+                            useKey: 0,
                         },
                     ],
                 }
@@ -496,7 +496,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: [55555],
-                            selection: 0,
+                            useKey: 0,
                         },
                     ],
                 }
@@ -508,7 +508,7 @@ describe("a crap ton of throw-an-error tests", () => {
                     choices: [
                         {
                             values: [null],
-                            selection: 0,
+                            useKey: 0,
                         },
                     ],
                 }

@@ -150,7 +150,7 @@ class NodeParent {
         }
         
         Object.freeze(this._data)
-        this._changed()
+        this._changed("data")
     }
     
     subscribe(listener) {
@@ -167,10 +167,10 @@ class NodeParent {
         }
     }
     
-    _changed() {
+    _changed(changeType) {
         for (let i = 0; i < this._changeListeners.length; i++) {
             const listener = this._changeListeners[i]
-            listener()
+            listener(changeType)
         }
     }
     
@@ -191,7 +191,7 @@ class NodeParent {
             this._children.push(node)
         }
         
-        this._changed()
+        this._changed("children")
     }
     
     getChild(idx) {
@@ -225,7 +225,7 @@ class NodeParent {
     
     removeChildAt(idx) {
         const child = this._children.splice(idx, 1)[0]
-        this._changed()
+        this._changed("children")
         return child
     }
     
@@ -235,6 +235,12 @@ class NodeParent {
             return this.removeChildAt(idx)
         }
         return null
+    }
+    
+    // TODO: make a custom list type that appears read-only, but has hidden
+    //       function values, so there is no need to copy
+    copyChildren() {
+        return this.mapChildren((child) => child)
     }
     
     mapChildren(fn) {
