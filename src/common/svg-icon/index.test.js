@@ -78,9 +78,13 @@ describe("CSS class tests", () => {
     // TODO: this is a valid/working test, but React's invalid prop warnings
     //       need to be silenced (at least, when run in spck mobile editor)
     it("renders the 'invalid' class name when an invalid type is given", () => {
-        const type = ["there is", "no way this", "is a valid type"]
+        const type = "there is no way this is a valid type"
         act(() => {
+            // ignore the prop types warning... I'm aware I'm doing something bad
+            const origTypes = SVGIcon.propTypes
+            SVGIcon.propTypes = {}
             render(<SVGIcon type={type} />, root);
+            SVGIcon.propTypes = origTypes
         });
         const icon = grabSVGIcon();
         

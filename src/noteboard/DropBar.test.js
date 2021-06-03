@@ -132,12 +132,12 @@ describe("rendering tests", () => {
     
     it("still rerenders when other props change", () => {
         const ref = React.createRef()
-        const onChangeTitle = () => {}
+        const onTitleChange = () => {}
         act(() => {
             render(
                 <DropBar
                     ref={ref}
-                    onChangeTitle={onChangeTitle}
+                    onTitleChange={onTitleChange}
                 />,
                 root
             )
@@ -146,12 +146,12 @@ describe("rendering tests", () => {
         const origRender = ref.current.render
         const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
     
-        const newOnChangeTitle = () => {}
+        const newOnTitleChange = () => {}
         act(() => {
             render(
                 <DropBar
                     ref={ref}
-                    onChangeTitle={newOnChangeTitle}
+                    onTitleChange={newOnTitleChange}
                 />,
                 root
             )
@@ -281,18 +281,19 @@ describe("drop button tests", () => {
 });
 
 describe("listener callback tests", () => {
-    it("triggers onChangeTitle() when holdable bar is held", () => {
+    it("triggers onTitleChange() when holdable bar is held", () => {
         // mock prompt()
+        // TODO: doesn't work with eruda/actual console
         window.prompt = () => "newTitle"
         
-        const onChangeTitle = jest.fn();
+        const onTitleChange = jest.fn();
         act(() => {
-            render(<DropBar onChangeTitle={onChangeTitle} />, root);
+            render(<DropBar onTitleChange={onTitleChange} />, root);
         });
         const dropBar = grabDropBar();
         const mainBar = grabMainBarFrom(dropBar);
 
-        expect(onChangeTitle).not.toBeCalled();
+        expect(onTitleChange).not.toBeCalled();
 
         act(() => {
             mainBar.dispatchEvent(
@@ -300,14 +301,14 @@ describe("listener callback tests", () => {
             );
         });
 
-        expect(onChangeTitle).not.toBeCalled();
+        expect(onTitleChange).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(5000);
         });
 
-        expect(onChangeTitle).toBeCalledTimes(1);
-        expect(onChangeTitle).toBeCalledWith("newTitle")
+        expect(onTitleChange).toBeCalledTimes(1);
+        expect(onTitleChange).toBeCalledWith("newTitle")
     });
 
     // NOTE: DropBarGroups are not used anymore; _beforeDrop is obsolete
@@ -331,6 +332,8 @@ describe("listener callback tests", () => {
     //     expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
     //     expect(_beforeDrop).toBeCalledTimes(1);
     // });
+    
+    // TODO: test changing icon
 });
 
 describe("group animation tests", () => {

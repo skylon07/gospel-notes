@@ -65,9 +65,10 @@ function DropMenuBox(props) {
     const className = useClassName({
         base: "DropMenuBox",
         noMountingAnimation: true,
-        choices: [{
-            values: ["showing", "hiding"],
-            selection: props.hidden,
+        filters: [{
+            value: "hiding",
+            useIf: props.hidden,
+            otherwise: "showing",
         }]
     })
     
@@ -81,7 +82,7 @@ function DropMenuBox(props) {
     </div>
 }
 DropMenuBox.propTypes = {
+    children: PropTypes.node,
     hidden: PropTypes.bool.isRequired,
     onClick: PropTypes.func,
-    children: PropTypes.node,
 }

@@ -135,9 +135,10 @@ export function SVGIconPropType(props, propName, componentName) {
 function SVGIcon(props) {
     const className = useClassName({
         base: "SVGIcon",
-        choices: [{
-            values: ["invalid", props.type],
-            selection: created.icons[props.type],
+        filters: [{
+            value: props.type,
+            useIf: !!created.icons[props.type],
+            otherwise: "invalid",
         }],
     })
     

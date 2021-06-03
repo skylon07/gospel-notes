@@ -135,12 +135,12 @@ describe("rendering tests", () => {
     
     it("still rerenders when other props change (not initTitle or initContent)", () => {
         const ref = React.createRef()
-        const onChangeTitle = () => {}
+        const onTitleChange = () => {}
         act(() => {
             render(
                 <NoteBox
                     ref={ref}
-                    onChangeTitle={onChangeTitle}
+                    onTitleChange={onTitleChange}
                 />,
                 root
             )
@@ -149,12 +149,12 @@ describe("rendering tests", () => {
         const origRender = ref.current.render
         const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
         
-        const newOnChangeTitle = () => {}
+        const newonTitleChange = () => {}
         act(() => {
             render(
                 <NoteBox
                     ref={ref}
-                    onChangeTitle={newOnChangeTitle}
+                    onTitleChange={newonTitleChange}
                 />,
                 root
             )
@@ -231,17 +231,17 @@ describe("rendering tests", () => {
 });
 
 describe("listener callbacks", () => {
-    it("triggers onChangeTitle(title)", () => {
+    it("triggers onTitleChange(title)", () => {
         const firstTitle = "first title";
         const secondTitle = "second title";
-        const onChangeTitle = jest.fn();
+        const onTitleChange = jest.fn();
         act(() => {
             render(
                 <NoteBox
                     // prettier-ignore
                     initTitle={firstTitle}
                     canChange={true}
-                    onChangeTitle={onChangeTitle}
+                    onTitleChange={onTitleChange}
                 />,
                 root
             );
@@ -249,7 +249,7 @@ describe("listener callbacks", () => {
         const noteBox = grabNoteBox();
         const [title] = grabTitleAndContentFrom(noteBox);
 
-        expect(onChangeTitle).not.toBeCalled();
+        expect(onTitleChange).not.toBeCalled();
 
         act(() => {
             title.focus();
@@ -258,21 +258,21 @@ describe("listener callbacks", () => {
             // title.dispatchEvent(new Event("change")) // implementation uses onBlur() instead
         });
 
-        expect(onChangeTitle).toBeCalledWith(secondTitle);
-        expect(onChangeTitle).toBeCalledTimes(1);
+        expect(onTitleChange).toBeCalledWith(secondTitle);
+        expect(onTitleChange).toBeCalledTimes(1);
     });
 
-    it("triggers onChangeContent(content)", () => {
+    it("triggers onContentChange(content)", () => {
         const firstContent = "first content";
         const secondContent = "second content";
-        const onChangeContent = jest.fn();
+        const onContentChange = jest.fn();
         act(() => {
             render(
                 <NoteBox
                     // prettier-ignore
                     initContent={firstContent}
                     canChange={true}
-                    onChangeContent={onChangeContent}
+                    onContentChange={onContentChange}
                 />,
                 root
             );
@@ -280,7 +280,7 @@ describe("listener callbacks", () => {
         const noteBox = grabNoteBox();
         const [_, content] = grabTitleAndContentFrom(noteBox);
 
-        expect(onChangeContent).not.toBeCalled();
+        expect(onContentChange).not.toBeCalled();
 
         act(() => {
             content.focus();
@@ -289,7 +289,7 @@ describe("listener callbacks", () => {
             // content.dispatchEvent(new Event("change")) // implementation uses onBlur() instead
         });
 
-        expect(onChangeContent).toBeCalledWith(secondContent);
-        expect(onChangeContent).toBeCalledTimes(1);
+        expect(onContentChange).toBeCalledWith(secondContent);
+        expect(onContentChange).toBeCalledTimes(1);
     });
 });

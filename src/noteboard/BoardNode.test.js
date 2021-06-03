@@ -155,5 +155,104 @@ describe("node rendering tests", () => {
     })
 })
 
-// TODO: onChange tests
+describe("change listener tests", () => {
+    describe("Node-change listener", () => {
+        it("rerenders when the node changes", () => {
+            const node = nodeStore.createNode("NoteBox")
+            const onRender = jest.fn()
+            act(() => {
+                render(<React.Profiler
+                    id="BoardNode"
+                    onRender={onRender}
+                >
+                    <BoardNode node={node} />
+                </React.Profiler>, root)
+            })
+    
+            expect(onRender).toBeCalledTimes(1)
+    
+            const title = "title"
+            const content = "content"
+            act(() => {
+                node.setData({ title, content })
+            })
+    
+            expect(onRender).toBeCalledTimes(2)
+        })
+    })
+    
+    describe("NoteBox props.onChange()", () => {
+        it("triggers onChange() when the title changes", () => {
+            const title = "init title"
+            const node = nodeStore.createNode("NoteBox", { title })
+            const onChange = jest.fn()
+            act(() => {
+                render(<BoardNode node={node} onChange={onChange} />, root)
+            })
+            const boardNode = grabBoardNode()
+            const noteBox = grabChildFrom(boardNode)
+            const [titleField] = grabNoteBoxFields(noteBox)
+            
+            // change via textarea
+            const newTitleViaTextarea = "new title via textarea"
+            act(() => {
+                titleField.focus()
+                titleField.value = newTitleViaTextarea
+                titleField.blur()
+            })
+            
+            expect(onChange).toBeCalledTimes(1)
+            expect(onChange).lastCalledWith(node, "title", newTitleViaTextarea)
+            
+            // change via node
+            const newTitleViaNode = "new title via node"
+            act(() => {
+                node.setData({ title: newTitleViaNode })
+            })
+            
+            // should NOT have called onChange(); this simulated another
+            // node changing (which would've called its own onChange())
+            expect(onChange).not.toBeCalledTimes(2)
+            expect(onChange).toBeCalledTimes(1)
+        })
+        
+        it("triggers onChange() when the content changes", () => {
+            const content = "init content"
+            const node = nodeStore.createNode("NoteBox", { content })
+            const onChange = jest.fn()
+            act(() => {
+                render(<BoardNode node={node} onChange={onChange} />, root)
+            })
+            const boardNode = grabBoardNode()
+            const noteBox = grabChildFrom(boardNode)
+            const [_, contentField] = grabNoteBoxFields(noteBox)
+            
+            // change via textarea
+            const newContentViaTextarea = "new content via textarea"
+            act(() => {
+                contentField.focus()
+                contentField.value = newContentViaTextarea
+                contentField.blur()
+                // console.log(contentField) // DEBUG
+            })
+            
+            expect(onChange).toBeCalledTimes(1)
+            expect(onChange).lastCalledWith(node, "content", newContentViaTextarea)
+            
+            // change via node
+            const newContentViaNode = "new content via node"
+            act(() => {
+                node.setData({ content: newContentViaNode })
+            })
+            
+            // should NOT have called onChange(); this simulated another
+            // node changing (which would've called its own onChange())
+            expect(onChange).not.toBeCalledTimes(2)
+            expect(onChange).toBeCalledTimes(1)
+        })
+    })
+    
+    // TODO: DropBar props.onChange()
+})
+
 // TODO: test for removing notebox children nodes when empty
