@@ -5,14 +5,25 @@ import { act } from "react-dom/test-utils";
 import { SVGIcon } from ".";
 
 let root = null;
+const origError = console.error
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
+    
+    // mock console to ignore prop types errors
+    console.error = (...errors) => {
+        if (!(errors[0] + "").includes("Warning: Failed prop type")) {
+            origError.call(console, ...errors)
+        }
+    }
 });
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
+    
+    // reset mock
+    console.error = origError
 });
 
 function grabSVGIcon() {
