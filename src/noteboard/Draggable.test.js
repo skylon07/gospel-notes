@@ -171,34 +171,33 @@ it("moves when touched and dragged across the screen", () => {
     expect(draggable).toHaveStyle({ transform: "translate(150px, 150px)" });
 });
 
-describe("ref tests", () => {
-    it("correctly updates dragRef when given object-refs", () => {
-        const dragRef = React.createRef();
-
-        expect(dragRef.current).toBe(null);
-
-        act(() => {
-            render(<Draggable dragRef={dragRef} />, root);
-        });
-
-        expect(dragRef.current).not.toBe(null);
-    });
-
-    it("correctly updates dragRef when given function-refs", () => {
-        const dragRef = jest.fn();
-        expect(dragRef).not.toBeCalledWith(null);
-
-        act(() => {
-            render(<Draggable dragRef={dragRef} />, root);
-        });
-
-        expect(dragRef).toBeCalledTimes(1);
-    });
-});
+// NOTE: this is currently not aupported, however may be brought back if required
+// describe("ref tests", () => {
+//    it("correctly updates dragRef when given object-refs", () => {
+//        const dragRef = React.createRef();
+//        expect(dragRef.current).toBe(null);
+//         act(() => {
+//             render(<Draggable dragRef={dragRef} />, root);
+//         });
+// 
+//         expect(dragRef.current).not.toBe(null);
+//     });
+// 
+//     it("correctly updates dragRef when given function-refs", () => {
+//         const dragRef = jest.fn();
+//         expect(dragRef).not.toBeCalledWith(null);
+// 
+//         act(() => {
+//             render(<Draggable dragRef={dragRef} />, root);
+//         });
+// 
+//         expect(dragRef).toBeCalledTimes(1);
+//     });
+// });
 
 describe("listener callback tests", () => {
     describe("...using mouse events", () => {
-        it("correctly calls beforeDrag()", () => {
+        it("correctly calls beforeDrag(rect)", () => {
             const beforeDrag = jest.fn();
             act(() => {
                 render(
@@ -231,10 +230,22 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(beforeDrag).toBeCalledTimes(1);
+            expect(beforeDrag).toHaveBeenCalledTimes(1);
+            expect(beforeDrag).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    x: 0,
+                    y: 0,
+                    left: 0,
+                    top: 0,
+                    right: expect.any(Number),
+                    bottom: expect.any(Number),
+                    width: expect.any(Number),
+                    height: expect.any(Number),
+                })
+            );
         });
 
-        it("correctly calls onDrag(diffX, diffY)", () => {
+        it("correctly calls onDrag(rect)", () => {
             const onDrag = jest.fn();
             act(() => {
                 render(
@@ -267,11 +278,22 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(onDrag).toBeCalledTimes(1);
-            expect(onDrag).lastCalledWith(100, 100); // dragging distance
+            expect(onDrag).toHaveBeenCalledTimes(1);
+            expect(onDrag).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    x: 100,
+                    y: 100,
+                    left: 100,
+                    top: 100,
+                    right: expect.any(Number),
+                    bottom: expect.any(Number),
+                    width: expect.any(Number),
+                    height: expect.any(Number),
+                })
+            );
         });
 
-        it("correctly calls afterDrag()", () => {
+        it("correctly calls afterDrag(rect)", () => {
             const afterDrag = jest.fn();
             act(() => {
                 render(
@@ -313,12 +335,24 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(afterDrag).toBeCalledTimes(1);
+            expect(afterDrag).toHaveBeenCalledTimes(1);
+            expect(afterDrag).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    x: 100,
+                    y: 100,
+                    left: 100,
+                    top: 100,
+                    right: expect.any(Number),
+                    bottom: expect.any(Number),
+                    width: expect.any(Number),
+                    height: expect.any(Number),
+                })
+            );
         });
     });
 
     describe("...using touch events", () => {
-        it("correctly calls beforeDrag()", () => {
+        it("correctly calls beforeDrag(rect)", () => {
             const beforeDrag = jest.fn();
             act(() => {
                 render(
@@ -352,11 +386,23 @@ describe("listener callback tests", () => {
                     })
                 );
             });
-
-            expect(beforeDrag).toBeCalledTimes(1);
+            
+            expect(beforeDrag).toHaveBeenCalledTimes(1);
+            expect(beforeDrag).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    x: 0,
+                    y: 0,
+                    left: 0,
+                    top: 0,
+                    right: expect.any(Number),
+                    bottom: expect.any(Number),
+                    width: expect.any(Number),
+                    height: expect.any(Number),
+                })
+            );
         });
 
-        it("correctly calls onDrag(diffX, diffY)", () => {
+        it("correctly calls onDrag(rect)", () => {
             const onDrag = jest.fn();
             act(() => {
                 render(
@@ -391,11 +437,22 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(onDrag).toBeCalledTimes(1);
-            expect(onDrag).lastCalledWith(100, 100); // dragging distance
+            expect(onDrag).toHaveBeenCalledTimes(1);
+            expect(onDrag).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    x: 100,
+                    y: 100,
+                    left: 100,
+                    top: 100,
+                    right: expect.any(Number),
+                    bottom: expect.any(Number),
+                    width: expect.any(Number),
+                    height: expect.any(Number),
+                })
+            );
         });
 
-        it("correctly calls afterDrag()", () => {
+        it("correctly calls afterDrag(rect)", () => {
             const afterDrag = jest.fn();
             act(() => {
                 render(
@@ -439,7 +496,19 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(afterDrag).toBeCalledTimes(1);
+            expect(afterDrag).toHaveBeenCalledTimes(1);
+            expect(afterDrag).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    x: 100,
+                    y: 100,
+                    left: 100,
+                    top: 100,
+                    right: expect.any(Number),
+                    bottom: expect.any(Number),
+                    width: expect.any(Number),
+                    height: expect.any(Number),
+                })
+            );
         });
     });
 });
