@@ -52,6 +52,22 @@ it("selects all text in the input field when focused", () => {
     expect(inputField.selectionEnd).toBe(searchString.length);
 });
 
+it("has a forceFocus property that, when true, focuses the input", () => {
+    act(() => {
+        render(<SearchBar forceFocus={false} />, root);
+    });
+    const searchBar = grabSearchBar();
+    const inputField = searchBar.querySelector("input");
+
+    expect(document.activeElement).not.toBe(inputField)
+
+    act(() => {
+        render(<SearchBar forceFocus={true} />, root);
+    });
+
+    expect(document.activeElement).toBe(inputField)
+})
+
 describe("listener callback tests", () => {
     it("triggers onSearch() with correct value on search button click", () => {
         const onSearch = jest.fn();
