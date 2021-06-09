@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./SearchBar.css";
 
@@ -9,12 +9,15 @@ function SearchBar(props) {
     const select = () => {
         inputRef.current.select()
     }
-    const focus = () => {
-        inputRef.current.focus()
-    }
     const blur = () => {
         inputRef.current.blur()
     }
+    
+    useEffect(() => {
+        if (props.forceFocus) {
+            inputRef.current.focus()
+        }
+    })
     
     const triggerSearch = () => {
         blur()
@@ -46,5 +49,6 @@ function SearchBar(props) {
 }
 SearchBar.propTypes = {
     onSearch: PropTypes.func,
+    forceFocus: PropTypes.bool,
 }
 export default SearchBar
