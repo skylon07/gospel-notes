@@ -241,5 +241,5 @@ const DropBarContent = React.forwardRef(function (props, ref) {
 })
 DropBarContent.propTypes = {
     children: PropTypes.node,
-    dropped: PropTypes.bool,
+    dropped: PropTypes.bool.isRequired,
 }
