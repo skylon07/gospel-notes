@@ -41,18 +41,29 @@
     user-select: none;
 }
 
-.DropBar .Bar > .SVGIcon {
-    width: 30px;
-    height: 30px;
-    margin: 0px 12px 0px 4px;
+.DropBar .Bar .Holdable {
+    height: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
 }
 
-.DropBar .Spacer {
+.DropBar .Bar .Icon {
+    padding: 0px 12px 0px 4px;
+    background-color: darkgreen;
+}
+
+.DropBar .Bar .Icon .SVGIcon {
+    width: 30px;
+    height: 30px;
+}
+
+.DropBar .Bar .Title {
     flex: 1;
 }
 
 /* html overrides specificity */
-html .DropBar.noMountingAnimation .BottomBar {
+html .DropBar .BottomBar.noMountingAnimation {
     animation-duration: 0s;
     opacity: 0;
     transform: translateY(calc(-1 * var(--bottom-bar-shift) + 500px));
@@ -101,8 +112,7 @@ html .DropBar.noMountingAnimation .BottomBar {
     }
 }
 
-/* html overrides specificity */
-html .DropBar.noMountingAnimation .DropdownButton {
+.DropBar .DropdownButton.noMountingAnimation {
     animation-duration: 0s;
     transform: rotateX(180deg);
 }
@@ -158,12 +168,10 @@ html .DropBar.noMountingAnimation .DropdownButton {
     background-color: var(--clear);
 }
 
-/* html overrides specificity */
-html .DropBar.noMountingAnimation .DropBarContent {
+.DropBar .DropBarContent.noMountingAnimation {
     animation-duration: 0s;
     opacity: 0;
     transform: translateY(calc(-50% + 500px)) scaleY(0);
-    
 }
 
 .DropBarContent.raised {

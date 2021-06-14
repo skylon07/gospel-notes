@@ -29,6 +29,14 @@ function grabMainBarFrom(dropBar) {
     return dropBar.querySelector(".Bar");
 }
 
+function grabTitleHoldableFrom(dropBar) {
+    return dropBar.querySelector(".Bar .Title .Holdable")
+}
+
+function grabIconHoldableFrom(dropBar) {
+    return dropBar.querySelector(".Bar .Icon .Holdable")
+}
+
 function grabIconTypeFrom(dropBar) {
     const iconElem = dropBar.querySelector("[data-testid='svg-icon']");
     const classList = [...iconElem.classList]
@@ -70,167 +78,32 @@ it("renders with a CSS class", () => {
 
 describe("rendering tests", () => {
     it("renders a title", () => {
-        const initTitle = "this is the title string to look for";
+        const title = "this is the title string to look for";
         act(() => {
-            render(<DropBar initTitle={initTitle} />, root);
+            render(<DropBar title={title} />, root);
         });
         const dropBar = grabDropBar();
         const mainBar = grabMainBarFrom(dropBar);
 
-        expect(mainBar).toHaveTextContent(initTitle);
+        expect(mainBar).toHaveTextContent(title);
     });
 
     it("renders the correct icon type", () => {
         const iconType = "burger";
         act(() => {
-            render(<DropBar initIconType={iconType} />, root);
+            render(<DropBar iconType={iconType} />, root);
         });
         const dropBar = grabDropBar();
         const icon = grabIconTypeFrom(dropBar);
 
         expect(icon).toBe(iconType);
     });
-    
-    it("doesn't rerender when initTitle or initIconType changes", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
-        const initIconType = "plus"
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    initTitle={initTitle}
-                    initIconType={initIconType}
-                />,
-                root
-            )
-        })
-        const dropBar = grabDropBar()
-        const mainBar = grabMainBarFrom(dropBar)
-    
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-    
-        const newTitle = "new title"
-        const newIconType = "cross"
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    initTitle={newTitle}
-                    initIconType={newIconType}
-                />,
-                root
-            )
-        })
-    
-        expect(wrappedRender).not.toBeCalled()
-        expect(mainBar).toHaveTextContent(initTitle)
-        const icon = grabIconTypeFrom(dropBar)
-        expect(icon).toBe(initIconType)
-    })
-    
-    it("still rerenders when other props change", () => {
-        const ref = React.createRef()
-        const onTitleChange = () => {}
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    onTitleChange={onTitleChange}
-                />,
-                root
-            )
-        })
-    
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-    
-        const newOnTitleChange = () => {}
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    onTitleChange={newOnTitleChange}
-                />,
-                root
-            )
-        })
-    
-        expect(wrappedRender).toBeCalledTimes(1)
-    })
-    
-    it("rerenders when forceTitle is given", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    initTitle={initTitle}
-                />,
-                root
-            )
-        })
-        const dropBar = grabDropBar()
-        const mainBar = grabMainBarFrom(dropBar)
-    
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-    
-        const forceTitle = "new title"
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    forceTitle={forceTitle}
-                />,
-                root
-            )
-        })
-    
-        expect(wrappedRender).toBeCalledTimes(1)
-        expect(mainBar).toHaveTextContent(forceTitle)
-    })
-    
-    it("rerenders when forceIconType is given", () => {
-        const ref = React.createRef()
-        const initIconType = "plus"
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    initIconType={initIconType}
-                />,
-                root
-            )
-        })
-        const dropBar = grabDropBar()
-    
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-    
-        const forceIconType = "cross"
-        act(() => {
-            render(
-                <DropBar
-                    ref={ref}
-                    forceIconType={forceIconType}
-                />,
-                root
-            )
-        })
-    
-        expect(wrappedRender).toBeCalledTimes(1)
-        const icon = grabIconTypeFrom(dropBar)
-        expect(icon).toBe(forceIconType)
-    })
 });
 
 describe("drop button tests", () => {
     it("drops when the drop button is clicked", () => {
         act(() => {
-            render(<DropBar />, root);
+            render(<DropBar initDropped={false} />, root);
         });
         const dropBar = grabDropBar();
         const dropContent = grabContentFrom(dropBar);
@@ -254,7 +127,9 @@ describe("drop button tests", () => {
 
     it("raises when the drop button is clicked twice", () => {
         act(() => {
-            render(<DropBar />, root);
+            // TODO: create a different test for initDropped, and then only
+            //       click once this test
+            render(<DropBar initDropped={false} />, root);
         });
         const dropBar = grabDropBar();
         const dropContent = grabContentFrom(dropBar);
@@ -269,6 +144,8 @@ describe("drop button tests", () => {
             dropButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
+        })
+        act(() => {
             dropButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
@@ -281,36 +158,57 @@ describe("drop button tests", () => {
 });
 
 describe("listener callback tests", () => {
-    it("triggers onTitleChange() when holdable bar is held", () => {
-        // mock prompt()
-        // TODO: doesn't work with eruda/actual console
-        window.prompt = () => "newTitle"
-        
-        const onTitleChange = jest.fn();
+    it("triggers onTitleHold() when holdable title is held", () => {
+        const onTitleHold = jest.fn();
         act(() => {
-            render(<DropBar onTitleChange={onTitleChange} />, root);
+            render(<DropBar onTitleHold={onTitleHold} />, root);
         });
         const dropBar = grabDropBar();
-        const mainBar = grabMainBarFrom(dropBar);
+        const holdable = grabTitleHoldableFrom(dropBar);
 
-        expect(onTitleChange).not.toBeCalled();
+        expect(onTitleHold).not.toBeCalled();
 
         act(() => {
-            mainBar.dispatchEvent(
+            holdable.dispatchEvent(
                 new MouseEvent("mousedown", { bubbles: true })
             );
         });
 
-        expect(onTitleChange).not.toBeCalled();
+        expect(onTitleHold).not.toBeCalled();
 
         act(() => {
             jest.advanceTimersByTime(5000);
         });
 
-        expect(onTitleChange).toBeCalledTimes(1);
-        expect(onTitleChange).toBeCalledWith("newTitle")
+        expect(onTitleHold).toBeCalledTimes(1);
+    });
+    
+    it("triggers onIconHold() when holdable icon is held", () => {
+        const onIconHold = jest.fn();
+        act(() => {
+            render(<DropBar onIconHold={onIconHold} />, root);
+        });
+        const dropBar = grabDropBar();
+        const holdable = grabIconHoldableFrom(dropBar);
+    
+        expect(onIconHold).not.toBeCalled();
+    
+        act(() => {
+            holdable.dispatchEvent(
+                new MouseEvent("mousedown", { bubbles: true })
+            );
+        });
+    
+        expect(onIconHold).not.toBeCalled();
+    
+        act(() => {
+            jest.advanceTimersByTime(5000);
+        });
+    
+        expect(onIconHold).toBeCalledTimes(1);
     });
 
+    // TODO: remove at a later date, when this is *for sure* no longer needed
     // NOTE: DropBarGroups are not used anymore; _beforeDrop is obsolete
     // it("triggers the hidden _beforeDrop(ref, dropped) prop", () => {
     //     const _beforeDrop = jest.fn();
@@ -332,8 +230,6 @@ describe("listener callback tests", () => {
     //     expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
     //     expect(_beforeDrop).toBeCalledTimes(1);
     // });
-    
-    // TODO: test changing icon
 });
 
 describe("group animation tests", () => {
@@ -418,7 +314,8 @@ describe("group animation tests", () => {
             }
         }
     });
+    
+    // TODO: animation tests that test up the DOM heirarchy with DropBars on
+    //       various levels
 })
 
-// TODO: maybe provide some animation tests, since it
-// primarilly applies animations to grouped children
