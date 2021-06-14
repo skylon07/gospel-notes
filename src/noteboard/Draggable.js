@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 
 function Draggable(props) {
     const [ state, setter ] = useState()
@@ -6,6 +6,8 @@ function Draggable(props) {
         badHookName(setter, { setter })
     }
     useGoodHookName(setter, { setter })
+
+    return <div />
 }
 
 function badHookName(setState, data) {
