@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import PropTypes from "prop-types"
 
 function Draggable(props) {
     const [ state, setter ] = useState()
@@ -7,7 +8,7 @@ function Draggable(props) {
     }
     useGoodHookName(setter, { setter })
 
-    return <div />
+    return <div>{state}</div>
 }
 
 function badHookName(setState, data) {
@@ -15,6 +16,7 @@ function badHookName(setState, data) {
     useEffect(() => {
         let doStuff = window
         data.setter(doStuff + d)
+        setD('d')
     }, [])
 }
 
