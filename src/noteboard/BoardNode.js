@@ -10,6 +10,11 @@ function HookDirectly(props) {
     useEffect(() => {
         setState("test")
     }, [])
+
+    const [_, anotherSetState] = useState()
+    useEffect(() => {
+        anotherSetState("test")
+    })
 }
 
 function HookWithCallback(props) {
