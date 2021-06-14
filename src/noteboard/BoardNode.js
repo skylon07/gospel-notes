@@ -76,3 +76,5 @@ function HookWithNewCallbackWithBlankDeps_InsideDeps(props) {
         setState("test")
     }, [stableSetState])
 }
+
+export default (props) => <div>BoardNode</div>
