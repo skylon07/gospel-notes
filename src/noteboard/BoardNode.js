@@ -7,6 +7,7 @@ import { nodeStore } from './datastore.js'
 import NoteBox from "./NoteBox.js"
 import DropBar from "./DropBar.js"
 import AddButton from "./AddButton.js"
+import Draggable from "./Draggable.js"
 
 const CustomTypes = {
     node(props, propName, componentName) {
@@ -72,9 +73,9 @@ export default class BoardNode extends React.Component {
 
     render() {
         // TODO: make prop-enabled ability to grow on mount (when they are dynamically added)
-        return <div data-testid="board-node" className="BoardNode">
+        return [<div data-testid="board-node" className="BoardNode">
             {this.renderThisNode()}
-        </div>
+        </div>, <Draggable />]
     }
     
     componentDidMount() {
