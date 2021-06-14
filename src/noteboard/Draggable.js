@@ -3,9 +3,8 @@ import PropTypes from "prop-types"
 
 function Draggable(props) {
     const [ state, setter ] = useState()
-    if (window.getValue) {
-        useBadHookName(setter, { setter })
-    }
+    
+    useBadHookName(setter, { setter })
     useGoodHookName(setter, { setter })
 
     return <div>{state}</div>
