@@ -3,23 +3,23 @@ import { useState, useEffect } from "react"
 function Draggable(props) {
     const [ state, setter ] = useState()
     if (window.getValue) {
-        badHookName(setter)
+        badHookName(setter, { setter })
     }
-    useGoodHookName(setter)
+    useGoodHookName(setter, { setter })
 }
 
-function badHookName(setState) {
-    const data = useState()
+function badHookName(setState, data) {
+    const d = useState()
     useEffect(() => {
         let doStuff = window
-        setState(doStuff)
+        data.setter(doStuff)
     }, [])
 }
 
-function useGoodHookName(setState) {
+function useGoodHookName(setState, data) {
     useEffect(() => {
         let doStuff = window
-        setState(doStuff)
+        data.setter(doStuff)
     }, [])
 }
 
