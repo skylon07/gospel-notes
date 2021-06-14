@@ -13,16 +13,16 @@ function Draggable(props) {
 function useBadHookName(setState, data) {
     useEffect(() => {
         let doStuff = window
-        data.setter(doStuff)
+        setState(doStuff)
     }, [])
 }
 
 function useGoodHookName(setState, data) {
-    const [ d, setD ] = useState()
+    const [ d ] = useState()
     useEffect(() => {
         let doStuff = window
         data.setter(doStuff + d)
-    }, [])
+    }, [data.setter])
 }
 
 export default Draggable
