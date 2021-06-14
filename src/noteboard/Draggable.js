@@ -11,10 +11,10 @@ function Draggable(props) {
 }
 
 function badHookName(setState, data) {
-    const d = useState()
+    const [ d, setD ] = useState()
     useEffect(() => {
         let doStuff = window
-        data.setter(doStuff)
+        data.setter(doStuff + d)
     }, [])
 }
 
