@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react"
 
 function Draggable(props) {
-    const [ state, setState ] = useState()
-    badHookName(setState)
-    goodHookName(setState)
+    const [ state, setter ] = useState()
+    if (window.getValue) {
+        badHookName(setter)
+    }
+    useGoodHookName(setter)
 }
 
 function badHookName(setState) {
+    const data = useState()
     useEffect(() => {
         let doStuff = window
         setState(doStuff)
