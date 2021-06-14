@@ -1,19 +1,19 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 
-function stableHook() {
+function useStableHook() {
     const [state, setState] = useState()
     return setState
 }
 
 function HookDirectly(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     useEffect(() => {
         setState("test")
     }, [])
 }
 
 function HookWithCallback(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(setState)
     useEffect(() => {
         stableSetState("test")
@@ -21,7 +21,7 @@ function HookWithCallback(props) {
 }
 
 function HookWithCallbackWithBlankDeps(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(setState, [])
     useEffect(() => {
         stableSetState("test")
@@ -29,7 +29,7 @@ function HookWithCallbackWithBlankDeps(props) {
 }
 
 function HookWithNewCallback(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(() => setState())
     useEffect(() => {
         stableSetState("test")
@@ -37,7 +37,7 @@ function HookWithNewCallback(props) {
 }
 
 function HookWithNewCallbackWithBlankDeps(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(() => setState(), [])
     useEffect(() => {
         stableSetState("test")
@@ -46,7 +46,7 @@ function HookWithNewCallbackWithBlankDeps(props) {
 
 // NOTE: these are probably just a mistaken comment...
 function HookWithCallback_InsideDeps(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(setState)
     useEffect(() => {
         setState("test")
@@ -54,7 +54,7 @@ function HookWithCallback_InsideDeps(props) {
 }
 
 function HookWithCallbackWithBlankDeps_InsideDeps(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(setState, [])
     useEffect(() => {
         setState("test")
@@ -62,7 +62,7 @@ function HookWithCallbackWithBlankDeps_InsideDeps(props) {
 }
 
 function HookWithNewCallback_InsideDeps(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(() => setState())
     useEffect(() => {
         setState("test")
@@ -70,7 +70,7 @@ function HookWithNewCallback_InsideDeps(props) {
 }
 
 function HookWithNewCallbackWithBlankDeps_InsideDeps(props) {
-    const setState = stableHook()
+    const setState = useStableHook()
     const stableSetState = useCallback(() => setState(), [])
     useEffect(() => {
         setState("test")
