@@ -4,26 +4,25 @@ import PropTypes from "prop-types"
 function Draggable(props) {
     const [ state, setter ] = useState()
     if (window.getValue) {
-        badHookName(setter, { setter })
+        useBadHookName(setter, { setter })
     }
     useGoodHookName(setter, { setter })
 
     return <div>{state}</div>
 }
 
-function badHookName(setState, data) {
-    const [ d, setD ] = useState()
+function useBadHookName(setState, data) {
     useEffect(() => {
         let doStuff = window
-        data.setter(doStuff + d)
-        setD('d')
+        data.setter(doStuff)
     }, [])
 }
 
 function useGoodHookName(setState, data) {
+    const [ d, setD ] = useState()
     useEffect(() => {
         let doStuff = window
-        data.setter(doStuff)
+        data.setter(doStuff + d)
     }, [])
 }
 
