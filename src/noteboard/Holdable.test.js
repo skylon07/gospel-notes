@@ -28,22 +28,11 @@ function updateTouchId() {
     currTouchId = Date.now()
 }
 
-// NOTE: an object with clientX/Y normally suffices, but
-//       spck env requires me to generate actual touches
 function makeTouch(target, clientX, clientY) {
-    if (window.Touch) {
-        return new Touch({
-            identifier: currTouchId,
-            target,
-            clientX,
-            clientY,
-        })
-    } else {
-        return {
-            target,
-            clientX,
-            clientY,
-        }
+    return {
+        target,
+        clientX,
+        clientY,
     }
 }
 
@@ -104,7 +93,10 @@ describe("holding tests", () => {
         // click on the holdable
         act(() => {
             holdable.dispatchEvent(
-                new TouchEvent("touchstart", { bubbles: true })
+                new TouchEvent("touchstart", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
             );
         });
 
@@ -159,36 +151,6 @@ describe("cancel tests", () => {
         expect(onHold).not.toBeCalled();
     });
 
-    it("cancels when clicked and the mouse moves", () => {
-        const onHold = jest.fn();
-        act(() => {
-            render(<Holdable onHold={onHold} />, root);
-        });
-        const holdable = grabHoldable();
-
-        act(() => {
-            holdable.dispatchEvent(
-                new MouseEvent("mousedown", { bubbles: true })
-            );
-        });
-        expect(onHold).not.toBeCalled();
-
-        act(() => {
-            jest.advanceTimersByTime(100);
-            holdable.dispatchEvent(
-                new MouseEvent("mousemove", { bubbles: true })
-            );
-        });
-
-        expect(onHold).not.toBeCalled();
-
-        act(() => {
-            jest.advanceTimersByTime(1000);
-        });
-
-        expect(onHold).not.toBeCalled();
-    });
-
     it("cancels when touched and released too quickly", () => {
         const onHold = jest.fn();
         act(() => {
@@ -198,7 +160,10 @@ describe("cancel tests", () => {
 
         act(() => {
             holdable.dispatchEvent(
-                new TouchEvent("touchstart", { bubbles: true })
+                new TouchEvent("touchstart", {
+                    bubbles: true,
+                    touches: [makeTouch(holdable, 50, 50)],
+                })
             );
         });
         expect(onHold).not.toBeCalled();
