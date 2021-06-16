@@ -1,52 +1,58 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
 import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 import "./DropMenu.css";
 
 import { SVGIcon } from "common/svg-icon"
 
-function DropMenu(props) {
+const DropMenu = React.forwardRef(function (props, ref) {
     const [hidden, setHidden] = useState(props.initHidden)
     const toggleHidden = () => {
         setHidden((hidden) => !hidden)
     }
-    
-    const hideFromWindowPrevented = useRef()
-    hideFromWindowPrevented.current = false
-    const preventHideFromWindow = () => {
-        hideFromWindowPrevented.current = true
+    const windowIgnored = useRef(false)
+    const ignoreHideFromWindow = () => {
+        windowIgnored.current = true
     }
+    
     useEffect(() => {
-        if (!hidden) {
-            const hideFromWindow = () => {
-                if (!hideFromWindowPrevented.current) {
-                    setHidden(true)
-                }
-                hideFromWindowPrevented.current = false
+        const hideFromWindow = () => {
+            if (!windowIgnored.current) {
+                setHidden(true)
             }
-            window.addEventListener("click", hideFromWindow)
-            return () => {
-                window.removeEventListener("click", hideFromWindow)
-            }
+            windowIgnored.current = false
         }
-    }, [hidden])
+        window.addEventListener("click", hideFromWindow)
+        return () => {
+            window.removeEventListener("click", hideFromWindow)
+        }
+    }, [])
+    
+    // NOTE: refs are used to allow buttons inside this menu's content to change
+    //       menu state (for example, a "close menu" button hiding the menu)
+    useImperativeHandle(ref, () => {
+        const hide = () => setHidden(true)
+        return { hide }
+    })
     
     return <div
         data-testid="drop-menu"
         className="DropMenu"
-        onClick={preventHideFromWindow}
+        // NOTE: we only want to hide the menu when clicks happen outside the
+        //       menu; this binding ensures just that
+        onClick={ignoreHideFromWindow}
     >
         <button className="ToggleButton" onClick={toggleHidden}>
             <SVGIcon type="bars" />
         </button>
         <DropMenuBox hidden={hidden}>
-            {renderMenuContent(props, () => setHidden(true))}
+            {props.children}
         </DropMenuBox>
     </div>
-}
+})
 DropMenu.propTypes = {
+    children: PropTypes.node,
     initHidden: PropTypes.bool,
-    menuContent: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 }
 DropMenu.defaultProps = {
     initHidden: true,
