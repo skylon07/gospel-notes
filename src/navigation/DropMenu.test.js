@@ -171,67 +171,32 @@ describe("window-click hiding tests", () => {
     })
 });
 
-describe("menuContent tests", () => {
-    it("renders menu content as given in JSX", () => {
-        const content = <button>Clicky button</button>
-        act(() => {
-            render(<DropMenu menuContent={content} />, root);
-        });
-        const dropMenu = grabDropMenu();
-        const menuBox = grabMenuBoxFrom(dropMenu)
+it("renders menu content as given in JSX", () => {
+    const content = <button>Clicky button</button>
+    act(() => {
+        render(<DropMenu>{content}</DropMenu>, root);
+    });
+    const dropMenu = grabDropMenu();
+    const menuBox = grabMenuBoxFrom(dropMenu)
 
-        expect(menuBox.children.length).toBe(2) // don't forget the .Shadow!
-        const buttonChild = menuBox.children[1]
-        expect(buttonChild.tagName.toLowerCase()).toBe("button")
-        expect(buttonChild).toHaveTextContent("Clicky button")
+    // TODO: should probably find a better way to test on children...
+    expect(menuBox.children.length).toBe(2) // don't forget the .Shadow!
+    const buttonChild = menuBox.children[1]
+    expect(buttonChild.tagName.toLowerCase()).toBe("button")
+    expect(buttonChild).toHaveTextContent("Clicky button")
+})
+
+it("provides an imperative hide() through a ref", () => {
+    const ref = React.createRef()
+    act(() => {
+        render(<DropMenu ref={ref} initHidden={false} />, root)
     })
-
-    it("runs a function and renders the content it generates", () => {
-        const contentFunc = () => <button>Clicky button</button>
-        act(() => {
-            render(<DropMenu menuContent={contentFunc} />, root);
-        });
-        const dropMenu = grabDropMenu();
-        const menuBox = grabMenuBoxFrom(dropMenu)
-
-        expect(menuBox.children.length).toBe(2) // don't forget the .Shadow!
-        const buttonChild = menuBox.children[1]
-        expect(buttonChild.tagName.toLowerCase()).toBe("button")
-        expect(buttonChild).toHaveTextContent("Clicky button")
+    const dropMenu = grabDropMenu()
+    const menuBox = grabMenuBoxFrom(dropMenu)
+    
+    act(() => {
+        ref.current.hide()
     })
-
-    it("passes a hideMenu() callback (and should also work...)", () => {
-        const contentFunc = (hideMenu) => [
-            <button key="useless">Useless button</button>,
-            <button key="clicky" onClick={hideMenu}>Clicky button</button>,
-        ]
-        act(() => {
-            render(<DropMenu
-                initHidden={false}
-                menuContent={contentFunc}
-            />, root);
-        });
-        const dropMenu = grabDropMenu();
-        const menuBox = grabMenuBoxFrom(dropMenu)
-        // don't forget the .Shadow!
-        const [_, uselessButton, clickyButton] = menuBox.children
-
-        expect(menuBox).toHaveClass("showing")
-
-        act(() => {
-            uselessButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            )
-        })
-
-        expect(menuBox).toHaveClass("showing")
-        
-        act(() => {
-            clickyButton.dispatchEvent(
-                new MouseEvent("click", { bubbles: true })
-            )
-        })
-        
-        expect(menuBox).toHaveClass("hiding")
-    })
+    
+    expect(menuBox).toHaveClass("hiding")
 })
