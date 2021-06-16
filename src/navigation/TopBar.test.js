@@ -90,6 +90,8 @@ describe("menu tests", () => {
             expect(renderedChild).toHaveTextContent(innerHTML);
         }
     });
+    
+    // TODO: test ability to imperatively hide menu by ref
 });
 
 describe("search bar tests", () => {

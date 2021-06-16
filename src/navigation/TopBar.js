@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useImperativeHandle } from "react";
 import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 import "./TopBar.css";
@@ -13,7 +13,7 @@ const MODES = {
     search: "search", // search bar is showing
 }
 
-function TopBar(props) {
+const TopBar = React.forwardRef(function (props, ref) {
     const [mode, setMode] = useState(MODES.nav)
     const changeMode = (newMode) => {
         setMode(newMode)
@@ -39,6 +39,12 @@ function TopBar(props) {
             values: { nav: "Collapsed", search: "Uncollapsed" },
             useKey: mode,
         }]
+    })
+    
+    const menuRef = useRef(null)
+    useImperativeHandle(ref, () => {
+        const { hide: hideMenu } = menuRef.current
+        return { hideMenu }
     })
 
     const buttons = props.navButtons.map((buttonData) => {
@@ -80,11 +86,13 @@ function TopBar(props) {
                 />
             </div>
         </div>
-        <DropMenu menuContent={props.menuContent} />
+        <DropMenu ref={menuRef}>
+            {props.menuContent}
+        </DropMenu>
     </div>
-}
+})
 TopBar.propTypes = {
-    menuContent: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    menuContent: PropTypes.node,
     // TODO: write test (after there are buttons...)
     navButtons: PropTypes.arrayOf(PropTypes.shape({
         key: PropTypes.any.isRequired,
@@ -93,7 +101,6 @@ TopBar.propTypes = {
         onClick: PropTypes.func,
     })),
     selectedNavButton: PropTypes.number,
-    onButtonClick: PropTypes.func,
     onSearchClick: PropTypes.func,
     onModeChange: PropTypes.func,
 }
