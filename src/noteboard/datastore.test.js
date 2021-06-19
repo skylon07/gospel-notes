@@ -170,7 +170,7 @@ describe("Node tests", () => {
         })
         
         it("initializes with no children", () => {
-            expect(mainNode._children).toStrictEqual([])
+            expect(mainNode.children).toStrictEqual([])
         })
         
         it("adds node children by node", () => {
@@ -179,14 +179,14 @@ describe("Node tests", () => {
             mainNode.addChild(child)
             mainNode.addChild(another)
             
-            expect(mainNode._children).toStrictEqual([child, another])
+            expect(mainNode.children).toStrictEqual([child, another])
         })
         
         it("adds node children by id", () => {
             const child = nodeStore.createNode("NoteBox")
             mainNode.addChild(child.id)
             
-            expect(mainNode._children).toStrictEqual([child])
+            expect(mainNode.children).toStrictEqual([child])
         })
         
         it("removes children by index and returns the node", () => {
@@ -229,54 +229,215 @@ describe("Node tests", () => {
             
             expect(mainNode.numChildren).toBe(numChildren)
         })
-    })
-})
-
-describe("subscription tests", () => {
-    it("calls subscribed functions on data change", () => {
-        const node = nodeStore.createNode("NoteBox")
-        const listener = jest.fn()
-        node.subscribe(listener)
         
-        expect(listener).not.toBeCalled()
+        // TODO: error tests for adding/removing non nodes, or removing nodes
+        //       at bad idxs, etc.
         
-        const title = "new title!"
-        node.setData({ title })
-        
-        expect(listener).toBeCalledTimes(1)
-        
-        const anotherListener = jest.fn()
-        node.subscribe(anotherListener)
-        
-        expect(anotherListener).not.toBeCalled()
-        
-        const content = "new content yay!"
-        node.setData({ content })
-        
-        expect(listener).toBeCalledTimes(2)
-        expect(anotherListener).toBeCalledTimes(1)
+        // TODO: test children array is read only
     })
     
-    it("removes and does not call unsubscribed functions", () => {
-        const node = nodeStore.createNode("DropBar")
-        const listener = jest.fn()
-        const anotherListener = jest.fn()
-        node.subscribe(listener)
-        node.subscribe(anotherListener)
+    describe("parent removal tests", () => {
+        it("tracks parents and can remove itself from them", () => {
+            const node = nodeStore.createNode("NoteBox")
+            const parents = [
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+            ]
+            for (const parent of parents) {
+                parent.addChild(node)
+            }
+            
+            for (const parent of parents) {
+                expect(parent.numChildren).toBe(1)
+            }
+            
+            node.removeFromParents()
+            
+            for (const parent of parents) {
+                expect(parent.numChildren).toBe(0)
+            }
+        })
         
-        const title = "new title woot!"
-        node.setData({ title })
+        it("removes itself from parents the correct number of times", () => {
+            const node = nodeStore.createNode("NoteBox")
+            const parents = [
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+                nodeStore.createNode("Folder"),
+            ]
+            for (let i = 0; i < parents.length; i++) {
+                const parent = parents[i]
+                for (let j = 0; j <= i; j++) {
+                    parent.addChild(node)
+                }
+            }
+            parents[2].removeChild(node)
+            parents[1].removeChildAt(0)
+            parents[2].removeChildAt(1)
         
-        expect(listener).toBeCalledTimes(1)
-        expect(anotherListener).toBeCalledTimes(1)
+            for (const parent of parents) {
+                expect(parent.numChildren > 0).toBe(true)
+            }
         
-        node.unsubscribe(listener)
+            node.removeFromParents()
         
-        const newTitle = "another new title YESSSS!"
-        const iconType = "new icon type? ABSOLUTELY STUNNING!"
-        node.setData({ title: newTitle, iconType })
+            for (const parent of parents) {
+                expect(parent.numChildren).toBe(0)
+            }
+        })
         
-        expect(listener).toBeCalledTimes(1)
-        expect(anotherListener).toBeCalledTimes(2)
+        it("returns each affected parent (only once!) as an array", () => {
+            const node = nodeStore.createNode("NoteBox")
+            const parents = [
+                    nodeStore.createNode("Folder"),
+                    nodeStore.createNode("Folder"),
+                    nodeStore.createNode("Folder"),
+                    nodeStore.createNode("Folder"),
+                    nodeStore.createNode("Folder"),
+                ]
+            for (let i = 0; i < parents.length; i++) {
+                const parent = parents[i]
+                for (let j = 0; j <= i; j++) {
+                    parent.addChild(node)
+                }
+            }
+            parents[2].removeChild(node)
+            parents[1].removeChildAt(0)
+            parents[2].removeChildAt(1)
+            while (parents[3].numChildren > 0) {
+                parents[3].removeChild(node)
+            }
+        
+            for (const parent of parents) {
+                if (parent !== parents[3]) {
+                    expect(parent.numChildren > 0).toBe(true)
+                }
+            }
+        
+            const changedParents = node.removeFromParents()
+        
+            expect(changedParents).toStrictEqual([
+                parents[0],
+                parents[1],
+                parents[2],
+                // parents[3] had no children
+                parents[4],
+            ])
+        })
+    })
+    
+    describe("subscription tests", () => {
+        it("calls subscribed functions on data change", () => {
+            const node = nodeStore.createNode("NoteBox")
+            const listener = jest.fn()
+            node.subscribe(listener)
+            
+            expect(listener).not.toBeCalled()
+            
+            const title = "new title!"
+            node.setData({ title })
+            
+            expect(listener).toBeCalledTimes(1)
+            expect(listener).toHaveBeenLastCalledWith("data")
+            
+            const anotherListener = jest.fn()
+            node.subscribe(anotherListener)
+            
+            expect(anotherListener).not.toBeCalled()
+            
+            const content = "new content yay!"
+            node.setData({ content })
+            
+            expect(listener).toBeCalledTimes(2)
+            expect(anotherListener).toBeCalledTimes(1)
+            expect(listener).toHaveBeenLastCalledWith("data")
+            expect(anotherListener).toHaveBeenLastCalledWith("data")
+        })
+        
+        it("calls subscribed functions when children are added", () => {
+            const node = nodeStore.createNode("Folder")
+            const listener = jest.fn()
+            node.subscribe(listener)
+            
+            expect(listener).not.toBeCalled()
+            
+            const child = nodeStore.createNode("Folder")
+            node.addChild(child)
+            
+            expect(listener).toBeCalledTimes(1)
+            expect(listener).toHaveBeenLastCalledWith("children")
+        })
+        
+        it("calls subscribed functions when children are removed", () => {
+            const node = nodeStore.createNode("Folder")
+            const child = nodeStore.createNode("Folder")
+            node.addChild(child)
+        
+            const listener = jest.fn()
+            node.subscribe(listener)
+            
+            expect(listener).not.toBeCalled()
+            
+            node.removeChild(child)
+        
+            expect(listener).toBeCalledTimes(1)
+            expect(listener).toHaveBeenLastCalledWith("children")
+        })
+        
+        it("can remove subscribed functions and no longer calls them", () => {
+            const node = nodeStore.createNode("DropBar")
+            const listener = jest.fn()
+            const anotherListener = jest.fn()
+            const listenerSubscription = node.subscribe(listener)
+            node.subscribe(anotherListener)
+            
+            const title = "new title woot!"
+            node.setData({ title })
+            
+            expect(listener).toBeCalledTimes(1)
+            expect(anotherListener).toBeCalledTimes(1)
+            
+            listenerSubscription.unsubscribe()
+            
+            const newTitle = "another new title YESSSS!"
+            const iconType = "new icon type? ABSOLUTELY STUNNING!"
+            node.setData({ title: newTitle, iconType })
+            
+            expect(listener).toBeCalledTimes(1)
+            expect(anotherListener).toBeCalledTimes(2)
+        })
+        
+        it("doesn't call listeners listening for a different type", () => {
+            const node = nodeStore.createNode("NoteBox")
+            const listener = jest.fn()
+            node.subscribe(listener, "children")
+            
+            expect(listener).not.toBeCalled()
+            
+            const title = "new title!"
+            node.setData({ title })
+            
+            expect(listener).not.toBeCalled()
+        })
+        
+        it("throws when given a non-function listener", () => {
+            expect(() => {
+                const node = nodeStore.createNode("NoteBox")
+                node.subscribe("not a function")
+            }).toThrow(TypeError)
+        })
+        
+        it("throws when asked to listen to a bad change type", () => {
+            expect(() => {
+                const node = nodeStore.createNode("NoteBox")
+                const listener = jest.fn()
+                node.subscribe(listener, "this is a bad change type")
+            }).toThrow(TypeError)
+        })
     })
 })

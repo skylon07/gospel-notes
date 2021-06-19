@@ -26,6 +26,8 @@ class NodeStoreSingleton {
         return this._nodesById[nodeOrId] || null
     }
     
+    // TODO: implement some kind of node deletion/garbage collection
+    
     isNode(val) {
         return val instanceof NodeParent
     }
@@ -62,6 +64,7 @@ class NodeStoreSingleton {
     }
 }
 export const nodeStore = new NodeStoreSingleton()
+export default nodeStore
 
 // NOTE: this only simulates creating a new node store, since NodeParents
 //       reference the singleton directly (and allows other modules to test and
@@ -74,19 +77,51 @@ export function createNodeStoreForTesting() {
 // represents a set of data accessible by the database by a unique ID
 class NodeParent {
     // populated after class definition
-    static types = {}
+    static types = (() => {
+        const typeNames = [
+            "NoteBox",
+            "DropBar",
+            "Folder",
+        ]
+        const types = {}
+        for (const type of typeNames) {
+            types[type] = type
+        }
+        return types
+    })()
+    
+    static changeTypes = (() => {
+        const typeNames = [
+            "data",
+            "children",
+        ]
+        const changeTypes = {}
+        for (const type of typeNames) {
+            changeTypes[type] = type
+        }
+        return changeTypes
+    })()
     
     constructor(type, id, data) {
         if (!type || type !== this.constructor.types[type]) {
-            throw new TypeError(`Invalid NodeParent type (${typeof type}) received; Please use one of NodeStore.nodeTypes`)
+            throw new TypeError(`Invalid NodeParent type (${typeof type}) received`)
         }
         
         this._type = type
         this._id = id
-        this._changeListeners = []
-        this._children = []
+        
+        this._children = new NodeList()
+        this._parentCounter = {}
+        
         this._data = {}
         this.data = data
+        
+        this._changeListeners = {}
+        this._currListenerId = 0
+    }
+    
+    toString() {
+        return `[object NodeParent("${this.type}")]`
     }
     
     get type() {
@@ -153,25 +188,9 @@ class NodeParent {
         this._changed("data")
     }
     
-    subscribe(listener) {
-        if (typeof listener !== "function") {
-            throw new TypeError(`Cannot subscribe to node with non-function ${listener}`)
-        }
-        this._changeListeners.push(listener)
-    }
-    
-    unsubscribe(listener) {
-        const idx = this._changeListeners.indexOf(listener)
-        if (idx !== -1) {
-            this._changeListeners.splice(idx, 1)
-        }
-    }
-    
-    _changed(changeType) {
-        for (let i = 0; i < this._changeListeners.length; i++) {
-            const listener = this._changeListeners[i]
-            listener(changeType)
-        }
+    // NOTE: this is a READ ONLY array
+    get children() {
+        return this._children.copyReadOnly()
     }
     
     addChild(nodeOrId, idx=null) {
@@ -186,16 +205,17 @@ class NodeParent {
         }
         
         if (typeof idx === "number") {
-            this._children.splice(idx, 0, node)
+            this._children.insertAt(node, idx)
         } else {
             this._children.push(node)
         }
         
+        node._countParent(this)
         this._changed("children")
     }
     
     getChild(idx) {
-        return this._children[idx]
+        return this._children.get(idx)
     }
     
     get numChildren() {
@@ -215,7 +235,7 @@ class NodeParent {
         }
     
         for (let i = start; i < this._children.length; i++) {
-            const childId = this._children[i].id
+            const childId = this._children.get(i).id
             if (childId === id) {
                 return i
             }
@@ -224,7 +244,8 @@ class NodeParent {
     }
     
     removeChildAt(idx) {
-        const child = this._children.splice(idx, 1)[0]
+        const child = this._children.removeAt(idx)
+        child._uncountParent(this)
         this._changed("children")
         return child
     }
@@ -237,26 +258,172 @@ class NodeParent {
         return null
     }
     
-    // TODO: make a custom list type that appears read-only, but has hidden
-    //       function values, so there is no need to copy
-    copyChildren() {
-        return this.mapChildren((child) => child)
+    // NOTE: this removes ALL occurences of a node from ALL of its parents, and
+    //       returns a list of every parent node that was affected
+    removeFromParents() {
+        const parents = []
+        for (const parentId in this._parentCounter) {
+            const count = this._parentCounter[parentId]
+            const parent = nodeStore.getNodeById(parentId)
+            for (let rmCount = 0; rmCount < count; rmCount++) {
+                parent.removeChild(this)
+            }
+            if (count > 0) {
+                parents.push(parent)
+            }
+        }
+        this._resetCounter()
+        return parents
     }
     
-    mapChildren(fn) {
-        return this._children.map(fn)
+    subscribe(listener, listenFor=null) {
+        if (typeof listener !== "function") {
+            throw new TypeError(`Cannot subscribe to node with non-function '${listener}'`)
+        }
+        
+        if (listenFor !== null && !NodeParent.changeTypes[listenFor]) {
+            throw new TypeError(`Node subscription listeners cannot listen for invalid change type '${listenFor}'`)
+        }
+        
+        const id = this._currListenerId
+        this._currListenerId += 1
+        this._changeListeners[id] = { listener, listenFor }
+        return {
+            unsubscribe: () => delete this._changeListeners[id],
+            get listeningFor() {
+                return this._changeListeners[id].listenFor
+            },
+        }
     }
     
-    filterChildren(fn) {
-        return this._children.filter(fn)
+    _changed(changeType) {
+        if (!NodeParent.changeTypes[changeType]) {
+            throw new TypeError(`Internal NodeParent error: listeners received an invalid changeType to be called with: ${changeType}`)
+        }
+        
+        for (const id in this._changeListeners) {
+            const { listener, listenFor } = this._changeListeners[id]
+            if (listenFor === changeType || listenFor === null) {
+                listener(changeType)
+            }
+        }
+    }
+    
+    _countParent(parent) {
+        if (!this._parentCounter[parent.id]) {
+            this._parentCounter[parent.id] = 1
+        } else {
+            this._parentCounter[parent.id] += 1
+        }
+    }
+    
+    _uncountParent(parent) {
+        this._parentCounter[parent.id] -= 1
+    }
+    
+    _resetCounter() {
+        this._parentCounter = {}
     }
 }
-// initialize the types...
-const typeNames = [
-    "NoteBox",
-    "DropBar",
-    "Folder",
-]
-for (const type of typeNames) {
-    NodeParent.types[type] = type
+
+class NodeList {
+    constructor(iterable=[]) {
+        this._arr = [...iterable]
+        this._readOnlyArr = null
+    }
+    
+    toString() {
+        return `[object NodeList(${this._arr})]`
+    }
+    
+    get length() {
+        return this._arr.length
+    }
+    
+    get(idx) {
+        return this._arr[idx]
+    }
+    
+    copyReadOnly() {
+        if (!this._readOnlyArr) {
+            this._readOnlyArr = this._arr.slice()
+            Object.freeze(this._readOnlyArr)
+        }
+        return this._readOnlyArr
+    }
+    
+    insertAt(node, idx) {
+        if (typeof idx !== "number") {
+            throw new TypeError(`A NodeParent was given an invalid number to insert at: ${idx}`)
+        } else if (idx < 0 || idx > this._arr.length) {
+            throw new RangeError(`A NodeParent tried to insert a child at ${idx}, which is outside the bounds 0..${this._arr.length} (length)`)
+        }
+        
+        this._arr.splice(idx, 0, node)
+        this._wasModified()
+    }
+    
+    push(node) {
+        this._arr.push(node)
+        this._wasModified()
+    }
+    
+    removeAt(idx) {
+        if (typeof idx !== "number") {
+            throw new TypeError(`A NodeParent was given an invalid number to remove at: ${idx}`)
+        } else if(idx < 0 || idx >= this._arr.length) {
+            throw new RangeError(`A NodeParent tried to remove a child at ${idx}, which is outside the bounds 0..${this._arr.length - 1} (length - 1)`)
+        }
+        
+        const removedNodes = this._arr.splice(idx, 1)
+        this._wasModified()
+        return removedNodes[0]
+    }
+    
+    _wasModified() {
+        this._readOnlyArr = null
+    }
+}
+
+function createRequireablePropType(typeFn, typeName) {
+    const type = (props, propName, componentName) => {
+        const prop = props[propName]
+        if (prop === undefined || prop === null) {
+            return null
+        } else {
+            return typeFn(props, propName, componentName)
+        }
+    }
+    
+    type.isRequired = (props, propName, componentName) => {
+        const prop = props[propName]
+        if (prop === undefined || prop === null) {
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; a ${typeName} was required`)
+        } else {
+            return typeFn(props, propName, componentName)
+        }
+    }
+    
+    return type
+}
+
+export const NodePropTypes = {
+    node: createRequireablePropType((props, propName, componentName) => {
+        const node = props[propName]
+        if (!nodeStore.isNode(node)) {
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid node, got '${node}'`)
+        }
+    }, "node"),
+    nodeId: createRequireablePropType((props, propName, componentName) => {
+        const nodeId = props[propName]
+        if (!nodeStore.isNodeId(nodeId)) {
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid nodeId, got '${nodeId}'`)
+        }
+    }, "nodeId"),
+    nodeOrId: createRequireablePropType((props, propName, componentName) => {
+        const nodeOrId = props[propName]
+        if (!nodeStore.isNode(nodeOrId) && !nodeStore.isNodeId(nodeOrId)) {
+            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid node or nodeId, got '${nodeOrId}'`)
+        }
+    }, "nodeOrId"),
 }
