@@ -2,97 +2,75 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import "./NoteBoard.css"
 
-import { nodeStore } from "./datastore.js"
+import nodeStore from "./datastore.js"
+import NodePropTypes from "./datastore-proptypes.js"
 
-import BoardNode from "./BoardNode.js"
+import BoardNodeGroup from "./BoardNodeGroup.js"
+import AddButton from "./AddButton.js"
 
-export default class NoteBoard extends React.Component {
-    static propTypes = {
-        children: PropTypes.array,
-        canAddToDropBars: PropTypes.bool,
-        canChangeData: PropTypes.bool,
-        onAddChild: PropTypes.func,
-        onRemoveChild: PropTypes.func,
-        onChangeData: PropTypes.func,
+export const NoteBoardCallbacks = React.createContext()
+
+function NoteBoard(props) {
+    const onNodeDataChange = (node, dataName, newData) => {
+        trigger(props.onNodeDataChange, node, dataName, newData)
     }
+    const onNodeChildrenChange = (node) => {
+        trigger(props.onNodeChildrenChange, node)
+    }
+    const callbacks = { onNodeDataChange, onNodeChildrenChange }
     
-    constructor(props) {
-        super(props)
+    return <div data-testid="note-board" className="NoteBoard">
+        <NoteBoardCallbacks.Provider value={callbacks}>
+            <BoardNodeGroup readOnly={props.readOnly}>
+                {props.children}
+            </BoardNodeGroup>
+        </NoteBoardCallbacks.Provider>
+    </div>
+}
+NoteBoard.propTypes = {
+    children: NodePropTypes.listOfNodesOrElements,
+    readOnly: PropTypes.bool,
+    onNodeDataChange: PropTypes.func,
+    onNodeChildrenChange: PropTypes.func,
+}
+NoteBoard.defaultProps = {
+    readOnly: false,
+}
+export default NoteBoard
+
+// TODO: move to main app
+// function renderAddButton(addChild, readOnly) {
+//     if (readOnly) {
+//         return // shouldn't have an add button in read only mode!
+//     }
+    
+//     const types = {
+//         NoteBox: "NoteBox",
+//         DropBar: "DropBar",
+//         nb: "NoteBox",
+//         db: "DropBar",
+//     }
+    
+//     const promptAddNode = () => {
+//         // TODO: custom prompt interface
+//         let nodeType = window.prompt("Enter a node type")
+//         while (nodeType && !types[nodeType]) {
+//             nodeType = window.prompt("Please enter a valid node type", nodeType)
+//         }
         
-        this.on = {
-            changeNode: (...args) => this.onChangeNode(...args),
-        }
-    }
+//         nodeType = types[nodeType]
+//         if (nodeType) {
+//             addChild(nodeType)
+//         }
+//     }
     
-    render() {
-        return <div data-testid="note-board" className="NoteBoard">
-            {this.renderNodes(this.props.children || [])}
-        </div>
-    }
-    
-    renderNodes(array) {
-        if (!Array.isArray(array)) {
-            throw new TypeError("NoteBoards must be given an array to render!")
-        }
-        
-        return array.map((child) => {
-            if (nodeStore.isNodeId(child) || nodeStore.isNode(child)) {
-                const id = typeof child === "string" ? child : child.id
-                return <BoardNode
-                    key={id}
-                    node={child}
-                    canAddChildren={this.canAddToDropBars()}
-                    canChangeData={this.canChangeData()}
-                    onChange={this.on.changeNode}
-                />
-            } else if (Array.isArray(child)) {
-                return this.renderNodes(child)
-            }
-            return child
-        })
-    }
-    
-    canAddToDropBars() {
-        if (typeof this.props.canAddToDropBars === "boolean") {
-            return this.props.canAddToDropBars
-        }
-        return true
-    }
-    
-    canChangeData() {
-        if (typeof this.props.canChangeData === "boolean") {
-            return this.props.canChangeData
-        }
-        return true
-    }
-    
-    onChangeNode(node, changeType, newData) {
-        switch (changeType) {
-            case "children-add":
-                const addedNode = newData
-                this.trigger(this.props.onAddChild, addedNode, node)
-                break
-        
-            case "children-remove":
-                const removedNode = newData
-                this.trigger(this.props.onRemoveChild, removedNode, node)
-                break
-        
-            default:
-                this.trigger(this.props.onChangeData, node, changeType, newData)
-        }
-    }
-    
-    validateNode(obj) {
-        if (!nodeStore.isNode(obj)) {
-            throw new TypeError(`NoteBoards cannot process non-node objects (${obj})`)
-        }
-    }
-    
-    // used as a generic wrapper for prop functions (in case they don't exist)
-    trigger(func, ...args) {
-        if (typeof func === "function") {
-            func.apply(null, args)
-        }
+//     return <AddButton onClick={promptAddNode}>
+//         Add Note
+//     </AddButton>
+// }
+
+function trigger(possibleFn, ...args) {
+    if (typeof possibleFn === "function") {
+        possibleFn(...args)
     }
 }

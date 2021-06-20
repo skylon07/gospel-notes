@@ -2,6 +2,7 @@ import React from 'react'
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 
+import { NoteBoardCallbacks } from "./NoteBoard.js"
 import BoardNode from "./BoardNode.js";
 import { createNodeStoreForTesting } from "./datastore.js"
 
@@ -54,7 +55,7 @@ function grabDropBarChildAt(dropBar, idx) {
 }
 
 function grabDropBarData(dropBar) {
-    const titleElem = dropBar.querySelector(".Bar")
+    const titleElem = dropBar.querySelector(".Bar .Title .Holdable")
     let title = null
     for (let i = 0; i < titleElem.childNodes.length; i++) {
         title = titleElem.childNodes[i]
@@ -155,45 +156,22 @@ describe("node rendering tests", () => {
     })
 })
 
-describe("change listener tests", () => {
-    describe("Node-change listener", () => {
-        it("rerenders when the node changes", () => {
-            const node = nodeStore.createNode("NoteBox")
-            const onRender = jest.fn()
-            act(() => {
-                render(<React.Profiler
-                    id="BoardNode"
-                    onRender={onRender}
-                >
-                    <BoardNode node={node} />
-                </React.Profiler>, root)
-            })
-    
-            expect(onRender).toHaveBeenCalledTimes(1)
-    
-            const title = "title"
-            const content = "content"
-            act(() => {
-                node.setData({ title, content })
-            })
-    
-            expect(onRender).toHaveBeenCalledTimes(2)
-        })
-    })
-    
-    describe("NoteBox props.onChange()", () => {
-        it("triggers onChange() when the title changes", () => {
+describe("context change listener tests", () => {
+    describe("...for NoteBoxes", () => {
+        it("triggers onNodeDataChange() when the title changes", () => {
             const title = "init title"
             const node = nodeStore.createNode("NoteBox", { title })
-            const onChange = jest.fn()
+            const callbacks = { onNodeDataChange: jest.fn() }
             act(() => {
-                render(<BoardNode node={node} onChange={onChange} />, root)
+                render(<NoteBoardCallbacks.Provider value={callbacks}>
+                    <BoardNode node={node} />
+                </NoteBoardCallbacks.Provider>, root)
             })
             const boardNode = grabBoardNode()
             const noteBox = grabChildFrom(boardNode)
             const [titleField] = grabNoteBoxFields(noteBox)
             
-            // change via textarea
+            // change via textarea: handled
             const newTitleViaTextarea = "new title via textarea"
             act(() => {
                 titleField.focus()
@@ -201,45 +179,48 @@ describe("change listener tests", () => {
                 titleField.blur()
             })
             
-            expect(onChange).toHaveBeenCalledTimes(1)
-            expect(onChange).toHaveBeenCalledWith(node, "title", newTitleViaTextarea)
+            expect(callbacks.onNodeDataChange).toHaveBeenCalledTimes(1)
+            expect(callbacks.onNodeDataChange)
+                .toHaveBeenCalledWith(node, "title", newTitleViaTextarea)
             
-            // change via node
+            // change via node: NOT handled
             const newTitleViaNode = "new title via node"
             act(() => {
-                node.setData({ title: newTitleViaNode })
+                node.setData({ content: newTitleViaNode })
             })
             
             // should NOT have called onChange(); this simulated another
-            // node changing (which would've called its own onChange())
-            expect(onChange).not.toHaveBeenCalledTimes(2)
-            expect(onChange).toHaveBeenCalledTimes(1)
+            // node changing (which would've called onChange() itself)
+            expect(callbacks.onNodeDataChange).not.toHaveBeenCalledTimes(2)
+            expect(callbacks.onNodeDataChange).toHaveBeenCalledTimes(1)
         })
         
-        it("triggers onChange() when the content changes", () => {
+        it("triggers onNodeDataChange() when the content changes", () => {
             const content = "init content"
             const node = nodeStore.createNode("NoteBox", { content })
-            const onChange = jest.fn()
+            const callbacks = { onNodeDataChange: jest.fn() }
             act(() => {
-                render(<BoardNode node={node} onChange={onChange} />, root)
+                render(<NoteBoardCallbacks.Provider value={callbacks}>
+                    <BoardNode node={node} />
+                </NoteBoardCallbacks.Provider>, root)
             })
             const boardNode = grabBoardNode()
             const noteBox = grabChildFrom(boardNode)
+            // eslint-disable-next-line
             const [_, contentField] = grabNoteBoxFields(noteBox)
             
-            // change via textarea
+            // change via textarea: handled
             const newContentViaTextarea = "new content via textarea"
             act(() => {
                 contentField.focus()
                 contentField.value = newContentViaTextarea
                 contentField.blur()
-                // console.log(contentField) // DEBUG
             })
             
-            expect(onChange).toHaveBeenCalledTimes(1)
-            expect(onChange).toHaveBeenCalledWith(node, "content", newContentViaTextarea)
+            expect(callbacks.onNodeDataChange).toHaveBeenCalledTimes(1)
+            expect(callbacks.onNodeDataChange).toHaveBeenCalledWith(node, "content", newContentViaTextarea)
             
-            // change via node
+            // change via node: NOT handled
             const newContentViaNode = "new content via node"
             act(() => {
                 node.setData({ content: newContentViaNode })
@@ -247,12 +228,14 @@ describe("change listener tests", () => {
             
             // should NOT have called onChange(); this simulated another
             // node changing (which would've called its own onChange())
-            expect(onChange).not.toHaveBeenCalledTimes(2)
-            expect(onChange).toHaveBeenCalledTimes(1)
+            expect(callbacks.onNodeDataChange).not.toHaveBeenCalledTimes(2)
+            expect(callbacks.onNodeDataChange).toHaveBeenCalledTimes(1)
         })
     })
     
     // TODO: DropBar props.onChange()
 })
 
-// TODO: test for removing notebox children nodes when empty
+// TODO: test that BoardNode subscriptions update the UI when a node changes
+
+// TODO: test for removing notebox/dropbar children nodes when empty
