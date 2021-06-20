@@ -1,201 +1,244 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react'
+import React, { useRef, useState, useCallback, useEffect, useContext } from 'react'
 import { useForceUpdate } from "common/hooks"
 import PropTypes from 'prop-types'
 import "./BoardNode.css"
 
-import { nodeStore } from './datastore.js'
+import nodeStore from './datastore.js'
+import NodePropTypes from "./datastore-proptypes.js"
 
+import { NoteBoardCallbacks } from "./NoteBoard.js"
 import NoteBox from "./NoteBox.js"
 import DropBar from "./DropBar.js"
+import BoardNodeGroup from "./BoardNodeGroup.js"
 import AddButton from "./AddButton.js"
 
-const CustomTypes = {
-    node(props, propName, componentName) {
-        const node = props[propName]
-        if (!nodeStore.isNode(node)) {
-            const nodeAsStr = typeof node === "symbol" ? "(symbol)" : node + ""
-            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid node, got '${nodeAsStr}'`)
-        }
-    },
-    nodeId(props, propName, componentName) {
-        const nodeId = props[propName]
-        if (!nodeStore.isNodeId(nodeId)) {
-            const nodeIdAsStr = typeof nodeId=== "symbol" ? "(symbol)" : nodeId + ""
-            return new Error(`Invalid prop '${propName}' supplied to ${componentName}; expected a valid nodeId, got '${nodeIdAsStr}'`)
-        }
-    }
-}
-
-// this hook warns when the node reference has changed
-function useSameNode(nodeOrId) {
-    const node = nodeStore.getNodeById(nodeOrId)
-    const origNode = useRef(node)
-    const warned = useRef(false)
-    
-    if (origNode.current !== node && !warned.current) {
-        console.warn("BoardNode rendered with a new node reference; this is unsupported and the original reference will be used")
-        warned.current = true
-    }
-    
-    return origNode.current
-}
+const DEV_MODE = process.env.NODE_ENV === "development"
 
 // a base component that provides a launching point for
 // representing/modifying note nodes as a UI component
-function BoardNode(props) {
+const BoardNode = React.memo(function (props) {
+    // ensures this BoardNode returns the same type of specific board node
+    // across renders
     const node = useSameNode(props.node)
-    const forceUpdate = useForceUpdate()
     
-    useEffect(() => {
-        if (node) {
-            node.subscribe(forceUpdate)
-            return () => node.unsubscribe(forceUpdate)
-        }
-    }, []) // node doesn't change; omitted from deps
-    
-    const triggerOnChange = (node, changeType, changeData) => {
-        if (typeof props.onChange === "function") {
-            props.onChange(node, changeType, changeData)
-        }
-    }
-    
-    // TODO: a lot of these callbacks assume there are only DropBars holding
-    //       NoteBoxes; please reexamine these when implementing folders
-    const addChild = (childNode) => {
-        const newNode = nodeStore.createNode("NoteBox", {
-            title: "New Note",
-            content: "This is the note content",
-        })
-        node.addChild(newNode)
-        return newNode
-    }
-    const addChildWithTrigger = () => {
-        const newNode = addChild()
-        triggerOnChange(node, "children-add", newNode)
-    }
-    const removeChild = (childNodeOrId) => {
-        const childNode = node.removeChild(childNodeOrId)
-        return childNode
-    }
-    const removeChildWithTrigger = (childNodeOrId) => {
-        const childNode = removeChild(childNodeOrId)
-        triggerOnChange(node, "children-remove", childNode)
-    }
-    const removeIfEmptyNoteBox = (childNode) => {
-        const { title, content } = childNode.data
-        const isEmpty = !title && !content
-        if (isEmpty) {
-            removeChildWithTrigger(childNode)
-        }
-    }
-    
-    const changeNode = (changeType, newData) => {
-        node.setData({ [changeType]: newData })
-        triggerOnChange(node, changeType, newData)
-    }
-    const onChildChange = (childNode, changeType, newData) => {
-        triggerOnChange(childNode, changeType, newData)
-        removeIfEmptyNoteBox(childNode)
-    }
-    
-    const state = {
-        node, changeNode, onChildChange,
-        addChild: addChildWithTrigger,
-    }
     // TODO: make prop-enabled ability to grow on mount (when they are dynamically added)
     return <div data-testid="board-node" className="BoardNode">
-        {renderNode(props, state)}
+        {renderNode(props, node)}
     </div>
-}
+})
 BoardNode.propTypes = {
-    children: PropTypes.node,
-    node: PropTypes.oneOfType([CustomTypes.node, CustomTypes.nodeId]).isRequired,
-    canAddChildren: PropTypes.bool,
-    canChangeData: PropTypes.bool,
-    onChange: PropTypes.func,
+    node: NodePropTypes.nodeOrId,
+    readOnly: PropTypes.bool,
+}
+BoardNode.defaultProps = {
+    readOnly: false,
 }
 export default BoardNode
 
-function renderNode(props, state) {
-    if (!nodeStore.isNode(state.node)) {
+// this hook warns when the node reference has changed
+export function useSameNode(nodeOrId, componentName="(no component name given)") {
+    // NOTE: "node" will either be a NodeParent or null
+    const node = nodeStore.getNodeById(nodeOrId)
+    const orig = useRef({ node, nodeOrId }).current
+    const warned = useRef(false)
+    
+    if (DEV_MODE) {
+        if (orig.node !== node && !warned.current) {
+            console.warn(`${componentName} was given a new node reference to render; this is unsupported and the original reference will be used`)
+            warned.current = true // warn only once
+        } else if (!node && orig.nodeOrId !== nodeOrId && !warned.current) {
+            console.warn(`${componentName} was given a different nonexistant node/nodeId to render; although this is not an error, node references should not change, and this is likely a bug`)
+            warned.current = true // warn only once
+        }
+    }
+    
+    return orig.node
+}
+
+export function useNodeUpdate(node, type, callback) {
+    useEffect(() => {
+        if (node) {
+            const subscription = node.subscribe(callback, type)
+            return () => subscription.unsubscribe()
+        }
+    }, [node, type, callback])
+}
+
+function renderNode(props, node) {
+    if (!nodeStore.isNode(node)) {
         return <h1>INVALID NODE ID</h1>
     }
     
     const types = nodeStore.nodeTypes
-    switch (state.node.type) {
+    switch (node.type) {
         case types.NoteBox:
-            return renderNoteBox(props, state)
+            return <NoteBoxNode
+                node={node}
+                readOnly={props.readOnly}
+            />
         
         case types.DropBar:
-            return renderDropBar(props, state)
+            return <DropBarNode
+                node={node}
+                readOnly={props.readOnly}
+            />
         
         case types.Folder:
-            return renderFolder(props, state)
+            return <FolderNode />
         
         default:
             return <h1>INVALID NODE TYPE</h1>
     }
 }
 
-// abstracted node rendering functions, given the NodeParent they represent
-function renderNoteBox(props, state) {
-    const { title, content } = state.node.data
+function trigger(func, ...args) {
+    if (typeof func === "function") {
+        func(...args)
+    }
+}
+
+// these specific board nodes have the job of syncing node data with their
+// corrisponding elements, in both directions (ie elements change nodes, and
+// node subscriptions update elements)
+
+// DON'T FORGET that any time a node change function is called (setData,
+// addChild, etc), their corresponding listener should be called
+function NoteBoxNode(props) {
+    const noteBoxRef = useRef(null)
+    const ignoreNoteBox = useRef(false)
+    const callbacks = useContext(NoteBoardCallbacks)
+    
+    const node = props.node
+    const { title, content } = node.data
+    const onUpdate = useCallback(() => {
+        const { title, content } = node.data
+        const noteBox = noteBoxRef.current
+        
+        ignoreNoteBox.current = true
+        noteBox.setTitle(title)
+        noteBox.setContent(content)
+        ignoreNoteBox.current = false
+    }, [node])
+    useNodeUpdate(node, "data", onUpdate)
     
     const changeNodeTitle = (newTitle) => {
-        state.changeNode("title", newTitle)
+        if (!ignoreNoteBox.current) {
+            node.setData({ title: newTitle })
+            trigger(callbacks.onNodeDataChange, node, "title", newTitle)
+            removeIfEmptyNoteBox(node, callbacks.onNodeChildrenChange)
+        }
     }
     const changeNodeContent = (newContent) => {
-        state.changeNode("content", newContent)
+        if (!ignoreNoteBox.current) {
+            node.setData({ content: newContent })
+            trigger(callbacks.onNodeDataChange, node, "content", newContent)
+            removeIfEmptyNoteBox(node, callbacks.onNodeChildrenChange)
+        }
     }
     
     return <NoteBox
-        forceTitle={title}
-        forceContent={content}
-        canChange={props.canChangeData}
+        ref={noteBoxRef}
+        initTitle={title}
+        initContent={content}
+        readOnly={props.readOnly}
         onTitleChange={changeNodeTitle}
         onContentChange={changeNodeContent}
     />
 }
+NoteBoxNode.propTypes = {
+    node: NodePropTypes.node,
+    readOnly: PropTypes.bool.isRequired,
+}
 
-function renderDropBar(props, state) {
-    const { title, iconType } = state.node.data
+// called when the user deletes a NoteBox's data
+function removeIfEmptyNoteBox(node, onRemove) {
+    const { title, content } = node.data
+    if (node.type === "NoteBox" && title === "" && content === "") {
+        removeEmptyNode(node, onRemove)
+    }
+}
+
+// this function assumes that deleting one BoardNode deletes the node and,
+// therefore, all BoardNodes tied to that node
+function removeEmptyNode(node, onRemove) {
+    const parents = node.removeFromParents()
+    for (const parent of parents) {
+        trigger(onRemove, parent)
+    }
+}
+
+function DropBarNode(props) {
+    const forceUpdate = useForceUpdate()
+    const callbacks = useContext(NoteBoardCallbacks)
     
-    const dropBarChildren = state.node.mapChildren((node) => {
-        return <BoardNode
-            key={node.id}
-            node={node}
-            canAddChildren={props.canAddChildren}
-            canChangeData={props.canChangeData}
-            onChange={state.onChangeChild}
-        />
-    })
+    const node = props.node
+    const { title, iconType } = node.data
+    useNodeUpdate(node, "data", forceUpdate)
     
+    const addNoteBox = () => {
+        const initData = {
+            title: "New Note",
+            content: "This is the note content",
+        }
+        const newNode = nodeStore.createNode("NoteBox", initData)
+        node.addChild(newNode)
+        trigger(callbacks.onNodeChildrenChange, node)
+    }
     let possibleAddButton = null
-    if (props.canAddChildren) {
-        possibleAddButton = <AddButton key="add button" onClick={state.addChild}>
+    if (!props.readOnly) {
+        possibleAddButton = <AddButton
+            key="add button"
+            onClick={addNoteBox}
+        >
             Add Note
         </AddButton>
     }
     
-    const changeNodeTitle = (newTitle) => {
-        state.changeNode("title", newTitle)
+    const promptChangeTitle = (newTitle) => {
+        if (props.readOnly) {
+            return
+        }
+        
+        throw new Error("// TODO")
+        node.setData({ title: newTitle })
+        trigger(callbacks.onNodeDataChange, node, "title", newTitle)
+        removeIfEmptyDropBar(node, callbacks.onNodeChildrenChange)
     }
-    const changeNodeIconType = (newIconType) => {
-        state.changeNode("iconType", newIconType)
+    const promptChangeIconType = (newIconType) => {
+        if (props.readOnly) {
+            return
+        }
+        
+        throw new Error("// TODO")
+        node.setData({ iconType: newIconType })
+        trigger(callbacks.onNodeDataChange, node, "iconType", newIconType)
     }
     
     return <DropBar
-        forceTitle={title}
-        forceIconType={iconType}
-        canChange={props.canChangeData}
-        onTitleChange={changeNodeTitle}
-        onIconChange={changeNodeIconType}
+        title={title}
+        iconType={iconType}
+        onTitleHold={promptChangeTitle}
+        onIconHold={promptChangeIconType}
     >
-        {dropBarChildren}
+        <BoardNodeGroup node={node} readOnly={props.readOnly} />
         {possibleAddButton}
     </DropBar>
 }
+DropBarNode.propTypes = {
+    node: NodePropTypes.node,
+    readOnly: PropTypes.bool.isRequired,
+}
 
-function renderFolder() {
-    return null
+// called when the user deletes a DropBar's data
+function removeIfEmptyDropBar(node, onNodeRemoveChild) {
+    if (node.type === "DropBar" && node.data.title === "") {
+        const parents = node.removeFromParents()
+        for (const parent of parents) {
+            trigger(onNodeRemoveChild, parent, node)
+        }
+    }
+}
+
+function FolderNode(props) {
+    return <h1>Folder BoardNode not implemented yet</h1>
 }
