@@ -1,271 +1,188 @@
-import React from "react";
+import React, { useState, useRef, useEffect, useCallback, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 import "./NoteBox.css";
 
-export default class NoteBox extends React.Component {
-    static propTypes = {
-        // update-ignored props
-        initTitle: PropTypes.string,
-        initContent: PropTypes.string,
-        
-        // update-honored props
-        forceTitle: PropTypes.string,
-        forceContent: PropTypes.string,
-        canChange: PropTypes.bool,
-        onTitleChange: PropTypes.func,
-        onContentChange: PropTypes.func,
-    };
+const NoteBox = React.forwardRef(function (props, ref) {
+    // "last" meaning last submitted title/content
+    const [lastTitle, setLastTitle] = useState(props.initTitle)
+    const [lastContent, setLastContent] = useState(props.initContent)
+    const titleRef = useRef(null)
+    const contentRef = useRef(null)
     
-    static getDerivedStateFromProps(props, state) {
-        const { forceTitle, forceContent } = props
-        // NOTE: state must be updated in case textareas were deleted
-        if (typeof forceTitle === "string") {
-            state.title = forceTitle
-        }
-        if (typeof forceContent === "string") {
-            state.content = forceContent
-        }
-        return state
-    }
-    
-    shouldComponentUpdate(nextProps, nextState) {
-        // NOTE: changes in "init..." props can be ignored
-        return typeof nextProps.forceTitle === "string" ||
-            typeof nextProps.forceContent === "string" ||
-            nextProps.canChange !== this.props.canChange ||
-            nextProps.onTitleChange !== this.props.onTitleChange ||
-            nextProps.onContentChange !== this.props.onContentChange ||
-            nextState.title !== this.state.title ||
-            nextState.content !== this.state.content
-    }
-
-    constructor(props) {
-        super(props);
-        
-        this.state = {
-            title: props.initTitle || props.forceTitle,
-            content: props.initContent || props.forceContent,
-        }
-
-        this.titleRef = React.createRef();
-        this.contentRef = React.createRef();
-        
-        this.on = {
-            // NOTE: onBlur() is used because onChange() isn't working as expected...
-            blurTitle: () => this.detectIfTitleChanged(),
-            blurContent: () => this.detectIfContentChanged(),
-            titleInput: () => this.updateDims(this.titleRef.current, "title"),
-            contentInput: () => this.updateDims(this.contentRef.current, "content"),
-        }
-    }
-
-    render() {
-        // console.log("RENDERED: NoteBox") // DEBUG
-        return (
-            <div data-testid="note-box" className="NoteBox">
-                {this.renderTitle()}
-                {this.renderContent()}
-            </div>
-        );
-    }
-
-    renderTitle() {
-        const title = this.state.title
-        if (!title) {
-            // remove the element for empty text
-            return null;
-        }
-        
-        if (this.canChange()) {
-            return (
-                <textarea
-                    ref={this.titleRef}
-                    className="Title"
-                    rows="1"
-                    cols="1"
-                    wrap="off"
-                    onBlur={this.on.blurTitle}
-                    onInput={this.on.titleInput}
-                    defaultValue={title}
-                />
-            )
-        } else {
-            return <textarea
-                ref={this.titleRef}
-                className="Title"
-                rows="1"
-                cols="1"
-                wrap="off"
-                value={title}
-                readOnly={true}
-            />
-        }
-    }
-
-    renderContent() {
-        const content = this.state.content
-        if (!content) {
-            // remove the element for empty text
-            return null;
-        }
-        
-        if (this.canChange()) {
-            // console.log("CAN CHANGE") // DEBUG
-            return (
-                <textarea
-                    ref={this.contentRef}
-                    className="Content"
-                    rows="1"
-                    cols="1"
-                    onBlur={this.on.blurContent}
-                    onInput={this.on.contentInput}
-                    defaultValue={content}
-                />
-            );
-        } else {
-            return (
-                <textarea
-                    ref={this.contentRef}
-                    className="Content"
-                    rows="1"
-                    cols="1"
-                    value={content}
-                    readOnly={true}
-                />
-            );
-        }
-    }
-
-    componentDidMount() {
-        this.initDims();
-    }
-    
-    componentDidUpdate() {
-        this.syncForceProps()
-    }
-    
-    canChange() {
-        if (typeof this.props.canChange === "boolean") {
-            return this.props.canChange
-        }
-        return true
-    }
-    
-    // wraps title value getter by returning null if it doesn't exist
-    titleValue() {
-        if (this.titleRef.current) {
-            return this.titleRef.current.value || null
-        }
-        return null
-    }
-    
-    // wraps content value getter by returning null if it doesn't exist
-    contentValue() {
-        if (this.contentRef.current) {
-            return this.contentRef.current.value || null
-        }
-        return null
-    }
-    
-    syncForceProps() {
-        const { forceTitle, forceContent } = this.props
-        if (typeof forceTitle === "string" && forceTitle !== "") {
-            const title = this.titleRef.current
-            title.value = forceTitle
-        }
-        if (typeof forceContent === "string" && forceContent !== "") {
-            const content = this.contentRef.current
-            content.value = forceContent
-        }
-    }
-    
-    detectIfTextAreaChanged(newStr, lastStr, onChange) {
-        // console.log("DETECT") // DEBUG
-        if (newStr !== lastStr) {
-            // convert breaks to newlines
-            // NOTE: eval is used to generate the regex; this is perfectly
-            //       safe usage (talking to you eslint)
-            // eslint-disable-next-line
-            const regex = eval("/<br>/gi")
-            let str = newStr
-            if (str !== null) {
-                str.replace(regex, "\n");
-                // ensure first/last characters are ommitted when newlines
-                if (str[0] === "\n") {
-                    str = str.slice(1);
-                }
-                if (str[str.length - 1] === "\n") {
-                    str = str.slice(0, str.length - 1);
-                }
-            }
-            
-            this._updateStateTitleAndContent()
-            if (typeof onChange === "function") {
-                onChange(str)
-            }
-        }
-    }
-
-    detectIfTitleChanged() {
-        // prettier-ignore
-        this.detectIfTextAreaChanged(
-            this.titleValue(),
-            this.state.title,
-            this.props.onTitleChange
-        );
-    }
-    detectIfContentChanged() {
-        // prettier-ignore
-        this.detectIfTextAreaChanged(
-            this.contentValue(),
-            this.state.content,
-            this.props.onContentChange
-        );
-    }
-
-    initDims() {
-        const title = this.titleRef.current;
+    const initDims = useCallback(() => {
+        const title = titleRef.current;
         if (title) {
             title.style.height = title.scrollHeight + "px";
             title.style.width = title.scrollWidth + "px";
         }
-
-        const content = this.contentRef.current;
+        
+        const content = contentRef.current;
         if (content) {
             content.style.height = content.scrollHeight + "px";
             content.style.width = content.scrollWidth + "px";
         }
+    }, [])
+    useEffect(() => initDims(), [initDims])
+    
+    const changeTitle = (newTitle) => {
+        setLastTitle(newTitle)
+        trigger(props.onTitleChange, newTitle)
     }
-
-    updateDims(elem, name) {
-        if (!elem) {
-            return
-        }
-        
-        elem.style.height = "auto"; // allows shrinking
-        elem.style.height = elem.scrollHeight + "px";
-
-        if (name === "title") {
-            elem.wrap = "off"; // potentially temporary, to see if it is still maxed
-        }
-
-        elem.style.width = "auto";
-        elem.style.width = elem.scrollWidth + "px";
-
-        if (name === "title") {
-            const max = elem.parentNode.offsetWidth * 0.9 - 5; // gives a little wiggle room from the max
-            const isMaxed = elem.offsetWidth > max;
-            if (isMaxed) {
-                elem.wrap = "on";
-                elem.style.width = max;
-            }
-        }
+    const titleProps = {
+        ref: titleRef,
+        className: "Title",
+        onBlur: () => detectChange(titleRef, lastTitle, changeTitle),
+        onInput: () => resizeTextarea("title", titleRef),
+        wrap: "off",
+    }
+    const changeContent = (newContent) => {
+        setLastContent(newContent)
+        trigger(props.onContentChange, newContent)
+    }
+    const contentProps = {
+        ref: contentRef,
+        className: "Content",
+        onBlur: () => detectChange(contentRef, lastContent, changeContent),
+        onInput: () => resizeTextarea("content", contentRef),
+        wrap: "on",
     }
     
-    _updateStateTitleAndContent() {
-        this.setState({
-            title: this.titleValue(),
-            content: this.contentValue(),
-        })
+    useImperativeHandle(ref, () => ({
+        setTitle: (newTitle, silent=false) => {
+            const elem = titleRef.current
+            if (!elem || !newTitle) {
+                // (un)delete textarea; must rerender
+                setLastTitle(newTitle || "")
+            } else {
+                if (typeof newTitle !== "string") {
+                    throw new TypeError(`NoteBox.setTitle() must be given a string or null, not '${newTitle}'`)
+                }
+                // set value directly to avoid rerender
+                elem.value = newTitle
+            }
+            if (!silent) {
+                trigger(props.onTitleChange, newTitle)
+            }
+        },
+        setContent: (newContent, silent=false) => {
+            const elem = contentRef.current
+            if (!elem || !newContent) {
+                // (un)delete textarea; must rerender
+                setLastContent(newContent || "")
+            } else {
+                if (typeof newContent !== "string") {
+                    throw new TypeError(`NoteBox.setContent() must be given a string or null, not '${newContent}'`)
+                }
+                // set value directly to avoid rerender
+                elem.value = newContent
+            }
+            if (!silent) {
+                trigger(props.onContentChange, newContent)
+            }
+        },
+    }))
+    
+    return (
+        <div data-testid="note-box" className="NoteBox">
+            {renderTextarea(lastTitle, titleProps, props.readOnly)}
+            {renderTextarea(lastContent, contentProps, props.readOnly)}
+        </div>
+    );
+})
+NoteBox.propTypes = {
+    initTitle: PropTypes.string,
+    initContent: PropTypes.string,
+    readOnly: PropTypes.bool,
+    onTitleChange: PropTypes.func,
+    onContentChange: PropTypes.func,
+}
+NoteBox.defaultValues = {
+    initTitle: "",
+    initContent: "",
+    readOnly: false,
+}
+export default NoteBox
+
+function renderTextarea(initText, elemProps, readOnly) {
+    if (!initText) {
+        // remove the element for empty text
+        return null;
+    }
+    
+    if (!readOnly) {
+        return <textarea
+            ref={elemProps.ref}
+            className={elemProps.className}
+            rows="1"
+            cols="1"
+            wrap={elemProps.wrap}
+            onBlur={elemProps.onBlur}
+            onInput={elemProps.onInput}
+            defaultValue={initText}
+        />
+    } else {
+        return <textarea
+            ref={elemProps.ref}
+            className={elemProps.className}
+            rows="1"
+            cols="1"
+            wrap={elemProps.wrap}
+            value={initText}
+            readOnly={true}
+        />
+    }
+}
+
+function detectChange(ref, lastValue, onChange) {
+    let currValue = ref.current.value
+    // eval is used to generate the regex (because of <>); this is
+    // perfectly safe usage (talking to you eslint)
+    // eslint-disable-next-line
+    const regex = eval("/<br>/gi")
+    // convert breaks to newlines
+    currValue = currValue.replace(regex, "\n");
+    // ensure first/last characters are ommitted when breaks/newlines
+    if (currValue[0] === "\n") {
+        currValue = currValue.slice(1);
+    }
+    if (currValue[currValue.length - 1] === "\n") {
+        currValue = currValue.slice(0, currValue.length - 1);
+    }
+    
+    if (currValue !== lastValue) {
+        onChange(currValue)
+    }
+}
+
+// resizes a textarea element to fit it's text
+function resizeTextarea(type, ref) {
+    const elem = ref.current
+    if (!elem) {
+        return
+    }
+    
+    elem.style.height = "auto"; // allows shrinking
+    elem.style.height = elem.scrollHeight + "px";
+    
+    if (name === "title") {
+        elem.wrap = "off"; // potentially temporary, to see if it is still maxed
+    }
+    elem.style.width = "auto";
+    elem.style.width = elem.scrollWidth + "px";
+    
+    if (name === "title") {
+        // the max is shrunk a bit to pad from the edge of the NoteBox
+        const max = elem.parentNode.offsetWidth * 0.9 - 5;
+        const isMaxed = elem.offsetWidth > max;
+        if (isMaxed) {
+            elem.wrap = "on";
+            elem.style.width = max;
+        }
+    }
+}
+
+function trigger(func, ...args) {
+    if (typeof func === "function") {
+        func(...args)
     }
 }

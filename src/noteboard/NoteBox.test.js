@@ -50,183 +50,16 @@ describe("rendering tests", () => {
         expect(title).toHaveTextContent(titleText);
     });
 
-    it("renders content by props", () => {
+    it("renders the content", () => {
         const contentText = "Test content by props";
         act(() => {
             render(<NoteBox initContent={contentText} />, root);
         });
         const noteBox = grabNoteBox();
+        // eslint-disable-next-line no-unused-vars
         const [_, content] = grabTitleAndContentFrom(noteBox);
         
         expect(content).toHaveTextContent(contentText);
-    });
-
-    // NOTE: rendering by children is no longer supported
-    // it("renders content by children", () => {
-    //     const contentText = "Test content by children";
-    //     act(() => {
-    //         render(<NoteBox>{contentText}</NoteBox>, root);
-    //     });
-    //     const noteBox = grabNoteBox();
-    //     const [_, content] = grabTitleAndContentFrom(noteBox);
-
-    //     expect(content).toHaveTextContent(contentText);
-    // });
-
-    // it("renders children over content prop", () => {
-    //     const contentPropText = "Test content by props";
-    //     const contentChildText = "Test content by children";
-    //     act(() => {
-    //         render(
-    //             <NoteBox
-    //                 initContent={contentPropText}
-    //             >
-    //                 {contentChildText}
-    //             </NoteBox>,
-    //             root
-    //         );
-    //     });
-    //     const noteBox = grabNoteBox();
-    //     const [_, content] = grabTitleAndContentFrom(noteBox);
-
-    //     expect(content).toHaveTextContent(contentChildText);
-    // });
-    
-    it("does not rerender when initTitle or initContent changes", () => {
-        const ref = React.createRef()
-        const titleText = "origtitle"
-        const contentText = "origcontent"
-        act(() => {
-            render(
-                <NoteBox
-                  ref={ref}
-                  initTitle={titleText}
-                  initContent={contentText}
-                />,
-                root
-            )
-        })
-        const noteBox = grabNoteBox();
-        const [title, content] = grabTitleAndContentFrom(noteBox);
-        
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-        const newTitleText = "newtitle"
-        const newContentText = "newcontent"
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    initTitle={newTitleText}
-                    initContent={newContentText}
-                />,
-                root
-            )
-        })
-        
-        // element tests
-        expect(title).toHaveTextContent(titleText)
-        expect(title).not.toHaveTextContent(newTitleText)
-        expect(content).toHaveTextContent(contentText)
-        expect(content).not.toHaveTextContent(newContentText)
-        // test for the performance optimization... (shouldComponentUpdate)
-        expect(wrappedRender).not.toBeCalled()
-    })
-    
-    it("still rerenders when other props change (not initTitle or initContent)", () => {
-        const ref = React.createRef()
-        const onTitleChange = () => {}
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    onTitleChange={onTitleChange}
-                />,
-                root
-            )
-        })
-        
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-        
-        const newonTitleChange = () => {}
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    onTitleChange={newonTitleChange}
-                />,
-                root
-            )
-        })
-        
-        expect(wrappedRender).toBeCalledTimes(1)
-    })
-    
-    it("rerenders when forceTitle is given", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    initTitle={initTitle}
-                />,
-                root
-            )
-        })
-        const noteBox = grabNoteBox()
-        const [titleElem] = grabTitleAndContentFrom(noteBox)
-        
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-        
-        const newTitle = "new title"
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    forceTitle={newTitle}
-                />,
-                root
-            )
-        })
-        
-        expect(wrappedRender).toBeCalledTimes(1)
-        expect(titleElem).toHaveTextContent(newTitle)
-    })
-    
-    it("rerenders when forceContent is given", () => {
-        const ref = React.createRef()
-        const initContent = "init content"
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    initContent={initContent}
-                />,
-                root
-            )
-        })
-        const noteBox = grabNoteBox()
-        const [_, contentElem] = grabTitleAndContentFrom(noteBox)
-    
-        const origRender = ref.current.render
-        const wrappedRender = ref.current.render = jest.fn(() => origRender.call(ref.current))
-    
-        const newContent = "new content"
-        act(() => {
-            render(
-                <NoteBox
-                    ref={ref}
-                    forceContent={newContent}
-                />,
-                root
-            )
-        })
-    
-        expect(wrappedRender).toBeCalledTimes(1)
-        expect(contentElem).toHaveTextContent(newContent)
     })
 });
 
@@ -240,7 +73,6 @@ describe("listener callbacks", () => {
                 <NoteBox
                     // prettier-ignore
                     initTitle={firstTitle}
-                    canChange={true}
                     onTitleChange={onTitleChange}
                 />,
                 root
@@ -255,11 +87,10 @@ describe("listener callbacks", () => {
             title.focus();
             title.value = secondTitle;
             title.blur();
-            // title.dispatchEvent(new Event("change")) // implementation uses onBlur() instead
         });
 
-        expect(onTitleChange).toBeCalledWith(secondTitle);
         expect(onTitleChange).toBeCalledTimes(1);
+        expect(onTitleChange).toBeCalledWith(secondTitle);
     });
 
     it("triggers onContentChange(content)", () => {
@@ -271,13 +102,13 @@ describe("listener callbacks", () => {
                 <NoteBox
                     // prettier-ignore
                     initContent={firstContent}
-                    canChange={true}
                     onContentChange={onContentChange}
                 />,
                 root
             );
         });
         const noteBox = grabNoteBox();
+        // eslint-disable-next-line no-unused-vars
         const [_, content] = grabTitleAndContentFrom(noteBox);
 
         expect(onContentChange).not.toBeCalled();
@@ -286,10 +117,214 @@ describe("listener callbacks", () => {
             content.focus();
             content.value = secondContent;
             content.blur();
-            // content.dispatchEvent(new Event("change")) // implementation uses onBlur() instead
         });
 
-        expect(onContentChange).toBeCalledWith(secondContent);
         expect(onContentChange).toBeCalledTimes(1);
+        expect(onContentChange).toBeCalledWith(secondContent);
     });
 });
+
+describe("ref tests", () => {
+    it("has a setTitle()", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initTitle={initTitle}
+                />,
+                root
+            );
+        });
+        const noteBox = grabNoteBox();
+        const [title] = grabTitleAndContentFrom(noteBox)
+        
+        expect(title.value).toBe(initTitle)
+        
+        const newTitle = "new title"
+        act(() => {
+            ref.current.setTitle(newTitle)
+        })
+        
+        expect(title.value).toBe(newTitle)
+    })
+    
+    it("has a setContent()", () => {
+        const ref = React.createRef()
+        const initContent = "init content"
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initContent={initContent}
+                />,
+                root
+            );
+        });
+        const noteBox = grabNoteBox();
+        // eslint-disable-next-line no-unused-vars
+        const [_, content] = grabTitleAndContentFrom(noteBox)
+        
+        expect(content.value).toBe(initContent)
+        
+        const newContent = "new content"
+        act(() => {
+            ref.current.setContent(newContent)
+        })
+        
+        expect(content.value).toBe(newContent)
+    })
+    
+    it("calls onTitleChange() when using setTitle()", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        const onTitleChange = jest.fn()
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initTitle={initTitle}
+                    onTitleChange={onTitleChange}
+                />,
+                root
+            );
+        });
+        
+        expect(onTitleChange).not.toBeCalled()
+        
+        const newTitle = "new title"
+        act(() => {
+            ref.current.setTitle(newTitle)
+        })
+        
+        expect(onTitleChange).toBeCalledTimes(1)
+        expect(onTitleChange).toBeCalledWith(newTitle)
+    })
+    
+    it("calls onContentChange() when using setContent()", () => {
+        const ref = React.createRef()
+        const initContent = "init content"
+        const onContentChange = jest.fn()
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initContent={initContent}
+                    onContentChange={onContentChange}
+                />,
+                root
+            );
+        });
+        
+        expect(onContentChange).not.toBeCalled()
+        
+        const newContent = "new content"
+        act(() => {
+            ref.current.setContent(newContent)
+        })
+        
+        expect(onContentChange).toBeCalledTimes(1)
+        expect(onContentChange).toBeCalledWith(newContent)
+    })
+    
+    it("can setTitle() silently", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        const onTitleChange = jest.fn()
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initTitle={initTitle}
+                    onTitleChange={onTitleChange}
+                />,
+                root
+            );
+        });
+        
+        expect(onTitleChange).not.toBeCalled()
+        
+        const newTitle = "new title"
+        act(() => {
+            ref.current.setTitle(newTitle, true)
+        })
+        
+        expect(onTitleChange).not.toBeCalled()
+    })
+    
+    it("can setContent() silently", () => {
+        const ref = React.createRef()
+        const initContent = "init content"
+        const onContentChange = jest.fn()
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initContent={initContent}
+                    onContentChange={onContentChange}
+                />,
+                root
+            );
+        });
+        
+        expect(onContentChange).not.toBeCalled()
+        
+        const newContent = "new content"
+        act(() => {
+            ref.current.setContent(newContent, true)
+        })
+        
+        expect(onContentChange).not.toBeCalled()
+    })
+    
+    it("throws when setTitle() is not given a string", () => {
+        const ref = React.createRef()
+        const initTitle = "init title"
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initTitle={initTitle}
+                />,
+                root
+            );
+        });
+        
+        expect(() => {
+            const badTitle = { bad: "title data" }
+            act(() => {
+                ref.current.setTitle(badTitle)
+            })
+        }).toThrow(TypeError)
+    })
+    
+    it("throws when setContent() is not given a string", () => {
+        const ref = React.createRef()
+        const initContent = "init content"
+        act(() => {
+            render(
+                <NoteBox
+                    // prettier-ignore
+                    ref={ref}
+                    initContent={initContent}
+                />,
+                root
+            );
+        });
+        
+        expect(() => {
+            const badContent = { bad: "content data" }
+            act(() => {
+                ref.current.setContent(badContent)
+            })
+        }).toThrow(TypeError)
+    })
+})
