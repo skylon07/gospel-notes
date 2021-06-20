@@ -65,7 +65,7 @@ describe("holding tests", () => {
         });
 
         // onHold() should not have activated yet
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         // wait some time...
         act(() => {
@@ -73,14 +73,14 @@ describe("holding tests", () => {
         });
 
         // still should not have activated...
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         // wait the rest of the time
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).toBeCalledTimes(1);
+        expect(onHold).toHaveBeenCalledTimes(1);
     });
 
     it("calls onHold() when touched and held", () => {
@@ -101,7 +101,7 @@ describe("holding tests", () => {
         });
 
         // onHold() should not have activated yet
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         // wait some time...
         act(() => {
@@ -109,14 +109,14 @@ describe("holding tests", () => {
         });
 
         // still should not have activated...
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         // wait the rest of the time
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).toBeCalledTimes(1);
+        expect(onHold).toHaveBeenCalledTimes(1);
     });
 });
 
@@ -133,7 +133,7 @@ describe("cancel tests", () => {
                 new MouseEvent("mousedown", { bubbles: true })
             );
         });
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -142,13 +142,13 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
     });
 
     it("cancels when touched and released too quickly", () => {
@@ -166,7 +166,7 @@ describe("cancel tests", () => {
                 })
             );
         });
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -175,13 +175,13 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
     });
 
     it("cancels when touched and dragged", () => {
@@ -207,7 +207,7 @@ describe("cancel tests", () => {
                 })
             );
         });
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -219,13 +219,13 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
     });
 
     it("doesn't cancel and ignores 'still' touchmove events", () => {
@@ -251,7 +251,7 @@ describe("cancel tests", () => {
                 })
             );
         });
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(100);
@@ -263,7 +263,7 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).not.toBeCalled();
+        expect(onHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(1000);
@@ -275,6 +275,6 @@ describe("cancel tests", () => {
             );
         });
 
-        expect(onHold).toBeCalledTimes(1);
+        expect(onHold).toHaveBeenCalledTimes(1);
     });
 });

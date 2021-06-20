@@ -144,14 +144,14 @@ describe("window-click hiding tests", () => {
         const menuBox = grabMenuBoxFrom(dropMenu)
         
         expect(menuBox).toHaveClass("hiding")
-        expect(onRender).toBeCalledTimes(1)
+        expect(onRender).toHaveBeenCalledTimes(1)
         
         act(() => {
             document.body.dispatchEvent(new MouseEvent("click", { bubbles: true }));
         });
         
         expect(menuBox).toHaveClass("hiding")
-        expect(onRender).toBeCalledTimes(1)
+        expect(onRender).toHaveBeenCalledTimes(1)
     })
     
     it("doesn't hide when the menu itself is clicked", () => {

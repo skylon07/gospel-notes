@@ -33,22 +33,22 @@ it("rerenders when forceUpdate() is called", () => {
     act(() => {
         render(<TestComponent onRender={onRender} />, root)
     })
-    
-    expect(onRender).toBeCalledTimes(1)
-    
+
+    expect(onRender).toHaveBeenCalledTimes(1)
+
     act(() => {
         forceUpdate()
     })
-    
-    expect(onRender).toBeCalledTimes(2)
-    
+
+    expect(onRender).toHaveBeenCalledTimes(2)
+
     act(() => {
         forceUpdate()
         forceUpdate()
         forceUpdate()
     })
-    
-    expect(onRender).toBeCalledTimes(3)
+
+    expect(onRender).toHaveBeenCalledTimes(3)
 })
 
 it("retains the function's identity", () => {
@@ -58,12 +58,12 @@ it("retains the function's identity", () => {
         render(<TestComponent onRender={onRender} />, root)
     })
     const origUpdate = forceUpdate
-    
+
     expect(forceUpdate).toBe(origUpdate)
-    
+
     act(() => {
         forceUpdate()
     })
-    
+
     expect(forceUpdate).toBe(origUpdate)
 })

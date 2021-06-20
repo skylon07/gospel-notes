@@ -337,26 +337,26 @@ describe("Node tests", () => {
             const listener = jest.fn()
             node.subscribe(listener)
             
-            expect(listener).not.toBeCalled()
+            expect(listener).not.toHaveBeenCalled()
             
             const title = "new title!"
             node.setData({ title })
             
-            expect(listener).toBeCalledTimes(1)
-            expect(listener).toHaveBeenLastCalledWith("data")
+            expect(listener).toHaveBeenCalledTimes(1)
+            expect(listener).toHaveBeenCalledWith("data")
             
             const anotherListener = jest.fn()
             node.subscribe(anotherListener)
             
-            expect(anotherListener).not.toBeCalled()
+            expect(anotherListener).not.toHaveBeenCalled()
             
             const content = "new content yay!"
             node.setData({ content })
             
-            expect(listener).toBeCalledTimes(2)
-            expect(anotherListener).toBeCalledTimes(1)
+            expect(listener).toHaveBeenCalledTimes(2)
+            expect(anotherListener).toHaveBeenCalledTimes(1)
             expect(listener).toHaveBeenLastCalledWith("data")
-            expect(anotherListener).toHaveBeenLastCalledWith("data")
+            expect(anotherListener).toHaveBeenCalledWith("data")
         })
         
         it("calls subscribed functions when children are added", () => {
@@ -364,13 +364,13 @@ describe("Node tests", () => {
             const listener = jest.fn()
             node.subscribe(listener)
             
-            expect(listener).not.toBeCalled()
+            expect(listener).not.toHaveBeenCalled()
             
             const child = nodeStore.createNode("Folder")
             node.addChild(child)
             
-            expect(listener).toBeCalledTimes(1)
-            expect(listener).toHaveBeenLastCalledWith("children")
+            expect(listener).toHaveBeenCalledTimes(1)
+            expect(listener).toHaveBeenCalledWith("children")
         })
         
         it("calls subscribed functions when children are removed", () => {
@@ -381,12 +381,12 @@ describe("Node tests", () => {
             const listener = jest.fn()
             node.subscribe(listener)
             
-            expect(listener).not.toBeCalled()
+            expect(listener).not.toHaveBeenCalled()
             
             node.removeChild(child)
         
-            expect(listener).toBeCalledTimes(1)
-            expect(listener).toHaveBeenLastCalledWith("children")
+            expect(listener).toHaveBeenCalledTimes(1)
+            expect(listener).toHaveBeenCalledWith("children")
         })
         
         it("can remove subscribed functions and no longer calls them", () => {
@@ -399,8 +399,8 @@ describe("Node tests", () => {
             const title = "new title woot!"
             node.setData({ title })
             
-            expect(listener).toBeCalledTimes(1)
-            expect(anotherListener).toBeCalledTimes(1)
+            expect(listener).toHaveBeenCalledTimes(1)
+            expect(anotherListener).toHaveBeenCalledTimes(1)
             
             listenerSubscription.unsubscribe()
             
@@ -408,8 +408,8 @@ describe("Node tests", () => {
             const iconType = "new icon type? ABSOLUTELY STUNNING!"
             node.setData({ title: newTitle, iconType })
             
-            expect(listener).toBeCalledTimes(1)
-            expect(anotherListener).toBeCalledTimes(2)
+            expect(listener).toHaveBeenCalledTimes(1)
+            expect(anotherListener).toHaveBeenCalledTimes(2)
         })
         
         it("doesn't call listeners listening for a different type", () => {
@@ -417,7 +417,7 @@ describe("Node tests", () => {
             const listener = jest.fn()
             node.subscribe(listener, "children")
             
-            expect(listener).not.toBeCalled()
+            expect(listener).not.toHaveBeenCalled()
             
             const title = "new title!"
             node.setData({ title })

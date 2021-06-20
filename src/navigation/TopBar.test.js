@@ -171,7 +171,7 @@ describe("listener callback tests", () => {
         });
 
         expect(onModeChange).toBeCalledTimes(1);
-        expect(onModeChange).lastCalledWith("search")
+        expect(onModeChange).toHaveBeenCalledWith("search")
         
         act(() => {
             backButton.dispatchEvent(
@@ -180,6 +180,6 @@ describe("listener callback tests", () => {
         });
         
         expect(onModeChange).toBeCalledTimes(2);
-        expect(onModeChange).lastCalledWith("nav")
+        expect(onModeChange).toHaveBeenLastCalledWith("nav")
     })
 });
