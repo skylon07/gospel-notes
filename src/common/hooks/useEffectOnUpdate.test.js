@@ -38,8 +38,8 @@ describe("basic update detection tests", () => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
         
-        expect(callback).not.toBeCalled()
-        expect(cleanup).not.toBeCalled()
+        expect(callback).not.toHaveBeenCalled()
+        expect(cleanup).not.toHaveBeenCalled()
     })
     
     it("runs callback() after updates and cleanup() before unmounting", () => {
@@ -49,22 +49,22 @@ describe("basic update detection tests", () => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
         
-        expect(callback).not.toBeCalled()
-        expect(cleanup).not.toBeCalled()
+        expect(callback).not.toHaveBeenCalled()
+        expect(cleanup).not.toHaveBeenCalled()
         
         act(() => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
         
-        expect(callback).toBeCalledTimes(1)
-        expect(cleanup).not.toBeCalled()
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(cleanup).not.toHaveBeenCalled()
         
         act(() => {
             unmountComponentAtNode(root)
         })
         
-        expect(callback).toBeCalledTimes(1)
-        expect(cleanup).toBeCalledTimes(1)
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(cleanup).toHaveBeenCalledTimes(1)
     })
     
     it("runs callback()/cleanup() after/before all updates", () => {
@@ -74,29 +74,29 @@ describe("basic update detection tests", () => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
     
-        expect(callback).not.toBeCalled()
-        expect(cleanup).not.toBeCalled()
+        expect(callback).not.toHaveBeenCalled()
+        expect(cleanup).not.toHaveBeenCalled()
     
         act(() => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
     
-        expect(callback).toBeCalledTimes(1)
-        expect(cleanup).not.toBeCalled()
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(cleanup).not.toHaveBeenCalled()
     
         act(() => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
     
-        expect(callback).toBeCalledTimes(2)
-        expect(cleanup).toBeCalledTimes(1)
+        expect(callback).toHaveBeenCalledTimes(2)
+        expect(cleanup).toHaveBeenCalledTimes(1)
         
         act(() => {
             render(<TestComponent callback={callback} cleanup={cleanup} />, root)
         })
         
-        expect(callback).toBeCalledTimes(3)
-        expect(cleanup).toBeCalledTimes(2)
+        expect(callback).toHaveBeenCalledTimes(3)
+        expect(cleanup).toHaveBeenCalledTimes(2)
     })
 })
 
@@ -111,26 +111,26 @@ it("only runs callback() when dependencies change", () => {
         render(<TestComponent callback={callback} deps={firstDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(1)
+    expect(callback).toHaveBeenCalledTimes(1)
     
     act(() => {
         render(<TestComponent callback={callback} deps={firstDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(1)
+    expect(callback).toHaveBeenCalledTimes(1)
     
     const secDeps = [4, 5]
     act(() => {
         render(<TestComponent callback={callback} deps={secDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(2)
     
     act(() => {
         render(<TestComponent callback={callback} deps={secDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(2)
     
     // should still not update...
     const sameDeps = [4, 5]
@@ -138,18 +138,18 @@ it("only runs callback() when dependencies change", () => {
         render(<TestComponent callback={callback} deps={sameDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(2)
     
     const thirdDeps = [5, 5]
     act(() => {
         render(<TestComponent callback={callback} deps={thirdDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(3)
+    expect(callback).toHaveBeenCalledTimes(3)
     
     act(() => {
         render(<TestComponent callback={callback} deps={thirdDeps} />, root)
     })
     
-    expect(callback).toBeCalledTimes(3)
+    expect(callback).toHaveBeenCalledTimes(3)
 })

@@ -169,7 +169,7 @@ describe("change listener tests", () => {
                 </React.Profiler>, root)
             })
     
-            expect(onRender).toBeCalledTimes(1)
+            expect(onRender).toHaveBeenCalledTimes(1)
     
             const title = "title"
             const content = "content"
@@ -177,7 +177,7 @@ describe("change listener tests", () => {
                 node.setData({ title, content })
             })
     
-            expect(onRender).toBeCalledTimes(2)
+            expect(onRender).toHaveBeenCalledTimes(2)
         })
     })
     
@@ -201,8 +201,8 @@ describe("change listener tests", () => {
                 titleField.blur()
             })
             
-            expect(onChange).toBeCalledTimes(1)
-            expect(onChange).lastCalledWith(node, "title", newTitleViaTextarea)
+            expect(onChange).toHaveBeenCalledTimes(1)
+            expect(onChange).toHaveBeenCalledWith(node, "title", newTitleViaTextarea)
             
             // change via node
             const newTitleViaNode = "new title via node"
@@ -212,8 +212,8 @@ describe("change listener tests", () => {
             
             // should NOT have called onChange(); this simulated another
             // node changing (which would've called its own onChange())
-            expect(onChange).not.toBeCalledTimes(2)
-            expect(onChange).toBeCalledTimes(1)
+            expect(onChange).not.toHaveBeenCalledTimes(2)
+            expect(onChange).toHaveBeenCalledTimes(1)
         })
         
         it("triggers onChange() when the content changes", () => {
@@ -236,8 +236,8 @@ describe("change listener tests", () => {
                 // console.log(contentField) // DEBUG
             })
             
-            expect(onChange).toBeCalledTimes(1)
-            expect(onChange).lastCalledWith(node, "content", newContentViaTextarea)
+            expect(onChange).toHaveBeenCalledTimes(1)
+            expect(onChange).toHaveBeenCalledWith(node, "content", newContentViaTextarea)
             
             // change via node
             const newContentViaNode = "new content via node"
@@ -247,8 +247,8 @@ describe("change listener tests", () => {
             
             // should NOT have called onChange(); this simulated another
             // node changing (which would've called its own onChange())
-            expect(onChange).not.toBeCalledTimes(2)
-            expect(onChange).toBeCalledTimes(1)
+            expect(onChange).not.toHaveBeenCalledTimes(2)
+            expect(onChange).toHaveBeenCalledTimes(1)
         })
     })
     

@@ -83,7 +83,7 @@ describe("listener callback tests", () => {
             inputField.value = searchString;
         });
 
-        expect(onSearch).not.toBeCalled();
+        expect(onSearch).not.toHaveBeenCalled();
 
         act(() => {
             searchButton.dispatchEvent(
@@ -92,8 +92,8 @@ describe("listener callback tests", () => {
         });
 
         expect(inputField.value).toBe(searchString);
-        expect(onSearch).toBeCalledTimes(1);
-        expect(onSearch).lastCalledWith(searchString);
+        expect(onSearch).toHaveBeenCalledTimes(1);
+        expect(onSearch).toHaveBeenCalledWith(searchString);
 
         const searchString2 = "this is another test";
         act(() => {
@@ -104,8 +104,8 @@ describe("listener callback tests", () => {
         });
 
         expect(inputField.value).toBe(searchString2);
-        expect(onSearch).toBeCalledTimes(2);
-        expect(onSearch).lastCalledWith(searchString2);
+        expect(onSearch).toHaveBeenCalledTimes(2);
+        expect(onSearch).toHaveBeenLastCalledWith(searchString2);
     });
 
     it("triggers onSearch() when the enter key is pressed", () => {
@@ -116,7 +116,7 @@ describe("listener callback tests", () => {
         const searchBar = grabSearchBar();
         const inputField = searchBar.querySelector("input");
 
-        expect(onSearch).not.toBeCalled();
+        expect(onSearch).not.toHaveBeenCalled();
 
         act(() => {
             inputField.dispatchEvent(
@@ -124,6 +124,6 @@ describe("listener callback tests", () => {
             );
         });
 
-        expect(onSearch).toBeCalledTimes(1);
+        expect(onSearch).toHaveBeenCalledTimes(1);
     });
 });

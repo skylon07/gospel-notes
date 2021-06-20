@@ -81,7 +81,7 @@ describe("listener callbacks", () => {
         const noteBox = grabNoteBox();
         const [title] = grabTitleAndContentFrom(noteBox);
 
-        expect(onTitleChange).not.toBeCalled();
+        expect(onTitleChange).not.toHaveBeenCalled();
 
         act(() => {
             title.focus();
@@ -89,8 +89,8 @@ describe("listener callbacks", () => {
             title.blur();
         });
 
-        expect(onTitleChange).toBeCalledTimes(1);
-        expect(onTitleChange).toBeCalledWith(secondTitle);
+        expect(onTitleChange).toHaveBeenCalledTimes(1);
+        expect(onTitleChange).toHaveBeenCalledWith(secondTitle);
     });
 
     it("triggers onContentChange(content)", () => {
@@ -111,7 +111,7 @@ describe("listener callbacks", () => {
         // eslint-disable-next-line no-unused-vars
         const [_, content] = grabTitleAndContentFrom(noteBox);
 
-        expect(onContentChange).not.toBeCalled();
+        expect(onContentChange).not.toHaveBeenCalled();
 
         act(() => {
             content.focus();
@@ -119,8 +119,8 @@ describe("listener callbacks", () => {
             content.blur();
         });
 
-        expect(onContentChange).toBeCalledTimes(1);
-        expect(onContentChange).toBeCalledWith(secondContent);
+        expect(onContentChange).toHaveBeenCalledTimes(1);
+        expect(onContentChange).toHaveBeenCalledWith(secondContent);
     });
 });
 
@@ -194,15 +194,15 @@ describe("ref tests", () => {
             );
         });
         
-        expect(onTitleChange).not.toBeCalled()
+        expect(onTitleChange).not.toHaveBeenCalled()
         
         const newTitle = "new title"
         act(() => {
             ref.current.setTitle(newTitle)
         })
         
-        expect(onTitleChange).toBeCalledTimes(1)
-        expect(onTitleChange).toBeCalledWith(newTitle)
+        expect(onTitleChange).toHaveBeenCalledTimes(1)
+        expect(onTitleChange).toHaveBeenCalledWith(newTitle)
     })
     
     it("calls onContentChange() when using setContent()", () => {
@@ -221,15 +221,15 @@ describe("ref tests", () => {
             );
         });
         
-        expect(onContentChange).not.toBeCalled()
+        expect(onContentChange).not.toHaveBeenCalled()
         
         const newContent = "new content"
         act(() => {
             ref.current.setContent(newContent)
         })
         
-        expect(onContentChange).toBeCalledTimes(1)
-        expect(onContentChange).toBeCalledWith(newContent)
+        expect(onContentChange).toHaveBeenCalledTimes(1)
+        expect(onContentChange).toHaveBeenCalledWith(newContent)
     })
     
     it("can setTitle() silently", () => {
@@ -248,14 +248,14 @@ describe("ref tests", () => {
             );
         });
         
-        expect(onTitleChange).not.toBeCalled()
+        expect(onTitleChange).not.toHaveBeenCalled()
         
         const newTitle = "new title"
         act(() => {
             ref.current.setTitle(newTitle, true)
         })
         
-        expect(onTitleChange).not.toBeCalled()
+        expect(onTitleChange).not.toHaveBeenCalled()
     })
     
     it("can setContent() silently", () => {
@@ -274,14 +274,14 @@ describe("ref tests", () => {
             );
         });
         
-        expect(onContentChange).not.toBeCalled()
+        expect(onContentChange).not.toHaveBeenCalled()
         
         const newContent = "new content"
         act(() => {
             ref.current.setContent(newContent, true)
         })
         
-        expect(onContentChange).not.toBeCalled()
+        expect(onContentChange).not.toHaveBeenCalled()
     })
     
     it("throws when setTitle() is not given a string", () => {

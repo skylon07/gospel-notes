@@ -166,7 +166,7 @@ describe("listener callback tests", () => {
         const dropBar = grabDropBar();
         const holdable = grabTitleHoldableFrom(dropBar);
 
-        expect(onTitleHold).not.toBeCalled();
+        expect(onTitleHold).not.toHaveBeenCalled();
 
         act(() => {
             holdable.dispatchEvent(
@@ -174,13 +174,13 @@ describe("listener callback tests", () => {
             );
         });
 
-        expect(onTitleHold).not.toBeCalled();
+        expect(onTitleHold).not.toHaveBeenCalled();
 
         act(() => {
             jest.advanceTimersByTime(5000);
         });
 
-        expect(onTitleHold).toBeCalledTimes(1);
+        expect(onTitleHold).toHaveBeenCalledTimes(1);
     });
     
     it("triggers onIconHold() when holdable icon is held", () => {
@@ -191,7 +191,7 @@ describe("listener callback tests", () => {
         const dropBar = grabDropBar();
         const holdable = grabIconHoldableFrom(dropBar);
     
-        expect(onIconHold).not.toBeCalled();
+        expect(onIconHold).not.toHaveBeenCalled();
     
         act(() => {
             holdable.dispatchEvent(
@@ -199,13 +199,13 @@ describe("listener callback tests", () => {
             );
         });
     
-        expect(onIconHold).not.toBeCalled();
+        expect(onIconHold).not.toHaveBeenCalled();
     
         act(() => {
             jest.advanceTimersByTime(5000);
         });
     
-        expect(onIconHold).toBeCalledTimes(1);
+        expect(onIconHold).toHaveBeenCalledTimes(1);
     });
 
     // TODO: remove at a later date, when this is *for sure* no longer needed
@@ -218,7 +218,7 @@ describe("listener callback tests", () => {
     //     const dropBar = grabDropBar();
     //     const dropButton = grabDropButtonFrom(dropBar);
 
-    //     expect(_beforeDrop).not.toBeCalled();
+    //     expect(_beforeDrop).not.toHaveBeenCalled();
 
     //     act(() => {
     //         dropButton.dispatchEvent(
@@ -227,8 +227,8 @@ describe("listener callback tests", () => {
     //     });
 
     //     const wasDropped = false; // it was not dropped before the click
-    //     expect(_beforeDrop).toBeCalledWith(expect.any(Object), wasDropped);
-    //     expect(_beforeDrop).toBeCalledTimes(1);
+    //     expect(_beforeDrop).toHaveBeenCalledWith(expect.any(Object), wasDropped);
+    //     expect(_beforeDrop).toHaveBeenCalledTimes(1);
     // });
 });
 
@@ -318,4 +318,3 @@ describe("group animation tests", () => {
     // TODO: animation tests that test up the DOM heirarchy with DropBars on
     //       various levels
 })
-

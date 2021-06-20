@@ -185,13 +185,13 @@ it("moves when touched and dragged across the screen", () => {
 // 
 //     it("correctly updates dragRef when given function-refs", () => {
 //         const dragRef = jest.fn();
-//         expect(dragRef).not.toBeCalledWith(null);
+//         expect(dragRef).not.toHaveBeenCalledWith(null);
 // 
 //         act(() => {
 //             render(<Draggable dragRef={dragRef} />, root);
 //         });
 // 
-//         expect(dragRef).toBeCalledTimes(1);
+//         expect(dragRef).toHaveBeenCalledTimes(1);
 //     });
 // });
 
@@ -209,7 +209,7 @@ describe("listener callback tests", () => {
             });
             const draggable = grabDraggable();
 
-            expect(beforeDrag).not.toBeCalled();
+            expect(beforeDrag).not.toHaveBeenCalled();
 
             // click the element and drag it 250ms later
             act(() => {
@@ -231,7 +231,7 @@ describe("listener callback tests", () => {
             });
 
             expect(beforeDrag).toHaveBeenCalledTimes(1);
-            expect(beforeDrag).toHaveBeenLastCalledWith(
+            expect(beforeDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     x: 0,
                     y: 0,
@@ -257,7 +257,7 @@ describe("listener callback tests", () => {
             });
             const draggable = grabDraggable();
 
-            expect(onDrag).not.toBeCalled();
+            expect(onDrag).not.toHaveBeenCalled();
 
             // click the element and drag it 250ms later
             act(() => {
@@ -279,7 +279,7 @@ describe("listener callback tests", () => {
             });
 
             expect(onDrag).toHaveBeenCalledTimes(1);
-            expect(onDrag).toHaveBeenLastCalledWith(
+            expect(onDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     x: 100,
                     y: 100,
@@ -305,7 +305,7 @@ describe("listener callback tests", () => {
             });
             const draggable = grabDraggable();
 
-            expect(afterDrag).not.toBeCalled();
+            expect(afterDrag).not.toHaveBeenCalled();
 
             // click the element and drag it 250ms later
             act(() => {
@@ -326,7 +326,7 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(afterDrag).not.toBeCalled();
+            expect(afterDrag).not.toHaveBeenCalled();
 
             // release the element
             act(() => {
@@ -336,7 +336,7 @@ describe("listener callback tests", () => {
             });
 
             expect(afterDrag).toHaveBeenCalledTimes(1);
-            expect(afterDrag).toHaveBeenLastCalledWith(
+            expect(afterDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     x: 100,
                     y: 100,
@@ -364,7 +364,7 @@ describe("listener callback tests", () => {
             });
             const draggable = grabDraggable();
 
-            expect(beforeDrag).not.toBeCalled();
+            expect(beforeDrag).not.toHaveBeenCalled();
 
             // tap the element and drag it 250ms later
             act(() => {
@@ -388,7 +388,7 @@ describe("listener callback tests", () => {
             });
             
             expect(beforeDrag).toHaveBeenCalledTimes(1);
-            expect(beforeDrag).toHaveBeenLastCalledWith(
+            expect(beforeDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     x: 0,
                     y: 0,
@@ -414,7 +414,7 @@ describe("listener callback tests", () => {
             });
             const draggable = grabDraggable();
 
-            expect(onDrag).not.toBeCalled();
+            expect(onDrag).not.toHaveBeenCalled();
 
             // click the element and drag it 250ms later
             act(() => {
@@ -438,7 +438,7 @@ describe("listener callback tests", () => {
             });
 
             expect(onDrag).toHaveBeenCalledTimes(1);
-            expect(onDrag).toHaveBeenLastCalledWith(
+            expect(onDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     x: 100,
                     y: 100,
@@ -464,7 +464,7 @@ describe("listener callback tests", () => {
             });
             const draggable = grabDraggable();
 
-            expect(afterDrag).not.toBeCalled();
+            expect(afterDrag).not.toHaveBeenCalled();
 
             // click the element and drag it 250ms later
             act(() => {
@@ -487,7 +487,7 @@ describe("listener callback tests", () => {
                 );
             });
 
-            expect(afterDrag).not.toBeCalled();
+            expect(afterDrag).not.toHaveBeenCalled();
 
             // release the element
             act(() => {
@@ -497,7 +497,7 @@ describe("listener callback tests", () => {
             });
 
             expect(afterDrag).toHaveBeenCalledTimes(1);
-            expect(afterDrag).toHaveBeenLastCalledWith(
+            expect(afterDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
                     x: 100,
                     y: 100,
