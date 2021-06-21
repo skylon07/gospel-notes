@@ -34,7 +34,10 @@ const BoardNodeGroup = React.memo(function (props) {
 BoardNodeGroup.propTypes = {
     children: NodePropTypes.listOfNodesOrElements,
     node: NodePropTypes.nodeOrId,
-    readOnly: PropTypes.bool.isRequired,
+    readOnly: PropTypes.bool,
+}
+BoardNodeGroup.defaultProps = {
+    readOnly: false,
 }
 export default BoardNodeGroup
 
