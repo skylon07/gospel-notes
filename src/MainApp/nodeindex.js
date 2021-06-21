@@ -60,3 +60,4 @@ export class NodeSearchIndex {
         return [title]
     }
 }
+export default NodeSearchIndex

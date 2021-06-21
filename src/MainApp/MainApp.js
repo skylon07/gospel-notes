@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { useStaticValue } from "common/hooks"
 import "./MainApp.css";
 
-import { NodeSearchIndex } from "./nodeindex.js";
+import NodeSearchIndex from "./nodeindex.js";
 
 import BetaDisclaimer from "./BetaDisclaimer.js";
 import { TopBar } from "navigation";
@@ -40,12 +39,12 @@ export function useNodeStack(initNodes=[]) {
     return [nodeStack, pushNodesToStack, popNodesFromStack]
 }
 
+const searchIndex = new NodeSearchIndex()
+
 function MainApp(props) {
     const [nodeStack, pushToNodeStack, popFromNodeStack] = useNodeStack()
     const currNodeIds = nodeStack[0]
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
-    
-    const searchIndex = useStaticValue(() => new NodeSearchIndex())
     
     const updateNodeInIndex = (newNode, parentNode) => {
         searchIndex.updateNode(newNode)
