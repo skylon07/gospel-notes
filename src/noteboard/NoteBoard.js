@@ -2,11 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import "./NoteBoard.css"
 
-import nodeStore from "./datastore.js"
 import NodePropTypes from "./datastore-proptypes.js"
 
 import BoardNodeGroup from "./BoardNodeGroup.js"
-import AddButton from "./AddButton.js"
 
 export const NoteBoardCallbacks = React.createContext()
 

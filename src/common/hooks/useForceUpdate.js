@@ -6,6 +6,7 @@ function rerenderGuaranteer() {
 
 function useForceUpdate() {
     // NOTE: the callback is stable since dispatch is stable!
+    // eslint-disable-next-line no-unused-vars
     const [_, dispatch] = useReducer(rerenderGuaranteer)
     return dispatch
 }

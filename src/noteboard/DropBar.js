@@ -1,4 +1,4 @@
-import React, { useState, useRef, useImperativeHandle } from "react";
+import React, { useState, useRef } from "react";
 import { useClassName, useEffectOnUpdate } from "common/hooks"
 import PropTypes from "prop-types";
 import "./DropBar.css";

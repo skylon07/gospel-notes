@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 import "./DropMenu.css";
@@ -58,14 +58,6 @@ DropMenu.defaultProps = {
     initHidden: true,
 }
 export default DropMenu
-
-function renderMenuContent(props, forceHideMenu) {
-    let content = props.menuContent
-    if (typeof props.menuContent === "function") {
-        content = props.menuContent(forceHideMenu)
-    }
-    return content
-}
 
 function DropMenuBox(props) {
     const className = useClassName({

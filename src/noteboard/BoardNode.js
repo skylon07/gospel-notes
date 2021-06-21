@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect, useContext } from 'react'
+import React, { useRef, useCallback, useEffect, useContext } from 'react'
 import { useForceUpdate } from "common/hooks"
 import PropTypes from 'prop-types'
 import "./BoardNode.css"
@@ -194,22 +194,30 @@ function DropBarNode(props) {
         </AddButton>
     }
     
-    const promptChangeTitle = (newTitle) => {
+    const promptChangeTitle = () => {
         if (props.readOnly) {
             return
         }
         
-        throw new Error("// TODO")
+        const newTitle = window.prompt(`Enter a new title for '${title}'`, title)
+        if (typeof newTitle !== "string") {
+            return
+        }
+        
         node.setData({ title: newTitle })
         trigger(callbacks.onNodeDataChange, node, "title", newTitle)
         removeIfEmptyDropBar(node, callbacks.onNodeChildrenChange)
     }
-    const promptChangeIconType = (newIconType) => {
+    const promptChangeIconType = () => {
         if (props.readOnly) {
             return
         }
         
-        throw new Error("// TODO")
+        const newIconType = window.prompt(`Enter a new icon for '${title}'`, iconType)
+        if (typeof newIconType !== "string") {
+            return
+        }
+        
         node.setData({ iconType: newIconType })
         trigger(callbacks.onNodeDataChange, node, "iconType", newIconType)
     }
