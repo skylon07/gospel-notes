@@ -27,7 +27,13 @@
         "extends": [
             "react-app",
             "react-app/jest"
-        ]
+        ],
+        "rules": {
+            "no-fallthrough": "off",
+            "react-hooks/exhaustive-deps": ["warn", {
+                "additionalHooks": "(useEffectOnUpdate)"
+            }]
+        }
     },
     "browserslist": {
         "production": [

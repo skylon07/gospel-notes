@@ -164,13 +164,13 @@ function resizeTextarea(type, ref) {
     elem.style.height = "auto"; // allows shrinking
     elem.style.height = elem.scrollHeight + "px";
     
-    if (name === "title") {
+    if (type === "title") {
         elem.wrap = "off"; // potentially temporary, to see if it is still maxed
     }
     elem.style.width = "auto";
     elem.style.width = elem.scrollWidth + "px";
     
-    if (name === "title") {
+    if (type === "title") {
         // the max is shrunk a bit to pad from the edge of the NoteBox
         const max = elem.parentNode.offsetWidth * 0.9 - 5;
         const isMaxed = elem.offsetWidth > max;
