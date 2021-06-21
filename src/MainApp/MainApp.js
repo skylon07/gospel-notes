@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./MainApp.css";
 
 import NodeSearchIndex from "./nodeindex.js";
@@ -45,6 +45,7 @@ function MainApp(props) {
     const [nodeStack, pushToNodeStack, popFromNodeStack] = useNodeStack()
     const currNodeIds = nodeStack[0]
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
+    const topBarRef = useRef(null)
     
     const updateNodeInIndex = (newNode, parentNode) => {
         searchIndex.updateNode(newNode)
@@ -81,7 +82,8 @@ function MainApp(props) {
     return <div data-testid="main-app" className="MainApp">
         <BetaDisclaimer /> 
         <TopBar
-            menuContent={renderMenuContent}
+            ref={topBarRef}
+            menuContent={renderMenuContent(topBarRef)}
             onSearchClick={displaySearch}
             onModeChange={(newMode) => {
                 if (newMode === "nav") {
@@ -104,7 +106,8 @@ function MainApp(props) {
 }
 export default MainApp
 
-function renderMenuContent(hideMenu) {
+function renderMenuContent(topBarRef) {
+    const hideMenu = () => topBarRef.current.hideMenu()
     return <button onClick={hideMenu}>Close Menu</button>
 }
 
