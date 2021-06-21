@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useClassName, useStaticValue } from "common/hooks"
+import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 
 import "./Draggable.css";
