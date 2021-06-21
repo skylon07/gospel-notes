@@ -111,26 +111,26 @@ it("only runs callback() when dependencies change", () => {
         render(<TestComponent callback={callback} deps={firstDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).not.toHaveBeenCalled()
     
     act(() => {
         render(<TestComponent callback={callback} deps={firstDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).not.toHaveBeenCalled()
     
     const secDeps = [4, 5]
     act(() => {
         render(<TestComponent callback={callback} deps={secDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(1)
     
     act(() => {
         render(<TestComponent callback={callback} deps={secDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(1)
     
     // should still not update...
     const sameDeps = [4, 5]
@@ -138,18 +138,18 @@ it("only runs callback() when dependencies change", () => {
         render(<TestComponent callback={callback} deps={sameDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(1)
     
     const thirdDeps = [5, 5]
     act(() => {
         render(<TestComponent callback={callback} deps={thirdDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(3)
+    expect(callback).toHaveBeenCalledTimes(2)
     
     act(() => {
         render(<TestComponent callback={callback} deps={thirdDeps} />, root)
     })
     
-    expect(callback).toHaveBeenCalledTimes(3)
+    expect(callback).toHaveBeenCalledTimes(2)
 })
