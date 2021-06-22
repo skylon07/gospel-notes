@@ -10,7 +10,7 @@ const STYLE = {
         document.head.appendChild(sheet);
         return sheet;
     })(),
-    setTransform(originX, originY, scalerWidth, scalerHeight) {
+    setShrinkTransform(originX, originY, scalerWidth, scalerHeight) {
         STYLE.sheet.innerHTML = `.Draggable.holding {
             --transform-origin-x: ${originX}px;
             --transform-origin-y: ${originY}px;
@@ -21,8 +21,15 @@ const STYLE = {
 };
 
 function Draggable(props) {
-    const ref = useRef(null)
+    const dragRef = useRef(null)
     const [holding, setHolding] = useState(false)
+    // refs are used to allow listeners to have stable getters without
+    // recreating and changing listeners every state change (these should be
+    // treated as read only/getter values)
+    const propsRef = useRef()
+    propsRef.current = props
+    const stateRef = useRef()
+    stateRef.current = { holding }
     const className = useClassName({
         base: "Draggable",
         filters: [{
@@ -31,19 +38,13 @@ function Draggable(props) {
         }],
     })
     
-    const changers = { setHolding }
-    const dragHandler = useStaticValue(() => {
-        return new DragHandler(ref, changers)
-    })
-    dragHandler.update(props)
-    
-    mountEventListeners(ref, dragHandler)
-    
+    mountEventListeners(propsRef, stateRef, dragRef, setHolding)
+
     // NOTE: a scale container is used to allow unscaled coordinates to be
     //       used in translating the element absolutely
     return (
         <div
-            ref={ref}
+            ref={dragRef}
             data-testid="draggable"
             className={className}
         >
@@ -60,236 +61,248 @@ Draggable.propTypes = {
 }
 export default Draggable
 
-function mountEventListeners(ref, dragHandler) {
+function mountEventListeners(propsRef, stateRef, dragRef, setHolding) {
     // touchmove has to be bound here to pass { passive: false } (which allows
     // preventing scrolling)
     // BUG: if the pointer moves too fast, the event listeners lose track
     useEffect(() => {
-        const elem = ref.current;
+        const onResetAll = (lastRect) => {
+            trigger(propsRef.current.afterDrag, lastRect)
+        }
+        const helpers = createHelperCallbacks(dragRef, setHolding, onResetAll)
+        const {
+            touchStart, touchMove, touchEnd,
+            mouseDown, mouseMove, mouseUp,
+        } = createListeners(propsRef, stateRef, helpers)
+        
+        const elem = dragRef.current;
         const notPassive = { passive: false }
-        elem.addEventListener("touchstart", dragHandler.touchStart, notPassive);
-        elem.addEventListener("touchmove", dragHandler.touchMove, notPassive);
-        elem.addEventListener("touchend", dragHandler.touchEnd, notPassive);
-    
-        elem.addEventListener("mousedown", dragHandler.mouseDown);
-        elem.addEventListener("mousemove", dragHandler.mouseMove);
-        elem.addEventListener("mouseup", dragHandler.mouseUp);
+        elem.addEventListener("touchstart", touchStart, notPassive);
+        elem.addEventListener("touchmove", touchMove, notPassive);
+        elem.addEventListener("touchend", touchEnd, notPassive);
+
+        elem.addEventListener("mousedown", mouseDown);
+        elem.addEventListener("mousemove", mouseMove);
+        elem.addEventListener("mouseup", mouseUp);
         
         return () => {
-            elem.removeEventListener("touchstart", dragHandler.touchStart);
-            elem.removeEventListener("touchmove", dragHandler.touchMove);
-            elem.removeEventListener("touchend", dragHandler.touchEnd);
+            elem.removeEventListener("touchstart", touchStart);
+            elem.removeEventListener("touchmove", touchMove);
+            elem.removeEventListener("touchend", touchEnd);
             
-            elem.removeEventListener("mousedown", dragHandler.mouseDown);
-            elem.removeEventListener("mousemove", dragHandler.mouseMove);
-            elem.removeEventListener("mouseup", dragHandler.mouseUp);
+            elem.removeEventListener("mousedown", mouseDown);
+            elem.removeEventListener("mousemove", mouseMove);
+            elem.removeEventListener("mouseup", mouseUp);
         }
-    }, [])
+    }, [dragRef, setHolding])
 }
 
-class DragHandler {
-    constructor(elemRef, stateChangers) {
-        this._ref = elemRef
-        this.__setHoldingState = stateChangers.setHolding
-        this.__lastHolding = false
-        
-        this.touchStart = this.touchStart.bind(this)
-        this.touchMove = this.touchMove.bind(this)
-        this.touchEnd = this.touchEnd.bind(this)
-        
-        this.mouseDown = this.mouseDown.bind(this)
-        this.mouseMove = this.mouseMove.bind(this)
-        this.mouseUp = this.mouseUp.bind(this)
-    }
-
-    update(props) {
-        this._lastProps = props
-    }
+// (this function is called inside the effect; no need to memoize anything)
+// creates some helper functions that interact with the Draggable DOM element
+// and setting the current component state
+function createHelperCallbacks(dragRef, setHolding) {
+    // press-and-hold timeout functions
+    let holdTimeout = null
+    let cancelTimeout = null
+    const startDelay = (onCancel) => {
+        holdTimeout = setTimeout(
+            () => setHolding(true),
+            160
+        );
     
-    // NOTE: abstracting touch/mouse handlers allows us to use the same
-    //       dragging logic for both
-    touchStart(event) {
-        const { clientX, clientY } = event.touches[0];
-        this.startHold(clientX, clientY, event);
-    }
-    mouseDown(event) {
-        const { clientX, clientY } = event;
-        this.startHold(clientX, clientY, event);
-    }
-    startHold(initHoldX, initHoldY, event) {
-        this._startDelay(initHoldX, initHoldY, event)
-        
-        const initRect = this._initSelfRect(initHoldX, initHoldY)
-        this._updateTransformStyle(initHoldX, initHoldY);
-        
-        this.trigger(this._lastProps.beforeDrag, initRect);
-    }
-    
-    touchMove(event) {
-        const { clientX, clientY } = event.touches[0];
-        this.moveHold(clientX, clientY, event);
-    }
-    mouseMove(event) {
-        const { clientX, clientY } = event;
-        this.moveHold(clientX, clientY, event);
-    }
-    moveHold(currHoldX, currHoldY, event) {
-        this._trackSelfPosition(currHoldX, currHoldY)
-        
-        // don't move cursor/finger before drag is ready!
-        // TODO: maybe have this work differently for mouse vs touches?
-        const holdMoveX = Math.abs(currHoldX - this._startRect.left)
-        const holdMoveY = Math.abs(currHoldY - this._startRect.top)
-        const margin = 0.6 // just in case it reads touches moving slightly
-        const heldInSamePlace = holdMoveX < margin && holdMoveY < margin
-        if (!this._isHolding && !heldInSamePlace) {
-            // NOTE: endHold() stops the delays for dragging, which means
-            // dragging can only start again after a new touch is started
-            this.endHold();
-            return
-        }
-        
-        if (this._isHolding) {
-            event.preventDefault();
-            this._cancelDelay();
-            
-            // NOTE: allowing adjustments to be returned allows actions (like
-            //       scrolling when held in a certain place) to be offset
-            const genCurrRect = this._genCurrSelfRect()
-            const onDragRect = this.trigger(this._lastProps.onDrag, genCurrRect);
-            const isValidRect = typeof onDragRect === "object" &&
-                onDragRect !== null && typeof onDragRect.top === "number" &&
-                typeof onDragRect.left === "number"
-            if (onDragRect !== undefined && !isValidRect) {
-                throw new TypeError("Draggable props.onDrag() can only return a DOMRect object (you may modify and return the one passed to onDrag())");
-            }
-            
-            const currRect = onDragRect || genCurrRect 
-            this._setRefTransform(currRect);
-        }
-    }
-    
-    touchEnd(event) {
-        this.endHold();
-    }
-    mouseUp(event) {
-        this.endHold();
-    }
-    endHold() {
-        this._setHolding(false)
-        this._cancelDelay()
-        
-        // NOTE: in case events fire after the component has already unmounted
-        //       (which will likely only happen in a testing environment)
-        const unmounted = this._ref.current === null
-        if (!unmounted) {
-            this._resetRefTransform()
-        }
-        
-        const currRect = this._genCurrSelfRect()
-        this.trigger(this._lastProps.afterDrag, currRect);
-    }
-    
-    trigger(propFunc, currRect) {
-        if (typeof propFunc === "function") {
-            return propFunc(currRect)
-        }
-    }
-    
-    // css helper functions
-    _updateTransformStyle(holdXRelScreen, holdYRelScreen) {
-        const holdXRelRect = holdXRelScreen - this._startRect.left;
-        const holdYRelRect = holdYRelScreen - this._startRect.top;
-        STYLE.setTransform(
-            holdXRelRect,
-            holdYRelRect,
-            this._startRect.width,
-            this._startRect.height
+        // NOTE: when touching for 0.5 seconds, the "contextmenu" event is
+        // fired, stopping later control over preventing default scrolling
+        // actions; this cancels the drag operation after the context event
+        // fires (bugs arise when applying to the "contextmenu" event itself...)
+        cancelTimeout = setTimeout(
+            onCancel,
+            465
         );
     }
+    const stopDelay = () => {
+        clearTimeout(holdTimeout);
+        holdTimeout = null;
     
-    _setRefTransform(rect) {
-        const transX = rect.left
-        const transY = rect.top
+        clearTimeout(cancelTimeout);
+        cancelTimeout = null;
+    }
+    
+    // press-and-hold move tracking functions
+    let startHoldPos = null
+    let startRect = null
+    let lastUpdatedRect = null
+    const createTrackingRects = (initHoldX, initHoldY) => {
+        startHoldPos = { x: initHoldX, y: initHoldY }
+        
+        startRect = Rect.fromRect(
+            dragRef.current.getBoundingClientRect()
+        )
+        lastUpdatedRect = Rect.fromRect(startRect)
+        
+        return getTrackingRects()
+    }
+    const trackHoldMove = (currHoldX, currHoldY) => {
+        const diffX = currHoldX - startHoldPos.x
+        const diffY = currHoldY - startHoldPos.y
+        lastUpdatedRect.x = startRect.x + diffX
+        lastUpdatedRect.y = startRect.y + diffY
+    }
+    const getTrackingRects = () => {
+        return [startRect, lastUpdatedRect]
+    }
+    const resetTrackingRects = () => {
+        startHoldPos = null
+        startRect = null
+        lastUpdatedRect = null
+    }
+    
+    // css sheet interface functions
+    // (a rect is passed to help decouple these functions from the rest)
+    const setShrinkVars = (boundsAsRect, holdXRelScreen, holdYRelScreen) => {
+        const holdXRelRect = holdXRelScreen - boundsAsRect.left;
+        const holdYRelRect = holdYRelScreen - boundsAsRect.top;
+        STYLE.setShrinkTransform(
+            holdXRelRect,
+            holdYRelRect,
+            boundsAsRect.width,
+            boundsAsRect.height
+        );
+    }
+    const setDragTransform = (boundsAsRect) => {
+        const transX = boundsAsRect.left
+        const transY = boundsAsRect.top
         // NOTE: transform is used to keep the element in the same
         //       document flow while still visually moving
-        this._ref.current.style.setProperty(
+        dragRef.current.style.setProperty(
             "transform",
             `translate(${transX}px, ${transY}px)`
         );
     }
-    
-    _resetRefTransform() {
-        this._ref.current.style.setProperty("transform", null);
+    const resetDragTransform = () => {
+        dragRef.current.style.setProperty("transform", null);
     }
     
-    // rect tracking helper functions
-    _initSelfRect(initHoldX, initHoldY) {
-        this.__startHoldX = initHoldX
-        this.__startHoldY = initHoldY
+    // for when dragging ends...
+    const resetAllAsDragEnds = () => {
+        setHolding(false)
+        stopDelay()
+        resetTrackingRects()
         
-        this._startRect = Rect.fromRect(
-            this._ref.current.getBoundingClientRect()
-        )
-        this.__currLeft = this._startRect.left
-        this.__currTop = this._startRect.top
-        return this._startRect
+        // this is in case events fire after the component has already
+        // unmounted (which will likely only happen in a testing environment)
+        const unmounted = dragRef.current === null
+        if (!unmounted) {
+            resetDragTransform()
+        }
     }
-    
-    _trackSelfPosition(currHoldX, currHoldY) {
-        const diffX = currHoldX - this.__startHoldX
-        const diffY = currHoldY - this.__startHoldY
         
-        this.__currLeft = diffX + this._startRect.left
-        this.__currTop = diffY + this._startRect.top
+    
+    // called inside effect; no need to memoize
+    return {
+        startDelay, stopDelay,
+        createTrackingRects, trackHoldMove, getTrackingRects, resetTrackingRects,
+        setShrinkVars, setDragTransform, resetDragTransform,
+        resetAllAsDragEnds,
+    }
+}
+
+// (this function is called inside the effect; no need to memoize anything                         )
+// creates a group of event listeners that will be mounted inside useEffect();
+// this function MUST NOT (unless calling helper functions) modify component
+// state or modify/set any ref values
+function createListeners(propsRef, stateRef, helpers) {
+    const startHold = (initHoldX, initHoldY, event) => {
+        helpers.startDelay(endHold)
+    
+        const [initRect] = helpers.createTrackingRects(initHoldX, initHoldY)
+        helpers.setShrinkVars(initRect, initHoldX, initHoldY);
+    
+        trigger(propsRef.current.beforeDrag, initRect);
+    }
+    const touchStart = (event) => {
+        const { clientX, clientY } = event.touches[0];
+        startHold(clientX, clientY, event);
+    }
+    const mouseDown = (event) => {
+        const { clientX, clientY } = event;
+        startHold(clientX, clientY, event);
     }
     
-    _genCurrSelfRect() {
-        const currRect = Rect.fromRect({
-            x: this.__currLeft,
-            y: this.__currTop,
-            width: this._startRect.width,
-            height: this._startRect.height
-        })
-        return currRect
-    }
-    
-    // hold delay timeout helper functions
-    _startDelay(initHoldX, initHoldY, event) {
-        this.__holdTimeout = window.setTimeout(
-            () => this._setHolding(true),
-            160
-        );
+    const moveHold = (currHoldX, currHoldY, event) => {
+        const [startRect, currRect] = helpers
+            .getTrackingRects(currHoldX, currHoldY)
+        const isHolding = stateRef.current.holding
         
-        // NOTE: when touching for 0.5 seconds, the "contextmenu" event is fired, preventing further
-        // control over preventing default scrolling actions; this cancels the drag operation after
-        // the context event fires (bugs arise when applying to the "contextmenu" event itself...)
-        this.__holdCancelTimeout = window.setTimeout(
-            () => this.endHold(),
-            465
-        );
+        // don't move cursor/finger before drag is ready!
+        // TODO: maybe have this work differently for mouse vs touches?
+        const startHoldX = startRect.x
+        const startHoldY = startRect.y
+        const holdMoveX = Math.abs(currHoldX - startHoldX)
+        const holdMoveY = Math.abs(currHoldY - startHoldY)
+        const margin = 0.6 // just in case it reads touches moving slightly
+        const heldInSamePlace = holdMoveX < margin && holdMoveY < margin
+        // check for pre-hold move (touch scrolling, etc)
+        if (!isHolding && !heldInSamePlace) {
+            // endHold() stops the delays for dragging, which means
+            // dragging can only start again after a new touch is started
+            endHold();
+            return
+        }
+    
+        if (isHolding) {
+            event.preventDefault();
+            helpers.stopDelay(); // stop the canceller timeout
+    
+            helpers.trackHoldMove(currHoldX, currHoldY)
+            // allowing css transform adjustments to be returned allows actions
+            // (like scrolling when held in a certain place) to be offset
+            // eslint-disable-next-line no-unused-vars
+            const [_, currRect] = helpers.getTrackingRects()
+            const moddableRect = Rect.fromRect(currRect)
+            const modifiedRect = trigger(propsRef.current.onDrag, moddableRect);
+            const isValidRect = typeof modifiedRect === "object" &&
+                modifiedRect !== null && typeof modifiedRect.top === "number" &&
+                typeof modifiedRect.left === "number"
+            if (modifiedRect !== undefined && !isValidRect) {
+                throw new TypeError("Draggable props.onDrag() can only return a DOMRect object (you may modify and return the one passed to onDrag())");
+            }
+    
+            const useRect = modifiedRect || moddableRect
+            helpers.setDragTransform(useRect);
+        }
+    }
+    const touchMove = (event) => {
+        const { clientX, clientY } = event.touches[0];
+        moveHold(clientX, clientY, event);
+    }
+    const mouseMove = (event) => {
+        const { clientX, clientY } = event;
+        moveHold(clientX, clientY, event);
     }
     
-    _cancelDelay() {
-        window.clearTimeout(this._holdTimeout);
-        this.__holdTimeout = null;
-    
-        window.clearTimeout(this._holdCancelTimeout);
-        this.__holdCancelTimeout = null;
+    const endHold = () => {
+        // eslint-disable-next-line no-unused-vars
+        const [_, lastRect] = helpers.getTrackingRects()
+        helpers.resetAllAsDragEnds()
+        trigger(propsRef.current.afterDrag, lastRect)
+    }
+    const touchEnd = (event) => {
+        endHold()
+    }
+    const mouseUp = (event) => {
+        endHold()
     }
     
-    // Draggable state helper functions
-    // NOTE: this.__lastHolding is set asyncronously, because it is a request
-    //       to change state
-    _setHolding(newState) {
-        this.__setHoldingState(() => {
-            this.__lastHolding = newState
-            return newState
-        })
+    // called inside effect; no need to memoize
+    return {
+        touchStart, touchMove, touchEnd,
+        mouseDown, mouseMove, mouseUp,
     }
-    
-    get _isHolding() {
-        return this.__lastHolding
+}
+
+function trigger(func, ...args) {
+    if (typeof func === "function") {
+        func(...args)
     }
 }
 
