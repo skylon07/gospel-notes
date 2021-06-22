@@ -512,3 +512,5 @@ describe("listener callback tests", () => {
         });
     });
 });
+
+// TODO: add tests for cancelling drag if touch not held still long enough (ex. the user scrolls)
