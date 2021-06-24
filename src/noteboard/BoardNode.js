@@ -36,8 +36,8 @@ BoardNode.defaultProps = {
 export default BoardNode
 
 // this hook warns when the node reference has changed
-export function useSameNode(nodeOrId, componentName="(no component name given)") {
-    // NOTE: "node" will either be a NodeParent or null
+export function useSameNode(nodeOrId, componentName="(no name given)") {
+    // this hook ensures "node" will either be a NodeParent or null
     const node = nodeStore.getNodeById(nodeOrId)
     const orig = useRef({ node, nodeOrId }).current
     const warned = useRef(false)
@@ -105,7 +105,7 @@ function trigger(func, ...args) {
 // addChild, etc), their corresponding listener should be called
 function NoteBoxNode(props) {
     const noteBoxRef = useRef(null)
-    const ignoreNoteBox = useRef(false)
+    const ignoreNoteBoxRef = useRef(false)
     const callbacks = useContext(NoteBoardCallbacks)
     
     const node = props.node
@@ -114,22 +114,22 @@ function NoteBoxNode(props) {
         const { title, content } = node.data
         const noteBox = noteBoxRef.current
         
-        ignoreNoteBox.current = true
+        ignoreNoteBoxRef.current = true
         noteBox.setTitle(title)
         noteBox.setContent(content)
-        ignoreNoteBox.current = false
+        ignoreNoteBoxRef.current = false
     }, [node])
     useNodeUpdate(node, "data", onUpdate)
     
     const changeNodeTitle = (newTitle) => {
-        if (!ignoreNoteBox.current) {
+        if (!ignoreNoteBoxRef.current) {
             node.setData({ title: newTitle })
             trigger(callbacks.onNodeDataChange, node, "title", newTitle)
             removeIfEmptyNoteBox(node, callbacks.onNodeChildrenChange)
         }
     }
     const changeNodeContent = (newContent) => {
-        if (!ignoreNoteBox.current) {
+        if (!ignoreNoteBoxRef.current) {
             node.setData({ content: newContent })
             trigger(callbacks.onNodeDataChange, node, "content", newContent)
             removeIfEmptyNoteBox(node, callbacks.onNodeChildrenChange)
@@ -146,7 +146,7 @@ function NoteBoxNode(props) {
     />
 }
 NoteBoxNode.propTypes = {
-    node: NodePropTypes.node,
+    node: NodePropTypes.node.isRequired,
     readOnly: PropTypes.bool.isRequired,
 }
 
@@ -233,7 +233,7 @@ function DropBarNode(props) {
     </DropBar>
 }
 DropBarNode.propTypes = {
-    node: NodePropTypes.node,
+    node: NodePropTypes.node.isRequired,
     readOnly: PropTypes.bool.isRequired,
 }
 

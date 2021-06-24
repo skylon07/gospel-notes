@@ -40,8 +40,8 @@ function Draggable(props) {
     
     mountEventListeners(propsRef, stateRef, dragRef, setHolding)
 
-    // NOTE: a scale container is used to allow unscaled coordinates to be
-    //       used in translating the element absolutely
+    // a scale container is used to allow unscaled coordinates to be
+    // used in translating the element absolutely
     return (
         <div
             ref={dragRef}
@@ -94,7 +94,7 @@ function mountEventListeners(propsRef, stateRef, dragRef, setHolding) {
             elem.removeEventListener("mousemove", mouseMove);
             elem.removeEventListener("mouseup", mouseUp);
         }
-    }, [dragRef, setHolding])
+    }, [propsRef, stateRef, dragRef, setHolding])
 }
 
 // (this function is called inside the effect; no need to memoize anything)
@@ -171,8 +171,8 @@ function createHelperCallbacks(dragRef, setHolding) {
     const setDragTransform = (boundsAsRect) => {
         const transX = boundsAsRect.left
         const transY = boundsAsRect.top
-        // NOTE: transform is used to keep the element in the same
-        //       document flow while still visually moving
+        // transform is used to keep the element in the same
+        // document flow while still visually moving
         dragRef.current.style.setProperty(
             "transform",
             `translate(${transX}px, ${transY}px)`

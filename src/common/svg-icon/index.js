@@ -137,7 +137,7 @@ function SVGIcon(props) {
         base: "SVGIcon",
         filters: [{
             value: props.type,
-            useIf: !!created.icons[props.type],
+            useIf: created.icons[props.type],
             otherwise: "invalid",
         }],
     })

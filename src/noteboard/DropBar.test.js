@@ -209,7 +209,7 @@ describe("listener callback tests", () => {
     });
 
     // TODO: remove at a later date, when this is *for sure* no longer needed
-    // NOTE: DropBarGroups are not used anymore; _beforeDrop is obsolete
+    // XXX: DropBarGroups are not used anymore; _beforeDrop is obsolete
     // it("triggers the hidden _beforeDrop(ref, dropped) prop", () => {
     //     const _beforeDrop = jest.fn();
     //     act(() => {
@@ -243,9 +243,9 @@ describe("group animation tests", () => {
         const dropBars = root.children
     
         for (const dropBar of dropBars) {
-            // NOTE: not sure, but toHaveClass(base, dropping, raising) was
-            //       avoided since .not is being used, and that behavior isn't
-            //       understood (what if two of three classes were present?)
+            // not sure, but toHaveClass(base, dropping, raising) was
+            // avoided since .not is being used, and that behavior isn't
+            // understood (what if two of three classes were present?)
             expect(dropBar).not.toHaveClass(base);
             expect(dropBar).not.toHaveClass(dropping)
             expect(dropBar).not.toHaveClass(raising)
@@ -282,9 +282,9 @@ describe("group animation tests", () => {
         const dropBars = root.children
     
         for (const dropBar of dropBars) {
-            // NOTE: not sure, but toHaveClass(base, dropping, raising) was
-            //       avoided since .not is being used, and that behavior isn't
-            //       understood (what if two of three classes were present?)
+            // not sure, but toHaveClass(base, dropping, raising) was
+            // avoided since .not is being used, and that behavior isn't
+            // understood (what if two of three classes were present?)
             expect(dropBar).not.toHaveClass(base);
             expect(dropBar).not.toHaveClass(dropping)
             expect(dropBar).not.toHaveClass(raising)

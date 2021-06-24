@@ -8,5 +8,5 @@ it("renders without crashing", () => {
     render(<BetaDisclaimer hidden />, div);
 });
 
-// NOTE: not many tests needed for this component
-//       since it is just a temporary disclosure
+// not many tests needed for this component
+// since it is just a temporary disclosure

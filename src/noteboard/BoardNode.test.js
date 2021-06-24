@@ -206,7 +206,7 @@ describe("context change listener tests", () => {
             })
             const boardNode = grabBoardNode()
             const noteBox = grabChildFrom(boardNode)
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-unused-vars
             const [_, contentField] = grabNoteBoxFields(noteBox)
             
             // change via textarea: handled

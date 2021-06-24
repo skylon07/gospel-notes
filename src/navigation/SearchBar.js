@@ -4,6 +4,7 @@ import "./SearchBar.css";
 
 import { SVGIcon } from "common/svg-icon";
 
+// TODO: change force prop to a ref accessible function
 function SearchBar(props) {
     const inputRef = useRef(null)
     const select = () => {

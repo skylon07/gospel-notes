@@ -1,15 +1,15 @@
 import { useRef, useEffect } from "react"
 
 function useMountedState() {
-    const ref = useRef(false)
+    const mountedRef = useRef(false)
 
     useEffect(() => {
-        ref.current = true
+        mountedRef.current = true
         return () => {
-            ref.current = false
+            mountedRef.current = false
         }
     }, [])
 
-    return ref.current
+    return mountedRef.current
 }
 export default useMountedState

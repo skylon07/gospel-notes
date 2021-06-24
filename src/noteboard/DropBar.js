@@ -18,7 +18,7 @@ const STYLE = {
             --bottom-bar-shift: ${offset}px;
         }`;
     },
-    // NOTE: this number should reflect the variable in the .css sheet
+    // this number should reflect the variable in the .css sheet...
     bottomBarHeight: 6,
 };
 
@@ -27,11 +27,12 @@ function DropBar(props) {
     const contentRef = useRef(null)
     
     const bottomBarClassName = useClassName({
-        noMountingAnimation: true,
         base: "BottomBar",
-        choices: [{
-            values: ["raised", "dropped"],
-            useKey: Number(!!dropped),
+        noMountingAnimation: true,
+        filters: [{
+            value: "dropped",
+            useIf: dropped,
+            otherwise: "raised",
         }],
     })
     
@@ -45,6 +46,9 @@ function DropBar(props) {
         })
     }
     
+    // TODO: this is a case of using useEffect as a "semantic guarantee";
+    //       this should be rewritten to not use the hook this way
+    //       (and on that note... this hook probably shouldn't exist)
     useEffectOnUpdate(() => {
         const animationDirection = dropped ? "dropping" : "raising"
         updateSiblingAndParentClasses(contentRef.current, animationDirection)
@@ -123,9 +127,9 @@ function scrollParentIfUnderflow(parent, contentElem) {
     const maxScrollBottom = parent.scrollHeight - heightChange
     const scrollBottom = parent.scrollTop + parent.offsetHeight
     
-    // NOTE: canScroll helps prevent making scrollBy() calls to elements
-    //       that can't scroll (likely because this DropBar is in a wrapper
-    //       element, and therefore taking all the height)
+    // canScroll helps prevent making scrollBy() calls to elements
+    // that can't scroll (likely because this DropBar is in a wrapper
+    // element, and therefore taking all the height)
     const canScroll = parent.scrollTop > 0
     const scrollDiff = maxScrollBottom - scrollBottom
     if (scrollDiff < 0 && canScroll) {
@@ -152,43 +156,16 @@ function setAnimationClasses(elem, animationDirection) {
         removeAll,
         { once: true }
     );
-    
-    
-    const addListener = () => elem.addEventListener(
-        "animationend",
-        () => {
-            // ensures that the same animation can re-run multiple times
-            elem.classList.remove(base, dropping, raising);
-        },
-        { once: true }
-    );
-
-    switch (animationDirection) {
-        case "dropping":
-            elem.classList.add(base, dropping);
-            // NOTE:
-            elem.classList.remove(raising);
-            addListener()
-            break;
-
-        case "raising":
-            elem.classList.add(base, raising);
-            elem.classList.remove(dropping);
-            addListener()
-            break;
-
-        default:
-            elem.classList.remove(base, dropping, raising);
-    }
 }
 
 function DropdownButton(props) {
-    const className = useClassName({
+        const className = useClassName({
         base: "DropdownButton",
         noMountingAnimation: true,
-        choices: [{
-            values: ["raised", "dropped"],
-            useKey: Number(!!props.dropped),
+        filters: [{
+            value: "dropped",
+            useIf: props.dropped,
+            otherwise: "raised",
         }],
     })
     
@@ -225,9 +202,10 @@ const DropBarContent = React.forwardRef(function (props, ref) {
     const className = useClassName({
         base: "DropBarContent",
         noMountingAnimation: true,
-        choices: [{
-            values: ["raised", "dropped"],
-            useKey: Number(!!props.dropped),
+        filters: [{
+            value: "dropped",
+            useIf: props.dropped,
+            otherwise: "raised",
         }],
     })
     
