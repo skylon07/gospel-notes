@@ -2,24 +2,21 @@ import React from 'react'
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 
-import { createNodeStoreForTesting } from "./datastore.js"
+import nodeStore from "./datastore.js"
 
 import NoteBoard from "./NoteBoard.js";
 
 let root = null;
-let nodeStore = null
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
-    
-    nodeStore = createNodeStoreForTesting()
 });
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
     
-    nodeStore = null
+    nodeStore.DANGEROUS_clearForTestingOnly()
 });
 
 function grabNoteBoard() {
