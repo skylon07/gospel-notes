@@ -13,8 +13,9 @@ function Holdable(props) {
         if (typeof props.onHold === "function") {
             props.onHold();
         }
-        // NOTE: this is in case alerts or UI bugs prevent cancelTouchHold()
-        //       from running
+        // NOTE: alerts and UI bugs prevent cancelTouchHold() from running,
+        //       so this ensures the mouse is useable even if the touchend event
+        //       is never fired
         mouseIgnored.current = false
     }
     
@@ -70,7 +71,7 @@ function Holdable(props) {
             className="Holdable"
             onTouchStart={startTouchHold}
             onTouchEnd={cancelTouchHold}
-            // NOTE: onTouchMove cancels for cases where the user is scrolling
+            // onTouchMove cancels for cases like when the user is scrolling
             onTouchMove={cancelTouchHold}
             onMouseDown={startMouseHold}
             onMouseUp={cancelMouseHold}

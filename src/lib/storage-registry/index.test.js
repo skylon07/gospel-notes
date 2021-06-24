@@ -6,13 +6,13 @@ const SEPARATORS = {
 };
 
 // TODO: many of these tests do not currently work and need to be reviewed
-// NOTE: Storage Registries likely will be removed in the near future; there is
+// XXX: Storage Registries likely will be removed in the near future; there is
 //       no need to revise these tests
 let mockLocalStorage = null;
 // NOTE: __proto__ must be spied on; this actually returns a jest fn()
 // jest.spyOn(localStorage.__proto__, "getItem").mockImplementation(
 //     function (storageKey) {
-//         // NOTE: this does not work...?
+//         // FIXME: this does not work...?
 //         // return mockLocalStorage()[storageKey];
 //     }
 // );
@@ -48,7 +48,7 @@ describe("initialization tests", () => {
         // expect(localStorage.setItem).toBeCalledWith("storageKey", "")
     })
 
-    // NOTE: can't get this test to work... localStorage won't actually update, and I can't
+    // FIXME: can't get this test to work... localStorage won't actually update, and I can't
     //       figure out a way to make getItem() return a specific value
     // it("initialises with the previously stored localStorage value", () => {
     //     storage.setKeyString("key", "val")

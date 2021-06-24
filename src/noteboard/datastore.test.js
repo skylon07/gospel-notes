@@ -1,11 +1,8 @@
-import { createNodeStoreForTesting } from './datastore.js'
+import nodeStore from './datastore.js'
 
 let nodeStore = null
-beforeEach(() => {
-    nodeStore = createNodeStoreForTesting()
-})
 afterEach(() => {
-    nodeStore = null
+    nodeStore.DANGEROUS_clearForTestingOnly()
 })
 
 describe("NodeStorage tests", () => {
@@ -97,7 +94,6 @@ describe("NodeStorage tests", () => {
 
 describe("Node tests", () => {
     it("is created with valid NoteBox data", () => {
-        // NOTE: "valid data" = title (string) and content (string)
         const title = "title"
         const content = "content"
         const dataNotToInclude = "this should not be in the data"
@@ -107,7 +103,6 @@ describe("Node tests", () => {
     })
     
     it("is created with valid DropBar data", () => {
-        // NOTE: "valid data" = title (string)
         const title = "title"
         const iconType = "icon type"
         const dataNotToInclude = "this should not be in the data"
@@ -117,7 +112,6 @@ describe("Node tests", () => {
     })
     
     it("is created with valid Folder data", () => {
-        // NOTE: "valid data" = title (string)
         const title = "title"
         const dataNotToInclude = "this should not be in the data"
         const node = nodeStore.createNode("Folder", { title, dataNotToInclude })

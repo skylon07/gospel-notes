@@ -74,7 +74,8 @@ export class SearchIndex {
         const doc = this._createDoc(refName, fields)
         
         this._ensureIndexCanHold(fields)
-        // NOTE: remove/add allows both adding and updating documents
+        // remove/add allows both adding and updating documents (lunr already
+        // uses this as its update algorithm)
         this._idx.remove(doc)
         this._idx.add(doc)
     }

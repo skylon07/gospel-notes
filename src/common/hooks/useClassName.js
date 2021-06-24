@@ -16,7 +16,7 @@ const WARN = {
     },
 }
 
-// NOTE: this deals with CSS classes, not JS classes
+// (this deals with CSS classes, not JS classes)
 // options objects have these parameters:
 //      base - a string representing the component name or base class
 //      noMountingAnimation - a boolean telling useClassName() to return
@@ -71,9 +71,10 @@ function joinValidatedStrings(trackerDict) {
     for (const trackerName in trackerDict) {
         const tracker = trackerDict[trackerName]
         if (!tracker.isValidated) {
-            // NOTE: this is an error because it also means a classString was
-            //       never given (and therefore breaks the joining process)
-            ERROR.internal(`Option "${trackerName} was never marked as validated`)
+            // this is an error because it not only isn't validated, but also
+            // means a classString was never given (and therefore breaks the
+            // joining process)
+            ERROR.internal(`Option "${trackerName}" was never marked as validated`)
         }
         
         joinedStrings = combineClassStrings(joinedStrings, tracker.classString)
@@ -91,8 +92,8 @@ function combineClassStrings(classString, newClass) {
     }
 }
 
-// distributes processing into different phases
-// NOTE: this module should NOT THROW ERRORS (directly, at least)
+// distributes processing into different phases;
+// this module should NOT THROW ERRORS (directly, at least)
 class Processor {
     static processOptions(options, state) {
         Validator.validateOptions(options, state)
@@ -193,8 +194,8 @@ class Processor {
     }
 }
 
-// has nothing but helpful type checking functions
-// NOTE: all error throwing should be done here (and through the ERROR object)
+// has nothing but helpful type checking functions;
+// all error throwing should be done here (and through the ERROR object)
 class Validator {
     static validateOptions(options, state) {
         if (typeof options !== "object" || options === null) {
@@ -224,7 +225,7 @@ class Validator {
     }
     
     static checkType(type, value, mustExist=false, strict=false) {
-        // NOTE: undefined is valid by default, unless you pass "mustExist"
+        // undefined is valid by default, unless you pass "mustExist"
         if (value === undefined) {
             return !mustExist
         }
@@ -252,7 +253,8 @@ class Validator {
     
     static objectHasShape(object, shape, strict=false) {
         if (typeof shape !== "object" || shape === null) {
-            // NOTE: useClassName() internally is the only one to define shapes
+            // useClassName() should not pass invalid shapes (the switch block
+            // in checkType() ensures validity by typechecking)
             ERROR.internal(`Invalid shape to compare with: ${shape}`)
         }
         if (typeof object !== "object") {

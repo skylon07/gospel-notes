@@ -3,7 +3,8 @@ class NodeStoreSingleton {
     constructor() {
         this._construct()
     }
-    // NOTE: having a re-callable initializer allows resetting the singleton
+    // having a re-callable initializer allows resetting the singleton
+    // (for testing)
     _construct() {
         this._nodesById = {}
     }
@@ -65,14 +66,6 @@ class NodeStoreSingleton {
 }
 export const nodeStore = new NodeStoreSingleton()
 export default nodeStore
-
-// NOTE: this only simulates creating a new node store, since NodeParents
-//       reference the singleton directly (and allows other modules to test and
-//       reset via nodeStore.clearForTesting())
-export function createNodeStoreForTesting() {
-    nodeStore.DANGEROUS_clearForTestingOnly()
-    return nodeStore
-}
 
 // represents a set of data accessible by the database by a unique ID
 class NodeParent {
@@ -188,7 +181,7 @@ class NodeParent {
         this._changed("data")
     }
     
-    // NOTE: this is a READ ONLY array
+    // please note this is a READ ONLY array
     get children() {
         return this._children.copyReadOnly()
     }
@@ -258,8 +251,8 @@ class NodeParent {
         return null
     }
     
-    // NOTE: this removes ALL occurences of a node from ALL of its parents, and
-    //       returns a list of every parent node that was affected
+    // this removes ALL occurences of a node from ALL of its parents, and
+    // returns a list of every parent node that was affected
     removeFromParents() {
         const parents = []
         for (const parentId in this._parentCounter) {

@@ -5,6 +5,7 @@ import { act } from "react-dom/test-utils";
 import Draggable from "./Draggable.js";
 
 // NOTE: modern is required as it allows setState() to run inside timeouts
+// (otherwise, React won't be able to complete its lifecycle)
 jest.useFakeTimers("modern");
 
 let root = null;
@@ -171,7 +172,7 @@ it("moves when touched and dragged across the screen", () => {
     expect(draggable).toHaveStyle({ transform: "translate(150px, 150px)" });
 });
 
-// NOTE: this is currently not aupported, however may be brought back if required
+// XXX: this is currently not aupported, however may be brought back if required
 // describe("ref tests", () => {
 //    it("correctly updates dragRef when given object-refs", () => {
 //        const dragRef = React.createRef();

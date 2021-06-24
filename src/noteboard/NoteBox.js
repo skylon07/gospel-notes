@@ -137,7 +137,7 @@ function detectChange(ref, lastValue, onChange) {
     let currValue = ref.current.value
     // eval is used to generate the regex (because of <>); this is
     // perfectly safe usage (talking to you eslint)
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-eval
     const regex = eval("/<br>/gi")
     // convert breaks to newlines
     currValue = currValue.replace(regex, "\n");

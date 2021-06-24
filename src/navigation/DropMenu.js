@@ -28,8 +28,8 @@ const DropMenu = React.forwardRef(function (props, ref) {
         }
     }, [])
     
-    // NOTE: refs are used to allow buttons inside this menu's content to change
-    //       menu state (for example, a "close menu" button hiding the menu)
+    // refs are used to allow buttons inside this menu's content to change
+    // menu state (for example, a "close menu" button hiding the menu)
     useImperativeHandle(ref, () => {
         const hide = () => setHidden(true)
         return { hide }
@@ -38,8 +38,8 @@ const DropMenu = React.forwardRef(function (props, ref) {
     return <div
         data-testid="drop-menu"
         className="DropMenu"
-        // NOTE: we only want to hide the menu when clicks happen outside the
-        //       menu; this binding ensures just that
+        // we only want to hide the menu when clicks happen outside the
+        // menu; this binding ensures just that
         onClick={ignoreHideFromWindow}
     >
         <button className="ToggleButton" onClick={toggleHidden}>

@@ -198,8 +198,9 @@ describe("cancel tests", () => {
                     touches: [makeTouch(holdable, 50, 50)],
                 })
             );
-            // NOTE: dispatched to allow fake-move-detection to work properly
-            //       (see the "ignores 'still'..." test below; it ensures this logic works correctly)
+            // dispatched to allow fake-move-detection to work properly
+            // (see the "ignores 'still'..." test below; it ensures this
+            // logic works correctly)
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,
@@ -242,8 +243,9 @@ describe("cancel tests", () => {
                     touches: [makeTouch(holdable, 50, 50)],
                 })
             );
-            // NOTE: all touchmove events are on the same coordinate to simulate
-            //       the odd behavior of these events being fired without actually moving
+            // all touchmove events are fired with the same coordinates to
+            // simulate the odd-yet-real behavior of these events being fired
+            // without actually moving
             holdable.dispatchEvent(
                 new TouchEvent("touchmove", {
                     bubbles: true,

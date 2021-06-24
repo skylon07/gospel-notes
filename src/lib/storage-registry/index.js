@@ -64,7 +64,8 @@ export class StorageRegistry {
         return result;
     }
 
-    // NOTE: key/str pair is stored immediately, but localStorage is updated asyncronously
+    // key/str pair is stored immediately, but localStorage is updated
+    // asyncronously
     setKeyString(key, str) {
         if (key === "") {
             throw new RegistryStoreError(

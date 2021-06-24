@@ -3,6 +3,7 @@ This is a small library that was built to provide help with
 fitting text into HTML elements.
 */
 
+// XXX: this code is outdated and needs to be refactored
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -25,7 +26,7 @@ class TextNode extends React.Component {
     }
 
     render() {
-        // NOTE: children should be a raw string of text
+        // children are expected to be a raw string of text
         return (
             <div
                 data-testid="text-node"

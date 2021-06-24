@@ -12,38 +12,11 @@ const DISPLAY_MODES = {
     search: "search",
 }
 
-// a hook that stores a stack of lists of nodes in state
-export function useNodeStack(initNodes=[]) {
-    // NOTE: YES, we want a 2D array in state; "[initNodes]" is correct (this
-    //       way, we guarantee there is always a "current list" in the stack)
-    const [nodeStack, setNodeStack] = useState([initNodes])
-    
-    const pushNodesToStack = (nodeIds) => {
-        setNodeStack((nodeStack) => {
-            return [nodeIds, ...nodeStack]
-        })
-    }
-    
-    const popNodesFromStack = () => {
-        setNodeStack((nodeStack) => {
-            if (nodeStack.length > 1) {
-                return nodeStack.slice(1)
-            } else {
-                // guarantees there is always a "current list" on the stack
-                const nodes = []
-                return [nodes]
-            }
-        })
-    }
-    
-    return [nodeStack, pushNodesToStack, popNodesFromStack]
-}
-
 const searchIndex = new NodeSearchIndex()
 
-function MainApp(props) {
+function MainApp() {
     const [nodeStack, pushToNodeStack, popFromNodeStack] = useNodeStack()
-    const currNodeIds = nodeStack[0]
+    const currNodeIds = nodeStack[0] || []
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
     const topBarRef = useRef(null)
     
@@ -77,7 +50,6 @@ function MainApp(props) {
         popFromNodeStack()
         pushToNodeStack(currNodeIds.concat(newNode.id))
     }
-    const addButton = renderAddButton(onAddNode)
     
     return <div data-testid="main-app" className="MainApp">
         <BetaDisclaimer /> 
@@ -98,13 +70,38 @@ function MainApp(props) {
                 onRemoveChild={removeNodeFromIndex}
             >
                 {currNodeIds}
-                {addButton}
+                {renderAddButton(onAddNode)}
                 <div className="ScrollExtension" />
             </NoteBoard>
         </MainWindow>
     </div>
 }
 export default MainApp
+
+// a hook that stores a stack of lists of nodes in state
+export function useNodeStack(initNodes=[]) {
+    // YES, we want a 2D array in state; "[initNodes]" is correct
+    const [nodeStack, setNodeStack] = useState([initNodes])
+    
+    const pushNodesToStack = (nodeIds) => {
+        setNodeStack((nodeStack) => {
+            return [nodeIds, ...nodeStack]
+        })
+    }
+    
+    const popNodesFromStack = () => {
+        setNodeStack((nodeStack) => {
+            if (nodeStack.length === 0) {
+                throw new Error("MainApp: Cannot pop from empty node stack!")
+            }
+            return nodeStack.slice(1)
+        })
+    }
+    
+    return [nodeStack, pushNodesToStack, popNodesFromStack]
+}
+
+
 
 function renderMenuContent(topBarRef) {
     const hideMenu = () => topBarRef.current.hideMenu()

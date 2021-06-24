@@ -36,37 +36,6 @@ NoteBoard.defaultProps = {
 }
 export default NoteBoard
 
-// TODO: move to main app
-// function renderAddButton(addChild, readOnly) {
-//     if (readOnly) {
-//         return // shouldn't have an add button in read only mode!
-//     }
-    
-//     const types = {
-//         NoteBox: "NoteBox",
-//         DropBar: "DropBar",
-//         nb: "NoteBox",
-//         db: "DropBar",
-//     }
-    
-//     const promptAddNode = () => {
-//         // TODO: custom prompt interface
-//         let nodeType = window.prompt("Enter a node type")
-//         while (nodeType && !types[nodeType]) {
-//             nodeType = window.prompt("Please enter a valid node type", nodeType)
-//         }
-        
-//         nodeType = types[nodeType]
-//         if (nodeType) {
-//             addChild(nodeType)
-//         }
-//     }
-    
-//     return <AddButton onClick={promptAddNode}>
-//         Add Note
-//     </AddButton>
-// }
-
 function trigger(possibleFn, ...args) {
     if (typeof possibleFn === "function") {
         possibleFn(...args)

@@ -55,7 +55,7 @@ it("renders a blank icon by default", () => {
     const svg = grabSVGFrom(icon)
     const children = [...svg.childNodes]
 
-    // NOTE: this assumes a blank icon is an SVG with no children
+    // this assumes a blank icon is an SVG with no children
     expect(children).toStrictEqual([]);
 });
 
@@ -67,8 +67,8 @@ it("renders an icon when provided with a type", () => {
     const icon = grabSVGIcon();
     const svg = grabSVGFrom(icon)
     
-    // NOTE: this also tests that the bars/burger icon consists of three lines;
-    //       that is less important than the fact it simply has an icon
+    // this also tests that the bars/burger icon consists of three lines;
+    // that is less important than the fact it simply has an icon
     expect(svg.children.length).toBe(3);
     for (const child of svg.children) {
         expect(child.tagName.toLowerCase()).toBe("line");
