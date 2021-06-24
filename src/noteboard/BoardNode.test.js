@@ -4,22 +4,19 @@ import { act } from "react-dom/test-utils";
 
 import { NoteBoardCallbacks } from "./NoteBoard.js"
 import BoardNode from "./BoardNode.js";
-import { createNodeStoreForTesting } from "./datastore.js"
+import nodeStore from "./datastore.js"
 
 let root = null;
-let nodeStore = null
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
-    
-    nodeStore = createNodeStoreForTesting()
 });
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
     
-    nodeStore = null
+    nodeStore.DANGEROUS_clearForTestingOnly()
 });
 
 function grabBoardNode() {

@@ -1,6 +1,5 @@
 import nodeStore from './datastore.js'
 
-let nodeStore = null
 afterEach(() => {
     nodeStore.DANGEROUS_clearForTestingOnly()
 })
