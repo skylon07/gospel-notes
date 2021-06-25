@@ -1,28 +1,28 @@
-import React, { useState, useRef, useImperativeHandle } from "react";
-import { useClassName } from "common/hooks";
-import PropTypes from "prop-types";
-import "./TopBar.css";
+import React, { useState, useRef, useImperativeHandle } from "react"
+import { useClassName } from "common/hooks"
+import PropTypes from "prop-types"
+import "./TopBar.css"
 
-import { SVGIcon } from "common/svg-icon";
+import { SVGIcon } from "common/svg-icon"
 
-import DropMenu from "./DropMenu.js";
-import SearchBar from "./SearchBar.js";
+import DropMenu from "./DropMenu.js"
+import SearchBar from "./SearchBar.js"
 
 const MODES = {
     nav: "nav", // navigation buttons are showing
     search: "search", // search bar is showing
-};
+}
 
 const TopBar = React.forwardRef(function (props, ref) {
-    const [mode, setMode] = useState(MODES.nav);
+    const [mode, setMode] = useState(MODES.nav)
     const changeMode = (newMode) => {
-        setMode(newMode);
+        setMode(newMode)
         if (typeof props.onModeChange === "function") {
-            props.onModeChange(newMode);
+            props.onModeChange(newMode)
         }
-    };
-    const navMode = () => changeMode("nav");
-    const searchMode = () => changeMode("search");
+    }
+    const navMode = () => changeMode("nav")
+    const searchMode = () => changeMode("search")
 
     const navClassName = useClassName({
         base: "Nav",
@@ -33,7 +33,7 @@ const TopBar = React.forwardRef(function (props, ref) {
                 useKey: mode,
             },
         ],
-    });
+    })
     const searchClassName = useClassName({
         base: "Search",
         noMountingAnimation: true,
@@ -43,13 +43,13 @@ const TopBar = React.forwardRef(function (props, ref) {
                 useKey: mode,
             },
         ],
-    });
+    })
 
-    const menuRef = useRef(null);
+    const menuRef = useRef(null)
     useImperativeHandle(ref, () => {
-        const { hide: hideMenu } = menuRef.current;
-        return { hideMenu };
-    });
+        const { hide: hideMenu } = menuRef.current
+        return { hideMenu }
+    })
 
     const buttons = props.navButtons.map((buttonData) => {
         // TODO: render buttons with short names when the screen can't fit the
@@ -62,14 +62,14 @@ const TopBar = React.forwardRef(function (props, ref) {
             >
                 {buttonData.fullName}
             </TopBarButton>
-        );
+        )
 
         const spacer = (
             <div key={`${buttonData.key}-Spacer`} className="Spacer" />
-        );
+        )
 
-        return [button, spacer];
-    });
+        return [button, spacer]
+    })
 
     // the order is weird because the animation bounds need to be "behind" the menu
     return (
@@ -92,8 +92,8 @@ const TopBar = React.forwardRef(function (props, ref) {
             </div>
             <DropMenu ref={menuRef}>{props.menuContent}</DropMenu>
         </div>
-    );
-});
+    )
+})
 TopBar.propTypes = {
     menuContent: PropTypes.node,
     // TODO: write test (after there are buttons...)
@@ -108,11 +108,11 @@ TopBar.propTypes = {
     selectedNavButton: PropTypes.number,
     onSearchClick: PropTypes.func,
     onModeChange: PropTypes.func,
-};
+}
 TopBar.defaultProps = {
     navButtons: [],
-};
-export default TopBar;
+}
+export default TopBar
 
 function TopBarButton(props) {
     const className = useClassName({
@@ -123,7 +123,7 @@ function TopBarButton(props) {
                 useIf: props.selected,
             },
         ],
-    });
+    })
 
     return (
         <button
@@ -133,13 +133,13 @@ function TopBarButton(props) {
         >
             {props.children}
         </button>
-    );
+    )
 }
 TopBarButton.propTypes = {
     children: PropTypes.node,
     selected: PropTypes.bool,
     onClick: PropTypes.func,
-};
+}
 TopBarButton.defaultProps = {
     selected: false,
-};
+}

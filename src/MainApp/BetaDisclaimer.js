@@ -1,14 +1,14 @@
-import React from "react";
-import "./BetaDisclaimer.css";
+import React from "react"
+import "./BetaDisclaimer.css"
 
 export default class BetaDisclaimer extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             showing: true,
             fading: false,
-        };
+        }
     }
 
     render() {
@@ -28,7 +28,7 @@ export default class BetaDisclaimer extends React.Component {
                 </h3>
                 <button onClick={() => this.fade()}>Continue anyway</button>
             </div>
-        );
+        )
     }
 
     // using state to control animations/direct styles on elements is
@@ -38,19 +38,19 @@ export default class BetaDisclaimer extends React.Component {
     makeStyle() {
         if (!this.state.showing) {
             if (this.state.fading) {
-                return { animationName: "BetaDisclaimer_fadeOut" };
+                return { animationName: "BetaDisclaimer_fadeOut" }
             } else {
-                return { display: "none" };
+                return { display: "none" }
             }
         }
-        return {};
+        return {}
     }
 
     fade() {
-        this.setState({ showing: false, fading: true });
+        this.setState({ showing: false, fading: true })
     }
 
     afterFade() {
-        this.setState({ showing: false, fading: false });
+        this.setState({ showing: false, fading: false })
     }
 }

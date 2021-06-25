@@ -2,8 +2,10 @@
     "env": {
         "browser": true,
         "node": true,
-        "es2021": true
+        "es2021": true,
+        "jest": true
     },
+    "parser": "babel-eslint",
     "extends": ["eslint:recommended", "plugin:react/recommended"],
     "parserOptions": {
         "ecmaFeatures": {
@@ -12,12 +14,14 @@
         "ecmaVersion": 12,
         "sourceType": "module"
     },
-    "plugins": ["react"],
+    "plugins": ["react", "react-hooks"],
     "rules": {
-        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "indent": ["error", 4, { "SwitchCase": 1, "ignoredNodes": ["ConditionalExpression"] }],
         "linebreak-style": ["error", "unix"],
         "no-fallthrough": "off",
         "quotes": ["error", "double"],
-        "semi": ["error", "never"]
+        "semi": ["error", "never"],
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "error"
     }
 }
