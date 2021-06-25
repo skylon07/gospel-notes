@@ -44,6 +44,17 @@ function DropBar(props) {
         setDropped((dropped) => {
             return !dropped
         })
+
+        // HACK: useEffect() does not apply the animation classes fast enough and
+        //       causes twitchy DOM elements; requestAnimationFrame() is used to
+        //       get around this problem
+        window.requestAnimationFrame(() => {
+            // NOTE: to conform to React rules as best as possible, please DO NOT
+            //       RUN anything here that does not directly relate to setting
+            //       temporary CSS classes/animations to DOM elements
+            const nextAnimationDirection = dropped ? "raising" : "dropping"
+            updateSiblingAndParentClasses(contentRef.current, nextAnimationDirection)
+        })
     }
     
     // TODO: this is a case of using useEffect as a "semantic guarantee";
@@ -151,6 +162,7 @@ function setAnimationClasses(elem, animationDirection) {
     removeAll()
     elem.classList.add(base, animationDirection);
     // ensures that the same animation can re-run multiple times
+    // (and reduces chances of ReactDOM-DOM className conflicts)
     elem.addEventListener(
         "animationend",
         removeAll,
