@@ -54,11 +54,13 @@ function DropBar(props) {
             // NOTE: to conform to React rules as best as possible, please DO NOT
             //       RUN anything here that does not directly relate to setting
             //       temporary CSS classes/animations to DOM elements
-            const nextAnimationDirection = dropped ? "raising" : "dropping";
-            updateSiblingAndParentClasses(
-                contentRef.current,
-                nextAnimationDirection
-            );
+            if (contentRef.current) {
+                const nextAnimationDirection = dropped ? "raising" : "dropping";
+                updateSiblingAndParentClasses(
+                    contentRef.current,
+                    nextAnimationDirection
+                );
+            }
         });
     };
 
@@ -154,7 +156,9 @@ function setAnimationClasses(elem, animationDirection) {
     const base = "DropBarTransform";
     const dropping = "dropping";
     const raising = "raising";
-    const removeAll = () => elem.classList.remove(base, dropping, raising);
+    const removeAll = () => {
+        elem.classList.remove(base, dropping, raising);
+    };
 
     // ensures fresh start in case other animations have not completed
     removeAll();

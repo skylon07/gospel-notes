@@ -1,39 +1,39 @@
-import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
-import { useClassName } from "common/hooks";
-import PropTypes from "prop-types";
-import "./DropMenu.css";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react"
+import { useClassName } from "common/hooks"
+import PropTypes from "prop-types"
+import "./DropMenu.css"
 
-import { SVGIcon } from "common/svg-icon";
+import { SVGIcon } from "common/svg-icon"
 
-const DropMenu = React.forwardRef(function (props, ref) {
-    const [hidden, setHidden] = useState(props.initHidden);
+const DropMenu = React.forwardRef(function DropMenu(props, ref) {
+    const [hidden, setHidden] = useState(props.initHidden)
     const toggleHidden = () => {
-        setHidden((hidden) => !hidden);
-    };
-    const windowIgnored = useRef(false);
+        setHidden((hidden) => !hidden)
+    }
+    const windowIgnored = useRef(false)
     const ignoreHideFromWindow = () => {
-        windowIgnored.current = true;
-    };
+        windowIgnored.current = true
+    }
 
     useEffect(() => {
         const hideFromWindow = () => {
             if (!windowIgnored.current) {
-                setHidden(true);
+                setHidden(true)
             }
-            windowIgnored.current = false;
-        };
-        window.addEventListener("click", hideFromWindow);
+            windowIgnored.current = false
+        }
+        window.addEventListener("click", hideFromWindow)
         return () => {
-            window.removeEventListener("click", hideFromWindow);
-        };
-    }, []);
+            window.removeEventListener("click", hideFromWindow)
+        }
+    }, [])
 
     // refs are used to allow buttons inside this menu's content to change
     // menu state (for example, a "close menu" button hiding the menu)
     useImperativeHandle(ref, () => {
-        const hide = () => setHidden(true);
-        return { hide };
-    });
+        const hide = () => setHidden(true)
+        return { hide }
+    })
 
     return (
         <div
@@ -48,16 +48,16 @@ const DropMenu = React.forwardRef(function (props, ref) {
             </button>
             <DropMenuBox hidden={hidden}>{props.children}</DropMenuBox>
         </div>
-    );
-});
+    )
+})
 DropMenu.propTypes = {
     children: PropTypes.node,
     initHidden: PropTypes.bool,
-};
+}
 DropMenu.defaultProps = {
     initHidden: true,
-};
-export default DropMenu;
+}
+export default DropMenu
 
 function DropMenuBox(props) {
     const className = useClassName({
@@ -70,7 +70,7 @@ function DropMenuBox(props) {
                 otherwise: "showing",
             },
         ],
-    });
+    })
 
     return (
         <div
@@ -81,10 +81,10 @@ function DropMenuBox(props) {
             <div className="Shadow" />
             {props.children}
         </div>
-    );
+    )
 }
 DropMenuBox.propTypes = {
     children: PropTypes.node,
     hidden: PropTypes.bool.isRequired,
     onClick: PropTypes.func,
-};
+}

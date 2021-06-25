@@ -1,14 +1,14 @@
 export class RegistryCreationError extends Error {
     constructor(msg) {
-        super(msg);
-        this.name = "RegistryCreationError";
+        super(msg)
+        this.name = "RegistryCreationError"
     }
 }
 
 export class RegistryStoreError extends Error {
     constructor(msg) {
-        super(msg);
-        this.name = "RegistryStoreError";
+        super(msg)
+        this.name = "RegistryStoreError"
     }
 }
 
@@ -18,50 +18,50 @@ const SEPARATORS = {
     // pair: '≡' + ',' + '≡',
     item: "≡;≡",
     pair: "≡,≡",
-};
+}
 
 // a registry for localStorage management
 export class StorageRegistry {
     static DANGEROUS_clearStorage() {
-        localStorage.clear();
+        localStorage.clear()
     }
 
     constructor(storageKey) {
         if (!storageKey || typeof storageKey !== "string") {
             throw new RegistryCreationError(
                 `StorageRegistry must be created with a non-null string (got '${storageKey}')`
-            );
+            )
         }
 
-        this._storageKey = storageKey;
-        this._updateQueued = false;
-        this._reset = false;
-        this._initStoredStrs();
+        this._storageKey = storageKey
+        this._updateQueued = false
+        this._reset = false
+        this._initStoredStrs()
     }
 
     // overridden by implementation
     onStoreFinish() {}
     onStoreFull() {}
-    onStoreError(error) {}
+    onStoreError() {}
 
     get keys() {
-        return Object.keys(this._strs);
+        return Object.keys(this._strs)
     }
 
     get empty() {
-        return this.numberKeys === 0;
+        return this.numberKeys === 0
     }
 
     get numberKeys() {
-        return this.keys.length;
+        return this.keys.length
     }
 
     getKey(key) {
-        const result = this._strs[key];
+        const result = this._strs[key]
         if (result === undefined) {
-            return null;
+            return null
         }
-        return result;
+        return result
     }
 
     // key/str pair is stored immediately, but localStorage is updated
@@ -69,51 +69,51 @@ export class StorageRegistry {
     setKeyString(key, str) {
         if (key === "") {
             throw new RegistryStoreError(
-                `Cannot set empty string ('') as storage key`
-            );
+                "Cannot set empty string ('') as storage key"
+            )
         }
         if (typeof str !== "string" && typeof str !== "number") {
             if (typeof str === "symbol") {
-                str = "Symbol()";
+                str = "Symbol()"
             }
             throw new RegistryStoreError(
                 `Cannot set storage key '${key}' to non-string/number '${str}'`
-            );
+            )
         }
         if (str.includes(SEPARATORS.pair) || str.includes(SEPARATORS.item)) {
             throw new RegistryStoreError(
                 `Registry cannot store strings with reserved substrings '${SEPARATORS.pair}' or '${SEPARATORS.item}'`
-            );
+            )
         }
 
-        this._strs[key] = str;
-        this._requestUpdate();
+        this._strs[key] = str
+        this._requestUpdate()
     }
 
     resetKey(key) {
-        delete this._strs[key];
-        this._requestUpdate();
+        delete this._strs[key]
+        this._requestUpdate()
     }
 
     reset(mode = "") {
-        this._strs = {};
+        this._strs = {}
         if (mode === "hard") {
-            localStorage.removeItem(this._storageKey);
+            localStorage.removeItem(this._storageKey)
         }
     }
 
     _initStoredStrs() {
-        const storageStr = localStorage.getItem(this._storageKey);
-        this._strs = {};
+        const storageStr = localStorage.getItem(this._storageKey)
+        this._strs = {}
 
         if (!storageStr) {
-            this._requestUpdate();
-            return;
+            this._requestUpdate()
+            return
         }
 
         for (let pair of storageStr.split(SEPARATORS.item)) {
-            let [key, str] = pair.split(SEPARATORS.pair);
-            this._strs[key] = str;
+            let [key, str] = pair.split(SEPARATORS.pair)
+            this._strs[key] = str
         }
     }
 
@@ -121,32 +121,32 @@ export class StorageRegistry {
         if (!this._updateQueued) {
             // delay is a security and optimization measure (mostly for async functions);
             // its less likely to save "crashing data" and batches more set requests together
-            setTimeout(() => this._updateStorage(), 100);
-            this._updateQueued = true;
+            setTimeout(() => this._updateStorage(), 100)
+            this._updateQueued = true
         }
     }
 
     _updateStorage() {
-        this._updateQueued = false;
+        this._updateQueued = false
 
-        let storageList = [];
+        let storageList = []
         for (const key in this._strs) {
-            const str = this._strs[key];
-            const pair = `${key}${SEPARATORS.pair}${str}`;
-            storageList.push(pair);
+            const str = this._strs[key]
+            const pair = `${key}${SEPARATORS.pair}${str}`
+            storageList.push(pair)
         }
 
         try {
             localStorage.setItem(
                 this._storageKey,
                 storageList.join(SEPARATORS.item)
-            );
-            this.onStoreFinish();
+            )
+            this.onStoreFinish()
         } catch (error) {
             if (error.name === "QuotaExceededError") {
-                this.onStoreFull();
+                this.onStoreFull()
             } else {
-                this.onStoreError(error);
+                this.onStoreError(error)
             }
         }
     }

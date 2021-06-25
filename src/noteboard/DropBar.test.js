@@ -6,19 +6,22 @@ import DropBar from "./DropBar.js";
 
 jest.useFakeTimers("modern");
 
-const origPrompt = window.prompt;
 let root = null;
+const origRequestAnimationFrame = window.requestAnimationFrame;
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
+
+    // TODO: should probably use setTimeout() or some async function
+    //       to test this
+    window.requestAnimationFrame = (callback) => callback();
 });
 afterEach(() => {
     unmountComponentAtNode(root);
     document.body.removeChild(root);
     root = null;
 
-    // reset mock
-    window.prompt = origPrompt;
+    window.requestAnimationFrame = origRequestAnimationFrame;
 });
 
 function grabDropBar() {
