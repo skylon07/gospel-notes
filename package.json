@@ -27,13 +27,7 @@
         "extends": [
             "react-app",
             "react-app/jest"
-        ],
-        "rules": {
-            "no-fallthrough": "off",
-            "react-hooks/exhaustive-deps": ["warn", {
-                "additionalHooks": "(useEffectOnUpdate)"
-            }]
-        }
+        ]
     },
     "browserslist": {
         "production": [
@@ -48,6 +42,8 @@
         ]
     },
     "devDependencies": {
+        "eslint": "^7.29.0",
+        "eslint-plugin-react": "^7.24.0",
         "jest-dom": "^4.0.0",
         "jest-extended": "^0.11.5"
     }
