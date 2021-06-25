@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useClassName } from "common/hooks"
+import { useClassName } from "common/hooks";
 import PropTypes from "prop-types";
 import "./DropBar.css";
 
@@ -23,27 +23,29 @@ const STYLE = {
 };
 
 function DropBar(props) {
-    const [dropped, setDropped] = useState(props.initDropped)
-    const contentRef = useRef(null)
-    
+    const [dropped, setDropped] = useState(props.initDropped);
+    const contentRef = useRef(null);
+
     const bottomBarClassName = useClassName({
         base: "BottomBar",
         noMountingAnimation: true,
-        filters: [{
-            value: "dropped",
-            useIf: dropped,
-            otherwise: "raised",
-        }],
-    })
-    
+        filters: [
+            {
+                value: "dropped",
+                useIf: dropped,
+                otherwise: "raised",
+            },
+        ],
+    });
+
     const toggleDrop = () => {
         // offsetHeight is used since this represents the height
         // before transformations are applied
         const currHeight = contentRef.current.offsetHeight;
         STYLE.setTransform(currHeight);
         setDropped((dropped) => {
-            return !dropped
-        })
+            return !dropped;
+        });
 
         // HACK: useEffect() does not apply the animation classes fast enough and
         //       causes twitchy DOM elements; requestAnimationFrame() is used to
@@ -52,11 +54,14 @@ function DropBar(props) {
             // NOTE: to conform to React rules as best as possible, please DO NOT
             //       RUN anything here that does not directly relate to setting
             //       temporary CSS classes/animations to DOM elements
-            const nextAnimationDirection = dropped ? "raising" : "dropping"
-            updateSiblingAndParentClasses(contentRef.current, nextAnimationDirection)
-        })
-    }
-    
+            const nextAnimationDirection = dropped ? "raising" : "dropping";
+            updateSiblingAndParentClasses(
+                contentRef.current,
+                nextAnimationDirection
+            );
+        });
+    };
+
     return (
         // TODO: test the second <Holdable /> bounds (CSS background color)
         <div data-testid="drop-bar" className="DropBar">
@@ -71,10 +76,7 @@ function DropBar(props) {
                         {props.title}
                     </Holdable>
                 </div>
-                <DropdownButton
-                    onClick={toggleDrop}
-                    dropped={dropped}
-                />
+                <DropdownButton onClick={toggleDrop} dropped={dropped} />
             </div>
             <DropBarContent ref={contentRef} dropped={dropped}>
                 {props.children}
@@ -90,12 +92,12 @@ DropBar.propTypes = {
     initDropped: PropTypes.bool,
     onTitleHold: PropTypes.func,
     onIconHold: PropTypes.func,
-}
+};
 DropBar.defaultProps = {
     iconType: "invalid",
     initDropped: false,
-}
-export default DropBar
+};
+export default DropBar;
 
 function getChildIdx(elem) {
     let idx = 0;
@@ -106,19 +108,23 @@ function getChildIdx(elem) {
     return idx;
 }
 
-function updateSiblingAndParentClasses(contentElem, animationDirection, currElem=contentElem) {
+function updateSiblingAndParentClasses(
+    contentElem,
+    animationDirection,
+    currElem = contentElem
+) {
     const parent = currElem.parentElement;
     const elemIdx = getChildIdx(currElem);
-    
+
     if (animationDirection === "raising") {
-        scrollParentIfUnderflow(parent, contentElem)
+        scrollParentIfUnderflow(parent, contentElem);
     }
     for (let idx = elemIdx + 1; idx < parent.children.length; idx++) {
         const child = parent.children[idx];
         // sets children after with the animation
         setAnimationClasses(child, animationDirection);
     }
-    
+
     // performs the same operations on the parent until hitting the end
     if (parent !== document.body) {
         updateSiblingAndParentClasses(contentElem, animationDirection, parent);
@@ -126,59 +132,57 @@ function updateSiblingAndParentClasses(contentElem, animationDirection, currElem
 }
 
 function scrollParentIfUnderflow(parent, contentElem) {
-    const heightChange = contentElem.offsetHeight + STYLE.bottomBarHeight
-    const maxScrollBottom = parent.scrollHeight - heightChange
-    const scrollBottom = parent.scrollTop + parent.offsetHeight
-    
+    const heightChange = contentElem.offsetHeight + STYLE.bottomBarHeight;
+    const maxScrollBottom = parent.scrollHeight - heightChange;
+    const scrollBottom = parent.scrollTop + parent.offsetHeight;
+
     // canScroll helps prevent making scrollBy() calls to elements
     // that can't scroll (likely because this DropBar is in a wrapper
     // element, and therefore taking all the height)
-    const canScroll = parent.scrollTop > 0
-    const scrollDiff = maxScrollBottom - scrollBottom
+    const canScroll = parent.scrollTop > 0;
+    const scrollDiff = maxScrollBottom - scrollBottom;
     if (scrollDiff < 0 && canScroll) {
         // TODO: apply a little slower/over more time...
         parent.scrollBy({
             top: scrollDiff,
             behavior: "smooth",
-        })
+        });
     }
 }
 
 function setAnimationClasses(elem, animationDirection) {
-    const base = "DropBarTransform"
-    const dropping = "dropping"
-    const raising = "raising"
+    const base = "DropBarTransform";
+    const dropping = "dropping";
+    const raising = "raising";
     const removeAll = () => elem.classList.remove(base, dropping, raising);
-    
+
     // ensures fresh start in case other animations have not completed
-    removeAll()
+    removeAll();
     elem.classList.add(base, animationDirection);
     // ensures that the same animation can re-run multiple times
     // (and reduces chances of ReactDOM-DOM className conflicts)
-    elem.addEventListener(
-        "animationend",
-        removeAll,
-        { once: true }
-    );
+    elem.addEventListener("animationend", removeAll, { once: true });
 }
 
 function DropdownButton(props) {
-        const className = useClassName({
+    const className = useClassName({
         base: "DropdownButton",
         noMountingAnimation: true,
-        filters: [{
-            value: "dropped",
-            useIf: props.dropped,
-            otherwise: "raised",
-        }],
-    })
-    
+        filters: [
+            {
+                value: "dropped",
+                useIf: props.dropped,
+                otherwise: "raised",
+            },
+        ],
+    });
+
     const left = 10;
     const mid = 20;
     const right = 30;
     const top = 14;
     const btm = 25;
-    
+
     // lines must go past the "point" of the arrow (by 1/2 the stroke width)
     // using pyth-theo, we get it down to this math:
     // offset = (((w / 2) ** 2) / 2) ** (1 / 2)
@@ -200,19 +204,21 @@ function DropdownButton(props) {
 DropdownButton.propTypes = {
     onClick: PropTypes.func.isRequired,
     dropped: PropTypes.bool.isRequired,
-}
+};
 
 const DropBarContent = React.forwardRef(function (props, ref) {
     const className = useClassName({
         base: "DropBarContent",
         noMountingAnimation: true,
-        filters: [{
-            value: "dropped",
-            useIf: props.dropped,
-            otherwise: "raised",
-        }],
-    })
-    
+        filters: [
+            {
+                value: "dropped",
+                useIf: props.dropped,
+                otherwise: "raised",
+            },
+        ],
+    });
+
     return (
         <div ref={ref} data-testid="drop-bar-content" className={className}>
             <div className="Container">{props.children}</div>
@@ -220,8 +226,8 @@ const DropBarContent = React.forwardRef(function (props, ref) {
             <div className="BottomGradient" />
         </div>
     );
-})
+});
 DropBarContent.propTypes = {
     children: PropTypes.node,
     dropped: PropTypes.bool.isRequired,
-}
+};

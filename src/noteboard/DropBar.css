@@ -1,10 +1,13 @@
-.DropBar, .DropBarTransform {
+.DropBar,
+.DropBarTransform {
     /* set as var here for animations */
     --bottom-bar-height: 6px;
     /* this is set/changed inside a standalone <style /> element */
     --bottom-bar-shift: 0px;
     --drop-animation-time: 0.35s;
-    --sibling-shift: calc(-1 * var(--bottom-bar-shift) - var(--bottom-bar-height));
+    --sibling-shift: calc(
+        -1 * var(--bottom-bar-shift) - var(--bottom-bar-height)
+    );
 }
 
 .DropBar {
@@ -276,7 +279,7 @@ html .DropBar .BottomBar.noMountingAnimation {
     position: relative;
     left: 50%;
     transform: translateX(-50%);
-    
+
     /* other */
     margin-bottom: 1em;
     color: var(--main-link-color);

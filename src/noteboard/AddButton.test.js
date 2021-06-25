@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 
@@ -18,18 +18,18 @@ afterEach(() => {
 // TODO: these grab functions should probably be imported
 //       instead of rewritten...
 function grabAddButton() {
-    return document.querySelector("[data-testid='add-button']")
+    return document.querySelector("[data-testid='add-button']");
 }
 
 it("renders without crashing", () => {
-    render(<AddButton />, root)
-})
+    render(<AddButton />, root);
+});
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<AddButton />, root)
-    })
-    const addButton = grabAddButton()
-    
-    expect(addButton).toHaveClass("AddButton")
-})
+        render(<AddButton />, root);
+    });
+    const addButton = grabAddButton();
+
+    expect(addButton).toHaveClass("AddButton");
+});

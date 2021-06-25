@@ -6,7 +6,7 @@ import DropBar from "./DropBar.js";
 
 jest.useFakeTimers("modern");
 
-const origPrompt = window.prompt
+const origPrompt = window.prompt;
 let root = null;
 beforeEach(() => {
     root = document.createElement("div");
@@ -18,7 +18,7 @@ afterEach(() => {
     root = null;
 
     // reset mock
-    window.prompt = origPrompt
+    window.prompt = origPrompt;
 });
 
 function grabDropBar() {
@@ -30,17 +30,17 @@ function grabMainBarFrom(dropBar) {
 }
 
 function grabTitleHoldableFrom(dropBar) {
-    return dropBar.querySelector(".Bar .Title .Holdable")
+    return dropBar.querySelector(".Bar .Title .Holdable");
 }
 
 function grabIconHoldableFrom(dropBar) {
-    return dropBar.querySelector(".Bar .Icon .Holdable")
+    return dropBar.querySelector(".Bar .Icon .Holdable");
 }
 
 function grabIconTypeFrom(dropBar) {
     const iconElem = dropBar.querySelector("[data-testid='svg-icon']");
-    const classList = [...iconElem.classList]
-    return classList.filter((name) => name && name !== "SVGIcon")[0]
+    const classList = [...iconElem.classList];
+    return classList.filter((name) => name && name !== "SVGIcon")[0];
 }
 
 function grabDropButtonFrom(dropBar) {
@@ -69,12 +69,12 @@ it("renders without crashing", () => {
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<DropBar />, root)
-    })
-    const dropBar = grabDropBar()
-    
-    expect(dropBar).toHaveClass("DropBar")
-})
+        render(<DropBar />, root);
+    });
+    const dropBar = grabDropBar();
+
+    expect(dropBar).toHaveClass("DropBar");
+});
 
 describe("rendering tests", () => {
     it("renders a title", () => {
@@ -144,7 +144,7 @@ describe("drop button tests", () => {
             dropButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
-        })
+        });
         act(() => {
             dropButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
@@ -182,7 +182,7 @@ describe("listener callback tests", () => {
 
         expect(onTitleHold).toHaveBeenCalledTimes(1);
     });
-    
+
     it("triggers onIconHold() when holdable icon is held", () => {
         const onIconHold = jest.fn();
         act(() => {
@@ -190,21 +190,21 @@ describe("listener callback tests", () => {
         });
         const dropBar = grabDropBar();
         const holdable = grabIconHoldableFrom(dropBar);
-    
+
         expect(onIconHold).not.toHaveBeenCalled();
-    
+
         act(() => {
             holdable.dispatchEvent(
                 new MouseEvent("mousedown", { bubbles: true })
             );
         });
-    
+
         expect(onIconHold).not.toHaveBeenCalled();
-    
+
         act(() => {
             jest.advanceTimersByTime(5000);
         });
-    
+
         expect(onIconHold).toHaveBeenCalledTimes(1);
     });
 
@@ -234,30 +234,32 @@ describe("listener callback tests", () => {
 
 describe("group animation tests", () => {
     it("applies dropping classes to elements below the one dropping", () => {
-        const base = "DropBarTransform"
-        const dropping = "dropping"
-        const raising = "raising"
+        const base = "DropBarTransform";
+        const dropping = "dropping";
+        const raising = "raising";
         act(() => {
             render(renderSeveralDropBars(), root);
         });
-        const dropBars = root.children
-    
+        const dropBars = root.children;
+
         for (const dropBar of dropBars) {
             // not sure, but toHaveClass(base, dropping, raising) was
             // avoided since .not is being used, and that behavior isn't
             // understood (what if two of three classes were present?)
             expect(dropBar).not.toHaveClass(base);
-            expect(dropBar).not.toHaveClass(dropping)
-            expect(dropBar).not.toHaveClass(raising)
+            expect(dropBar).not.toHaveClass(dropping);
+            expect(dropBar).not.toHaveClass(raising);
         }
-    
+
         const dropIdx = 2;
         const dropBarToClick = dropBars[dropIdx];
         const dropButton = grabDropButtonFrom(dropBarToClick);
         act(() => {
-            dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
         });
-    
+
         for (let i = 0; i < dropBars.length; i++) {
             const dropBar = dropBars[i];
             if (i <= dropIdx) {
@@ -271,36 +273,40 @@ describe("group animation tests", () => {
             }
         }
     });
-    
+
     it("applies raising classes to elements below the one raising", () => {
-        const base = "DropBarTransform"
-        const dropping = "dropping"
-        const raising = "raising"
+        const base = "DropBarTransform";
+        const dropping = "dropping";
+        const raising = "raising";
         act(() => {
             render(renderSeveralDropBars(), root);
         });
-        const dropBars = root.children
-    
+        const dropBars = root.children;
+
         for (const dropBar of dropBars) {
             // not sure, but toHaveClass(base, dropping, raising) was
             // avoided since .not is being used, and that behavior isn't
             // understood (what if two of three classes were present?)
             expect(dropBar).not.toHaveClass(base);
-            expect(dropBar).not.toHaveClass(dropping)
-            expect(dropBar).not.toHaveClass(raising)
+            expect(dropBar).not.toHaveClass(dropping);
+            expect(dropBar).not.toHaveClass(raising);
         }
-    
+
         const dropIdx = 1;
         const dropBarToClick = dropBars[dropIdx];
         const dropButton = grabDropButtonFrom(dropBarToClick);
         act(() => {
-            dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
         });
         // wait for drop (seperate "act()")
         act(() => {
-            dropButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+            dropButton.dispatchEvent(
+                new MouseEvent("click", { bubbles: true })
+            );
         });
-    
+
         for (let i = 0; i < dropBars.length; i++) {
             const dropBar = dropBars[i];
             if (i <= dropIdx) {
@@ -314,7 +320,7 @@ describe("group animation tests", () => {
             }
         }
     });
-    
+
     // TODO: animation tests that test up the DOM heirarchy with DropBars on
     //       various levels
-})
+});

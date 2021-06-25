@@ -10,8 +10,8 @@ let root = null;
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
-    
-    updateTouchId()
+
+    updateTouchId();
 });
 afterEach(() => {
     unmountComponentAtNode(root);
@@ -23,9 +23,9 @@ function grabHoldable() {
     return document.querySelector("[data-testid='holdable']");
 }
 
-let currTouchId = 0
+let currTouchId = 0;
 function updateTouchId() {
-    currTouchId = Date.now()
+    currTouchId = Date.now();
 }
 
 function makeTouch(target, clientX, clientY) {
@@ -33,7 +33,7 @@ function makeTouch(target, clientX, clientY) {
         target,
         clientX,
         clientY,
-    }
+    };
 }
 
 it("renders without crashing", () => {
@@ -42,12 +42,12 @@ it("renders without crashing", () => {
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<Holdable />, root)
-    })
-    const holdable = grabHoldable()
-    
-    expect(holdable).toHaveClass("Holdable")
-})
+        render(<Holdable />, root);
+    });
+    const holdable = grabHoldable();
+
+    expect(holdable).toHaveClass("Holdable");
+});
 
 describe("holding tests", () => {
     it("calls onHold() when clicked and held", () => {

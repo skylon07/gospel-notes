@@ -12,8 +12,8 @@ let root = null;
 beforeEach(() => {
     root = document.createElement("div");
     document.body.appendChild(root);
-    
-    updateTouchId()
+
+    updateTouchId();
 });
 afterEach(() => {
     unmountComponentAtNode(root);
@@ -21,9 +21,9 @@ afterEach(() => {
     root = null;
 });
 
-let currTouchId = 0
+let currTouchId = 0;
 function updateTouchId() {
-    currTouchId = Date.now()
+    currTouchId = Date.now();
 }
 
 // NOTE: an object with clientX/Y normally suffices, but
@@ -35,13 +35,13 @@ function makeTouch(target, clientX, clientY) {
             target,
             clientX,
             clientY,
-        })
+        });
     } else {
         return {
             target,
             clientX,
             clientY,
-        }
+        };
     }
 }
 
@@ -67,12 +67,12 @@ it("renders without crashing", () => {
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<Draggable />, root)
-    })
-    const draggable = grabDraggable()
-    
-    expect(draggable).toHaveClass("Draggable")
-})
+        render(<Draggable />, root);
+    });
+    const draggable = grabDraggable();
+
+    expect(draggable).toHaveClass("Draggable");
+});
 
 it("moves when clicked and dragged across the screen", () => {
     // initial render of the component; act() is used since we are using the DOM
@@ -136,18 +136,14 @@ it("moves when touched and dragged across the screen", () => {
         draggable.dispatchEvent(
             new TouchEvent("touchstart", {
                 bubbles: true,
-                touches: [
-                    makeTouch(draggable, 50, 50),
-                ],
+                touches: [makeTouch(draggable, 50, 50)],
             })
         );
         jest.advanceTimersByTime(250);
         draggable.dispatchEvent(
             new TouchEvent("touchmove", {
                 bubbles: true,
-                touches: [
-                    makeTouch(draggable, 150, 150),
-                ],
+                touches: [makeTouch(draggable, 150, 150)],
             })
         );
     });
@@ -161,9 +157,7 @@ it("moves when touched and dragged across the screen", () => {
             new TouchEvent("touchmove", {
                 bubbles: true,
                 cancelable: true,
-                touches: [
-                    makeTouch(draggable, 200, 200),
-                ],
+                touches: [makeTouch(draggable, 200, 200)],
             })
         );
     });
@@ -180,18 +174,18 @@ it("moves when touched and dragged across the screen", () => {
 //         act(() => {
 //             render(<Draggable dragRef={dragRef} />, root);
 //         });
-// 
+//
 //         expect(dragRef.current).not.toBe(null);
 //     });
-// 
+//
 //     it("correctly updates dragRef when given function-refs", () => {
 //         const dragRef = jest.fn();
 //         expect(dragRef).not.toHaveBeenCalledWith(null);
-// 
+//
 //         act(() => {
 //             render(<Draggable dragRef={dragRef} />, root);
 //         });
-// 
+//
 //         expect(dragRef).toHaveBeenCalledTimes(1);
 //     });
 // });
@@ -372,22 +366,18 @@ describe("listener callback tests", () => {
                 draggable.dispatchEvent(
                     new TouchEvent("touchstart", {
                         bubbles: true,
-                        touches: [
-                            makeTouch(draggable, 50, 50),
-                        ],
+                        touches: [makeTouch(draggable, 50, 50)],
                     })
                 );
                 jest.advanceTimersByTime(250);
                 draggable.dispatchEvent(
                     new TouchEvent("touchmove", {
                         bubbles: true,
-                        touches: [
-                            makeTouch(draggable, 150, 150),
-                        ],
+                        touches: [makeTouch(draggable, 150, 150)],
                     })
                 );
             });
-            
+
             expect(beforeDrag).toHaveBeenCalledTimes(1);
             expect(beforeDrag).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -422,18 +412,14 @@ describe("listener callback tests", () => {
                 draggable.dispatchEvent(
                     new TouchEvent("touchstart", {
                         bubbles: true,
-                        touches: [
-                            makeTouch(draggable, 50, 50),
-                        ],
+                        touches: [makeTouch(draggable, 50, 50)],
                     })
                 );
                 jest.advanceTimersByTime(250);
                 draggable.dispatchEvent(
                     new TouchEvent("touchmove", {
                         bubbles: true,
-                        touches: [
-                            makeTouch(draggable, 150, 150),
-                        ],
+                        touches: [makeTouch(draggable, 150, 150)],
                     })
                 );
             });
@@ -472,18 +458,14 @@ describe("listener callback tests", () => {
                 draggable.dispatchEvent(
                     new TouchEvent("touchstart", {
                         bubbles: true,
-                        touches: [
-                            makeTouch(draggable, 50, 50),
-                        ],
+                        touches: [makeTouch(draggable, 50, 50)],
                     })
                 );
                 jest.advanceTimersByTime(250);
                 draggable.dispatchEvent(
                     new TouchEvent("touchmove", {
                         bubbles: true,
-                        touches: [
-                            makeTouch(draggable, 150, 150),
-                        ],
+                        touches: [makeTouch(draggable, 150, 150)],
                     })
                 );
             });
