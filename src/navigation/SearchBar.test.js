@@ -25,12 +25,12 @@ it("renders without crashing", () => {
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<SearchBar />, root)
-    })
-    const search = grabSearchBar()
-    
-    expect(search).toHaveClass("SearchBar")
-})
+        render(<SearchBar />, root);
+    });
+    const search = grabSearchBar();
+
+    expect(search).toHaveClass("SearchBar");
+});
 
 it("selects all text in the input field when focused", () => {
     act(() => {
@@ -59,14 +59,14 @@ it("has a forceFocus property that, when true, focuses the input", () => {
     const searchBar = grabSearchBar();
     const inputField = searchBar.querySelector("input");
 
-    expect(document.activeElement).not.toBe(inputField)
+    expect(document.activeElement).not.toBe(inputField);
 
     act(() => {
         render(<SearchBar forceFocus={true} />, root);
     });
 
-    expect(document.activeElement).toBe(inputField)
-})
+    expect(document.activeElement).toBe(inputField);
+});
 
 describe("listener callback tests", () => {
     it("triggers onSearch() with correct value on search button click", () => {

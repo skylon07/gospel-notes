@@ -41,9 +41,9 @@ function grabNavAndSearchBoundsFrom(topBar) {
 }
 
 function grabMenuChildrenFrom(menu) {
-    const menuBox = menu.querySelector("[data-testid='drop-menu-box']")
-    const allChildren = [...menuBox.childNodes]
-    return allChildren.filter((child) => !child.className.includes("Shadow"))
+    const menuBox = menu.querySelector("[data-testid='drop-menu-box']");
+    const allChildren = [...menuBox.childNodes];
+    return allChildren.filter((child) => !child.className.includes("Shadow"));
 }
 
 it("renders without crashing", () => {
@@ -52,12 +52,12 @@ it("renders without crashing", () => {
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<TopBar />, root)
-    })
-    const topBar = grabTopBar()
-    
-    expect(topBar).toHaveClass("TopBar")
-})
+        render(<TopBar />, root);
+    });
+    const topBar = grabTopBar();
+
+    expect(topBar).toHaveClass("TopBar");
+});
 
 describe("menu tests", () => {
     it("renders the correct menu content to the menu", () => {
@@ -75,22 +75,22 @@ describe("menu tests", () => {
         const mainMenu = grabMainMenuFrom(topBar);
 
         // compare children
-        const children = grabMenuChildrenFrom(mainMenu)
+        const children = grabMenuChildrenFrom(mainMenu);
         expect(children.length).toBe(menuContent.length);
         for (let i = 0; i < children.length; i++) {
             const renderedChild = children[i];
             const childElement = menuContent[i];
 
             // compare tags
-            const renderedTag = renderedChild.tagName.toLowerCase()
-            const expectedTag = childElement.type.toLowerCase()
+            const renderedTag = renderedChild.tagName.toLowerCase();
+            const expectedTag = childElement.type.toLowerCase();
             expect(renderedTag).toBe(expectedTag);
             // compare innerHTML
-            const innerHTML = childElement.props.children
+            const innerHTML = childElement.props.children;
             expect(renderedChild).toHaveTextContent(innerHTML);
         }
     });
-    
+
     // TODO: test ability to imperatively hide menu by ref
 });
 
@@ -171,15 +171,15 @@ describe("listener callback tests", () => {
         });
 
         expect(onModeChange).toBeCalledTimes(1);
-        expect(onModeChange).toHaveBeenCalledWith("search")
-        
+        expect(onModeChange).toHaveBeenCalledWith("search");
+
         act(() => {
             backButton.dispatchEvent(
                 new MouseEvent("click", { bubbles: true })
             );
         });
-        
+
         expect(onModeChange).toBeCalledTimes(2);
-        expect(onModeChange).toHaveBeenLastCalledWith("nav")
-    })
+        expect(onModeChange).toHaveBeenLastCalledWith("nav");
+    });
 });

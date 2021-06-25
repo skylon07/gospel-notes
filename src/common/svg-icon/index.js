@@ -1,5 +1,5 @@
 import React from "react";
-import { useClassName } from "common/hooks"
+import { useClassName } from "common/hooks";
 import PropTypes from "prop-types";
 import "./styles.css";
 
@@ -110,7 +110,7 @@ function iconCross() {
     const right = 77;
     const top = 23;
     const bottom = 77;
-    
+
     return (
         <svg viewBox="0 0 100 100">
             <line x1={left} x2={right} y1={top} y2={bottom} />
@@ -118,8 +118,8 @@ function iconCross() {
         </svg>
     );
 }
-create("cross", iconCross)
-create("invalid", iconCross)
+create("cross", iconCross);
+create("invalid", iconCross);
 
 // custom prop-type function
 export function SVGIconPropType(props, propName, componentName) {
@@ -135,23 +135,27 @@ export function SVGIconPropType(props, propName, componentName) {
 function SVGIcon(props) {
     const className = useClassName({
         base: "SVGIcon",
-        filters: [{
-            value: props.type,
-            useIf: created.iconNames.includes(props.type),
-            otherwise: "invalid",
-        }],
-    })
-    
+        filters: [
+            {
+                value: props.type,
+                useIf: created.iconNames.includes(props.type),
+                otherwise: "invalid",
+            },
+        ],
+    });
+
     const svg = created.icons[props.type] || created.icons.invalid;
-    return <div data-testid="svg-icon" className={className}>
-        {svg}
-    </div>
+    return (
+        <div data-testid="svg-icon" className={className}>
+            {svg}
+        </div>
+    );
 }
 SVGIcon.propTypes = {
     type: PropTypes.oneOf(created.iconNames),
-}
+};
 SVGIcon.defaultProps = {
     type: "blank",
-}
-SVGIcon.types = created.iconNames
-export { SVGIcon }
+};
+SVGIcon.types = created.iconNames;
+export { SVGIcon };

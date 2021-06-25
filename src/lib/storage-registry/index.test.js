@@ -44,9 +44,9 @@ jest.useFakeTimers("modern");
 
 describe("initialization tests", () => {
     it("initializes with the correct storage key", () => {
-        jest.advanceTimersByTime(1000)
+        jest.advanceTimersByTime(1000);
         // expect(localStorage.setItem).toBeCalledWith("storageKey", "")
-    })
+    });
 
     // FIXME: can't get this test to work... localStorage won't actually update, and I can't
     //       figure out a way to make getItem() return a specific value
@@ -54,7 +54,7 @@ describe("initialization tests", () => {
     //     storage.setKeyString("key", "val")
 
     //     jest.advanceTimersByTime(1000)
-        
+
     //     expect(localStorage.setItem).toBeCalledWith("storageKey", `key${SEPARATORS.pair}val`) // this works...
     //     localStorage.getItem.mockReturnValueOnce(`key${SEPARATORS.pair}val`) // DOESN'T WORK!!!
     //     expect(new StorageRegistry("storageKey").getKey("key")).toBe("val") // mockLocalStorage is null...?

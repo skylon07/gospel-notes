@@ -2,17 +2,17 @@
     /* dimensions */
     padding: 0em;
     border: none;
-    
+
     /* flex-positioning */
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
     align-items: center;
-    
+
     /* font */
     color: var(--main-link-color);
     white-space: nowrap;
-    
+
     /* other */
     position: relative;
     background-color: var(--clear);
@@ -28,7 +28,7 @@
     height: 2.2em;
 }
 
-.AddButton .SVGIcon svg{
+.AddButton .SVGIcon svg {
     stroke: var(--main-link-color);
 }
 

@@ -1,69 +1,69 @@
-import React from 'react'
+import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 
-import useForceUpdate from "./useForceUpdate.js"
+import useForceUpdate from "./useForceUpdate.js";
 
 function TestComponent(props) {
-    const forceUpdate = useForceUpdate()
+    const forceUpdate = useForceUpdate();
     if (typeof props.onRender === "function") {
-        props.onRender(forceUpdate)
+        props.onRender(forceUpdate);
     }
-    return null
+    return null;
 }
 
-let root = null
+let root = null;
 beforeEach(() => {
-    root = document.createElement("div")
-    document.body.appendChild(root)
-})
+    root = document.createElement("div");
+    document.body.appendChild(root);
+});
 afterEach(() => {
-    unmountComponentAtNode(root)
-    document.body.removeChild(root)
-    root = null
-})
+    unmountComponentAtNode(root);
+    document.body.removeChild(root);
+    root = null;
+});
 
 it("doesn't crash when no values are provided (tests component render)", () => {
-    render(<TestComponent />, root)
-})
+    render(<TestComponent />, root);
+});
 
 it("rerenders when forceUpdate() is called", () => {
-    let forceUpdate
-    const onRender = jest.fn((update) => forceUpdate = update)
+    let forceUpdate;
+    const onRender = jest.fn((update) => (forceUpdate = update));
     act(() => {
-        render(<TestComponent onRender={onRender} />, root)
-    })
+        render(<TestComponent onRender={onRender} />, root);
+    });
 
-    expect(onRender).toHaveBeenCalledTimes(1)
-
-    act(() => {
-        forceUpdate()
-    })
-
-    expect(onRender).toHaveBeenCalledTimes(2)
+    expect(onRender).toHaveBeenCalledTimes(1);
 
     act(() => {
-        forceUpdate()
-        forceUpdate()
-        forceUpdate()
-    })
+        forceUpdate();
+    });
 
-    expect(onRender).toHaveBeenCalledTimes(3)
-})
+    expect(onRender).toHaveBeenCalledTimes(2);
+
+    act(() => {
+        forceUpdate();
+        forceUpdate();
+        forceUpdate();
+    });
+
+    expect(onRender).toHaveBeenCalledTimes(3);
+});
 
 it("retains the function's identity", () => {
-    let forceUpdate
-    const onRender = (update) => forceUpdate = update
+    let forceUpdate;
+    const onRender = (update) => (forceUpdate = update);
     act(() => {
-        render(<TestComponent onRender={onRender} />, root)
-    })
-    const origUpdate = forceUpdate
+        render(<TestComponent onRender={onRender} />, root);
+    });
+    const origUpdate = forceUpdate;
 
-    expect(forceUpdate).toBe(origUpdate)
+    expect(forceUpdate).toBe(origUpdate);
 
     act(() => {
-        forceUpdate()
-    })
+        forceUpdate();
+    });
 
-    expect(forceUpdate).toBe(origUpdate)
-})
+    expect(forceUpdate).toBe(origUpdate);
+});

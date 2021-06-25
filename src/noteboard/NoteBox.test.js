@@ -31,12 +31,12 @@ it("renders without crashing", () => {
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<NoteBox />, root)
-    })
-    const noteBox = grabNoteBox()
-    
-    expect(noteBox).toHaveClass("NoteBox")
-})
+        render(<NoteBox />, root);
+    });
+    const noteBox = grabNoteBox();
+
+    expect(noteBox).toHaveClass("NoteBox");
+});
 
 describe("rendering tests", () => {
     it("renders a title", () => {
@@ -58,9 +58,9 @@ describe("rendering tests", () => {
         const noteBox = grabNoteBox();
         // eslint-disable-next-line no-unused-vars
         const [_, content] = grabTitleAndContentFrom(noteBox);
-        
+
         expect(content).toHaveTextContent(contentText);
-    })
+    });
 });
 
 describe("listener callbacks", () => {
@@ -126,8 +126,8 @@ describe("listener callbacks", () => {
 
 describe("ref tests", () => {
     it("has a setTitle()", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
+        const ref = React.createRef();
+        const initTitle = "init title";
         act(() => {
             render(
                 <NoteBox
@@ -139,21 +139,21 @@ describe("ref tests", () => {
             );
         });
         const noteBox = grabNoteBox();
-        const [title] = grabTitleAndContentFrom(noteBox)
-        
-        expect(title.value).toBe(initTitle)
-        
-        const newTitle = "new title"
+        const [title] = grabTitleAndContentFrom(noteBox);
+
+        expect(title.value).toBe(initTitle);
+
+        const newTitle = "new title";
         act(() => {
-            ref.current.setTitle(newTitle)
-        })
-        
-        expect(title.value).toBe(newTitle)
-    })
-    
+            ref.current.setTitle(newTitle);
+        });
+
+        expect(title.value).toBe(newTitle);
+    });
+
     it("has a setContent()", () => {
-        const ref = React.createRef()
-        const initContent = "init content"
+        const ref = React.createRef();
+        const initContent = "init content";
         act(() => {
             render(
                 <NoteBox
@@ -166,22 +166,22 @@ describe("ref tests", () => {
         });
         const noteBox = grabNoteBox();
         // eslint-disable-next-line no-unused-vars
-        const [_, content] = grabTitleAndContentFrom(noteBox)
-        
-        expect(content.value).toBe(initContent)
-        
-        const newContent = "new content"
+        const [_, content] = grabTitleAndContentFrom(noteBox);
+
+        expect(content.value).toBe(initContent);
+
+        const newContent = "new content";
         act(() => {
-            ref.current.setContent(newContent)
-        })
-        
-        expect(content.value).toBe(newContent)
-    })
-    
+            ref.current.setContent(newContent);
+        });
+
+        expect(content.value).toBe(newContent);
+    });
+
     it("calls onTitleChange() when using setTitle()", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
-        const onTitleChange = jest.fn()
+        const ref = React.createRef();
+        const initTitle = "init title";
+        const onTitleChange = jest.fn();
         act(() => {
             render(
                 <NoteBox
@@ -193,22 +193,22 @@ describe("ref tests", () => {
                 root
             );
         });
-        
-        expect(onTitleChange).not.toHaveBeenCalled()
-        
-        const newTitle = "new title"
+
+        expect(onTitleChange).not.toHaveBeenCalled();
+
+        const newTitle = "new title";
         act(() => {
-            ref.current.setTitle(newTitle)
-        })
-        
-        expect(onTitleChange).toHaveBeenCalledTimes(1)
-        expect(onTitleChange).toHaveBeenCalledWith(newTitle)
-    })
-    
+            ref.current.setTitle(newTitle);
+        });
+
+        expect(onTitleChange).toHaveBeenCalledTimes(1);
+        expect(onTitleChange).toHaveBeenCalledWith(newTitle);
+    });
+
     it("calls onContentChange() when using setContent()", () => {
-        const ref = React.createRef()
-        const initContent = "init content"
-        const onContentChange = jest.fn()
+        const ref = React.createRef();
+        const initContent = "init content";
+        const onContentChange = jest.fn();
         act(() => {
             render(
                 <NoteBox
@@ -220,22 +220,22 @@ describe("ref tests", () => {
                 root
             );
         });
-        
-        expect(onContentChange).not.toHaveBeenCalled()
-        
-        const newContent = "new content"
+
+        expect(onContentChange).not.toHaveBeenCalled();
+
+        const newContent = "new content";
         act(() => {
-            ref.current.setContent(newContent)
-        })
-        
-        expect(onContentChange).toHaveBeenCalledTimes(1)
-        expect(onContentChange).toHaveBeenCalledWith(newContent)
-    })
-    
+            ref.current.setContent(newContent);
+        });
+
+        expect(onContentChange).toHaveBeenCalledTimes(1);
+        expect(onContentChange).toHaveBeenCalledWith(newContent);
+    });
+
     it("can setTitle() silently", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
-        const onTitleChange = jest.fn()
+        const ref = React.createRef();
+        const initTitle = "init title";
+        const onTitleChange = jest.fn();
         act(() => {
             render(
                 <NoteBox
@@ -247,21 +247,21 @@ describe("ref tests", () => {
                 root
             );
         });
-        
-        expect(onTitleChange).not.toHaveBeenCalled()
-        
-        const newTitle = "new title"
+
+        expect(onTitleChange).not.toHaveBeenCalled();
+
+        const newTitle = "new title";
         act(() => {
-            ref.current.setTitle(newTitle, true)
-        })
-        
-        expect(onTitleChange).not.toHaveBeenCalled()
-    })
-    
+            ref.current.setTitle(newTitle, true);
+        });
+
+        expect(onTitleChange).not.toHaveBeenCalled();
+    });
+
     it("can setContent() silently", () => {
-        const ref = React.createRef()
-        const initContent = "init content"
-        const onContentChange = jest.fn()
+        const ref = React.createRef();
+        const initContent = "init content";
+        const onContentChange = jest.fn();
         act(() => {
             render(
                 <NoteBox
@@ -273,20 +273,20 @@ describe("ref tests", () => {
                 root
             );
         });
-        
-        expect(onContentChange).not.toHaveBeenCalled()
-        
-        const newContent = "new content"
+
+        expect(onContentChange).not.toHaveBeenCalled();
+
+        const newContent = "new content";
         act(() => {
-            ref.current.setContent(newContent, true)
-        })
-        
-        expect(onContentChange).not.toHaveBeenCalled()
-    })
-    
+            ref.current.setContent(newContent, true);
+        });
+
+        expect(onContentChange).not.toHaveBeenCalled();
+    });
+
     it("throws when setTitle() is not given a string", () => {
-        const ref = React.createRef()
-        const initTitle = "init title"
+        const ref = React.createRef();
+        const initTitle = "init title";
         act(() => {
             render(
                 <NoteBox
@@ -297,18 +297,18 @@ describe("ref tests", () => {
                 root
             );
         });
-        
+
         expect(() => {
-            const badTitle = { bad: "title data" }
+            const badTitle = { bad: "title data" };
             act(() => {
-                ref.current.setTitle(badTitle)
-            })
-        }).toThrow(TypeError)
-    })
-    
+                ref.current.setTitle(badTitle);
+            });
+        }).toThrow(TypeError);
+    });
+
     it("throws when setContent() is not given a string", () => {
-        const ref = React.createRef()
-        const initContent = "init content"
+        const ref = React.createRef();
+        const initContent = "init content";
         act(() => {
             render(
                 <NoteBox
@@ -319,12 +319,12 @@ describe("ref tests", () => {
                 root
             );
         });
-        
+
         expect(() => {
-            const badContent = { bad: "content data" }
+            const badContent = { bad: "content data" };
             act(() => {
-                ref.current.setContent(badContent)
-            })
-        }).toThrow(TypeError)
-    })
-})
+                ref.current.setContent(badContent);
+            });
+        }).toThrow(TypeError);
+    });
+});
