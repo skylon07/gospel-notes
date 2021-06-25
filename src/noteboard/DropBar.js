@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useClassName, useEffectOnUpdate } from "common/hooks"
+import { useClassName } from "common/hooks"
 import PropTypes from "prop-types";
 import "./DropBar.css";
 
@@ -56,14 +56,6 @@ function DropBar(props) {
             updateSiblingAndParentClasses(contentRef.current, nextAnimationDirection)
         })
     }
-    
-    // TODO: this is a case of using useEffect as a "semantic guarantee";
-    //       this should be rewritten to not use the hook this way
-    //       (and on that note... this hook probably shouldn't exist)
-    useEffectOnUpdate(() => {
-        const animationDirection = dropped ? "dropping" : "raising"
-        updateSiblingAndParentClasses(contentRef.current, animationDirection)
-    }, [dropped])
     
     return (
         // TODO: test the second <Holdable /> bounds (CSS background color)
