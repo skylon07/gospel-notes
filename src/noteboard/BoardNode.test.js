@@ -152,6 +152,10 @@ describe("node rendering tests", () => {
         expect(noteBox).toHaveClass("NoteBox")
         expect(noteBoxData).toStrictEqual({ title, content })
     })
+
+    // TODO: test rendering folders
+
+    // TODO: test rendering dummy nodes
 })
 
 describe("context change listener tests", () => {
