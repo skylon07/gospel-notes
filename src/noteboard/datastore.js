@@ -71,7 +71,7 @@ export default nodeStore
 class NodeParent {
     // populated after class definition
     static types = (() => {
-        const typeNames = ["NoteBox", "DropBar", "Folder"]
+        const typeNames = ["NoteBox", "DropBar", "Folder", "Dummy"]
         const types = {}
         for (const type of typeNames) {
             types[type] = type

@@ -86,6 +86,9 @@ function renderNode(props, node) {
         case types.Folder:
             return <FolderNode />
 
+        case types.Dummy:
+            return <div>Dummy Node: {node.data} ({node.children.length} children)</div>
+
         default:
             return <h1>INVALID NODE TYPE</h1>
     }

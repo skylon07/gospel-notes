@@ -40,6 +40,15 @@ describe("NodeStorage tests", () => {
             expect(node.type).toBe(type)
         })
 
+        it("can create Dummy nodes", () => {
+            const type = nodeStore.nodeTypes.Dummy
+            const node = nodeStore.createNode(type)
+
+            expect(typeof node).toBe("object")
+            expect(node).not.toBe(null)
+            expect(node.type).toBe(type)
+        })
+
         it("errors when invalid types are passed", () => {
             expect(() => nodeStore.createNode("bad type")).toThrow(TypeError)
             expect(() => nodeStore.createNode()).toThrow(TypeError)
