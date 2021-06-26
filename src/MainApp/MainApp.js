@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useCallback } from "react"
 import PropTypes from "prop-types"
 import "./MainApp.css"
 
@@ -16,19 +16,25 @@ const DISPLAY_MODES = {
 const searchIndex = new NodeSearchIndex()
 
 function MainApp() {
+    // TODO: use a root folder node
     const [nodeStack, pushToNodeStack, popFromNodeStack] = useNodeStack()
     const currNodeIds = nodeStack[0] || []
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
     const topBarRef = useRef(null)
 
-    // eslint-disable-next-line no-unused-vars
-    const updateNodeInIndex = (newNode, parentNode) => {
+    const updateNodeDataInIndex = useCallback((newNode) => {
         searchIndex.updateNode(newNode)
-    }
-    // eslint-disable-next-line no-unused-vars
-    const removeNodeFromIndex = (removedNode, parentNode) => {
-        searchIndex.deleteNode(removedNode)
-    }
+    }, [])
+    const addNodeToIndex = useCallback((parentNode, childNode) => {
+        searchIndex.updateNode(childNode)
+        // assuming children affect a parent node's search score
+        searchIndex.updateNode(parentNode)
+    }, [])
+    const removeNodeFromIndex = useCallback((parentNode, childNode) => {
+        searchIndex.deleteNode(childNode)
+        // assuming children affect a parent node's search score
+        searchIndex.updateNode(parentNode)
+    }, [])
 
     const displayAll = () => {
         if (displayMode === DISPLAY_MODES.search) {
@@ -69,9 +75,9 @@ function MainApp() {
             />
             <MainWindow>
                 <NoteBoard
-                    onChangeData={updateNodeInIndex}
-                    onAddChild={updateNodeInIndex}
-                    onRemoveChild={removeNodeFromIndex}
+                    onNodeDataChange={updateNodeDataInIndex}
+                    onNodeAddChild={addNodeToIndex}
+                    onNodeRemoveChild={removeNodeFromIndex}
                 >
                     {currNodeIds}
                     {renderAddButton(onAddNode)}

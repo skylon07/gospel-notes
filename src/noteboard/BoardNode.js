@@ -125,14 +125,14 @@ function NoteBoxNode(props) {
         if (!ignoreNoteBoxRef.current) {
             node.setData({ title: newTitle })
             trigger(callbacks.onNodeDataChange, node, "title", newTitle)
-            removeIfEmptyNoteBox(node, callbacks.onNodeChildrenChange)
+            removeIfEmptyNoteBox(node, callbacks.onNodeRemoveChild)
         }
     }
     const changeNodeContent = (newContent) => {
         if (!ignoreNoteBoxRef.current) {
             node.setData({ content: newContent })
             trigger(callbacks.onNodeDataChange, node, "content", newContent)
-            removeIfEmptyNoteBox(node, callbacks.onNodeChildrenChange)
+            removeIfEmptyNoteBox(node, callbacks.onNodeRemoveChild)
         }
     }
 
@@ -153,19 +153,19 @@ NoteBoxNode.propTypes = {
 }
 
 // called when the user deletes a NoteBox's data
-function removeIfEmptyNoteBox(node, onRemove) {
+function removeIfEmptyNoteBox(node, onRemoveChild) {
     const { title, content } = node.data
     if (node.type === "NoteBox" && title === "" && content === "") {
-        removeEmptyNode(node, onRemove)
+        removeEmptyNode(node, onRemoveChild)
     }
 }
 
 // this function assumes that deleting one BoardNode deletes the node and,
 // therefore, all BoardNodes tied to that node
-function removeEmptyNode(node, onRemove) {
+function removeEmptyNode(node, onRemoveChild) {
     const parents = node.removeFromParents()
     for (const parent of parents) {
-        trigger(onRemove, parent)
+        trigger(onRemoveChild, parent, node)
     }
 }
 
@@ -184,7 +184,7 @@ function DropBarNode(props) {
         }
         const newNode = nodeStore.createNode("NoteBox", initData)
         node.addChild(newNode)
-        trigger(callbacks.onNodeChildrenChange, node)
+        trigger(callbacks.onNodeAddChild, node, newNode)
     }
     let possibleAddButton = null
     if (!props.readOnly) {
@@ -210,7 +210,7 @@ function DropBarNode(props) {
 
         node.setData({ title: newTitle })
         trigger(callbacks.onNodeDataChange, node, "title", newTitle)
-        removeIfEmptyDropBar(node, callbacks.onNodeChildrenChange)
+        removeIfEmptyDropBar(node, callbacks.onNodeRemoveChild)
     }
     const promptChangeIconType = () => {
         if (props.readOnly) {
@@ -247,12 +247,9 @@ DropBarNode.propTypes = {
 }
 
 // called when the user deletes a DropBar's data
-function removeIfEmptyDropBar(node, onNodeRemoveChild) {
+function removeIfEmptyDropBar(node, onRemoveChild) {
     if (node.type === "DropBar" && node.data.title === "") {
-        const parents = node.removeFromParents()
-        for (const parent of parents) {
-            trigger(onNodeRemoveChild, parent, node)
-        }
+        removeEmptyNode(node, onRemoveChild)
     }
 }
 

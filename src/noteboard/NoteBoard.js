@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback, useMemo } from "react"
 import PropTypes from "prop-types"
 import "./NoteBoard.css"
 
@@ -9,13 +9,28 @@ import BoardNodeGroup from "./BoardNodeGroup.js"
 export const NoteBoardCallbacks = React.createContext()
 
 function NoteBoard(props) {
-    const onNodeDataChange = (node, dataName, newData) => {
-        trigger(props.onNodeDataChange, node, dataName, newData)
-    }
-    const onNodeChildrenChange = (node) => {
-        trigger(props.onNodeChildrenChange, node)
-    }
-    const callbacks = { onNodeDataChange, onNodeChildrenChange }
+    const onNodeDataChange = useCallback(
+        (node, dataName, newData) => {
+            trigger(props.onNodeDataChange, node, dataName, newData)
+        },
+        [props.onNodeDataChange]
+    )
+    const onNodeAddChild = useCallback(
+        (parentNode, childNode) => {
+            trigger(props.onNodeAddChild, parentNode, childNode)
+        },
+        [props.onNodeAddChild]
+    )
+    const onNodeRemoveChild = useCallback(
+        (parentNode, childNode) => {
+            trigger(props.onNodeRemoveChild, parentNode, childNode)
+        },
+        [props.onNodeRemoveChild]
+    )
+    const callbacks = useMemo(
+        () => ({ onNodeDataChange, onNodeAddChild, onNodeRemoveChild }),
+        [onNodeDataChange, onNodeAddChild, onNodeRemoveChild]
+    )
 
     return (
         <div data-testid="note-board" className="NoteBoard">
@@ -31,7 +46,8 @@ NoteBoard.propTypes = {
     children: NodePropTypes.listOfNodesOrElements,
     readOnly: PropTypes.bool,
     onNodeDataChange: PropTypes.func,
-    onNodeChildrenChange: PropTypes.func,
+    onNodeAddChild: PropTypes.func,
+    onNodeRemoveChild: PropTypes.func,
 }
 NoteBoard.defaultProps = {
     readOnly: false,
