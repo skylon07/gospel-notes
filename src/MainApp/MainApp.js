@@ -66,7 +66,7 @@ function MainApp() {
             <TopBar
                 ref={topBarRef}
                 menuContent={renderMenuContent(topBarRef)}
-                onSearchClick={displaySearch}
+                onSearch={displaySearch}
                 onModeChange={(newMode) => {
                     if (newMode === "nav") {
                         displayAll()

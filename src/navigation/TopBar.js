@@ -87,7 +87,7 @@ const TopBar = React.forwardRef(function (props, ref) {
                         <SVGIcon type="backArrow" />
                     </TopBarButton>
                     <div className="Spacer" />
-                    <SearchBar onSearch={props.onSearchClick} />
+                    <SearchBar onSearch={props.onSearch} />
                 </div>
             </div>
             <DropMenu ref={menuRef}>{props.menuContent}</DropMenu>
@@ -106,7 +106,7 @@ TopBar.propTypes = {
         })
     ),
     selectedNavButton: PropTypes.number,
-    onSearchClick: PropTypes.func,
+    onSearch: PropTypes.func,
     onModeChange: PropTypes.func,
 }
 TopBar.defaultProps = {
