@@ -61,6 +61,9 @@ export function useSameNode(nodeOrId, componentName = "(no name given)") {
     return orig.node
 }
 
+// callbacks passed to this function should ONLY update the DOM with the new
+// data; DO NOT execute NoteBoard callbacks or modify any other data inside
+// these callbacks
 export function useNodeUpdate(node, type, callback) {
     useEffect(() => {
         if (node) {
