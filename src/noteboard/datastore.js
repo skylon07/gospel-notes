@@ -171,8 +171,13 @@ class NodeParent {
                         "(bad title data)",
                 }
                 break
+
+            case types.Dummy:
+                this._data = newData
+                break
+
             default:
-                throw new Error("Bad node data type (should never happen...?)")
+                throw new TypeError(`Missing node.setData() implementation for node type '${this._type}'`)
         }
 
         Object.freeze(this._data)
