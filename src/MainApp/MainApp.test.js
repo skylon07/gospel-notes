@@ -31,6 +31,8 @@ it("renders with a CSS class", () => {
     expect(app).toHaveClass("MainApp")
 })
 
-// TODO: do we need to write more tests for this...?
+// TODO: write tests directly using useViewStack, and for its implementation
 
-// TODO: write tests for useNodeStack
+// TODO: write tests directly using useRootNode, and for its implementation
+
+// TODO: do we need to write more tests for this...?
