@@ -13,9 +13,9 @@ class NodeStoreSingleton {
         return NodeParent.types
     }
 
-    createNode(type, data) {
+    createNode(type, data = {}, initChildren = []) {
         const id = this._createId()
-        const node = new NodeParent(type, id, data)
+        const node = new NodeParent(type, id, data, initChildren)
         this._nodesById[id] = node
         return node
     }
@@ -88,7 +88,7 @@ class NodeParent {
         return changeTypes
     })()
 
-    constructor(type, id, data) {
+    constructor(type, id, data = {}, initChildren = []) {
         if (!type || type !== this.constructor.types[type]) {
             throw new TypeError(
                 `Invalid NodeParent type (${typeof type}) received`
@@ -98,11 +98,11 @@ class NodeParent {
         this._type = type
         this._id = id
 
-        this._children = new NodeList()
+        this._children = new NodeList(initChildren)
         this._parentCounter = {}
 
         this._data = {}
-        this.data = data
+        this.setData(data)
 
         this._changeListeners = {}
         this._currListenerId = 0
