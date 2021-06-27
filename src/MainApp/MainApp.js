@@ -24,6 +24,21 @@ function MainApp() {
     // prettier-ignore
     // eslint-disable-next-line no-unused-vars
     const [viewNodes, pushToViewStack, popFromViewStack, clearViewStack] = useViewStack([rootNode.children])
+    // ref needed to avoid new callbacks
+    const viewNodesRef = useRef()
+    viewNodesRef.current = viewNodes
+    const removeNodeIdFromViewNodes = useCallback((nodeId) => {
+        const viewNodes = viewNodesRef.current
+        const idx = viewNodes.indexOf(nodeId)
+        if (idx !== -1) {
+            const beforeNodes = viewNodes.slice(0, idx)
+            const afterNodes = viewNodes.slice(idx + 1)
+            const newViewNodes = beforeNodes.concat(afterNodes)
+            popFromViewStack()
+            pushToViewStack(newViewNodes)
+        }
+    }, [pushToViewStack, popFromViewStack])
+
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
     const displaySearch = (queryStr) => {
         const query = searchIndex.search(queryStr)
@@ -54,8 +69,13 @@ function MainApp() {
     // eslint-disable-next-line no-unused-vars
     const onNodeDataChange = useCallback((node, dataName, newData) => {
         searchIndex.updateNode(node)
-        removeIfEmptyNode(node, onNodeRemoveChild)
-    }, [onNodeRemoveChild])
+        removeIfEmptyNode(node, (affectedParents) => {
+            removeNodeIdFromViewNodes(node.id)
+            for (const parentNode of affectedParents) {
+                onNodeRemoveChild(parentNode, node)
+            }
+        })
+    }, [removeNodeIdFromViewNodes, onNodeRemoveChild])
     const onAddNode = (newNode) => {
         searchIndex.updateNode(newNode)
 
@@ -107,15 +127,15 @@ export function useViewStack(initStack = []) {
         }
         return initStack
     })
-    const pushToStack = (nodeIdList) => {
+    const pushToStack = useCallback((nodeIdList) => {
         if (DEV_MODE) {
             validatePushedListForUseViewStack(nodeIdList)
         }
         setStack((viewStack) => {
             return [nodeIdList, ...viewStack]
         })
-    }
-    const popFromStack = () => {
+    }, [])
+    const popFromStack = useCallback(() => {
         setStack((viewStack) => {
             if (viewStack.length === 0) {
                 throw new Error(
@@ -124,10 +144,10 @@ export function useViewStack(initStack = []) {
             }
             return viewStack.slice(1)
         })
-    }
-    const clearStack = () => {
+    }, [])
+    const clearStack = useCallback(() => {
         setStack([])
-    }
+    }, [])
 
     return [viewStack[0] || null, pushToStack, popFromStack, clearStack]
 }
@@ -232,9 +252,7 @@ function removeIfEmptyNode(node, onRemove) {
 function removeEmptyNode(node, onRemove) {
     const parents = node.removeFromParents()
     if (typeof onRemove === "function") {
-        for (const parent of parents) {
-            onRemove(parent)
-        }
+        onRemove(parents)
     }
 }
 
