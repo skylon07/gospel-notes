@@ -5,7 +5,6 @@ const SEPARATORS = {
     pair: "≡,≡",
 }
 
-// TODO: many of these tests do not currently work and need to be reviewed
 // XXX: Storage Registries likely will be removed in the near future; there is
 //       no need to revise these tests
 // eslint-disable-next-line no-unused-vars
