@@ -8,6 +8,8 @@ import BetaDisclaimer from "./BetaDisclaimer.js"
 import { TopBar } from "navigation"
 import { nodeStore, AddButton, NoteBoard } from "noteboard"
 
+const DEV_MODE = process.env.NODE_ENV === "development"
+
 const DISPLAY_MODES = {
     all: "all",
     search: "search",
@@ -16,10 +18,27 @@ const DISPLAY_MODES = {
 const searchIndex = new NodeSearchIndex()
 
 function MainApp() {
-    // TODO: use a root folder node
-    const [nodeStack, pushToNodeStack, popFromNodeStack] = useNodeStack()
-    const currNodeIds = nodeStack[0] || []
+    // TODO: run garbage collection on the nodeStore
+
+    const rootNode = useRootNode()
+    // prettier-ignore
+    // eslint-disable-next-line no-unused-vars
+    const [viewNodes, pushToViewStack, popFromViewStack, clearViewStack] = useViewStack([rootNode.children])
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
+    const displaySearch = (queryStr) => {
+        const query = searchIndex.search(queryStr)
+        const resultIds = query.mapResults((id) => id)
+
+        pushToViewStack(resultIds)
+        setDisplayMode(DISPLAY_MODES.search)
+    }
+    const displayAll = () => {
+        if (displayMode === DISPLAY_MODES.search) {
+            popFromViewStack()
+        }
+        setDisplayMode(DISPLAY_MODES.all)
+    }
+
     const topBarRef = useRef(null)
 
     const updateNodeDataInIndex = useCallback((newNode) => {
@@ -35,29 +54,11 @@ function MainApp() {
         // assuming children affect a parent node's search score
         searchIndex.updateNode(parentNode)
     }, [])
-
-    const displayAll = () => {
-        if (displayMode === DISPLAY_MODES.search) {
-            popFromNodeStack()
-        }
-        setDisplayMode(DISPLAY_MODES.all)
-    }
-    const displaySearch = (queryStr) => {
-        const query = searchIndex.search(queryStr)
-        const resultIds = query.mapResults((id) => id)
-
-        if (displayMode === DISPLAY_MODES.search) {
-            popFromNodeStack()
-        }
-        pushToNodeStack(resultIds)
-        setDisplayMode(DISPLAY_MODES.search)
-    }
-
     const onAddNode = (newNode) => {
         searchIndex.updateNode(newNode)
 
-        popFromNodeStack()
-        pushToNodeStack(currNodeIds.concat(newNode.id))
+        popFromViewStack()
+        pushToViewStack(viewNodes.concat(newNode.id))
     }
 
     return (
@@ -79,7 +80,7 @@ function MainApp() {
                     onNodeAddChild={addNodeToIndex}
                     onNodeRemoveChild={removeNodeFromIndex}
                 >
-                    {currNodeIds}
+                    {viewNodes}
                     {renderAddButton(onAddNode)}
                     <div className="ScrollExtension" />
                 </NoteBoard>
@@ -89,27 +90,84 @@ function MainApp() {
 }
 export default MainApp
 
-// a hook that stores a stack of lists of nodes in state
-export function useNodeStack(initNodes = []) {
-    // YES, we want a 2D array in state; "[initNodes]" is correct
-    const [nodeStack, setNodeStack] = useState([initNodes])
+// returns the root node for the entire notebook
+export function useRootNode() {
+    // TODO: when nodeStore is an actual database, query and return the actual
+    //       node, instead of creating a new one every session (like this)
+    const [rootNode] = useState(() => nodeStore.createNode("Dummy"))
+    return rootNode
+}
 
-    const pushNodesToStack = (nodeIds) => {
-        setNodeStack((nodeStack) => {
-            return [nodeIds, ...nodeStack]
+export function useViewStack(initStack = []) {
+    const [viewStack, setStack] = useState(() => {
+        if (DEV_MODE) {
+            validateInitStackForUseViewStack(initStack)
+        }
+        return initStack
+    })
+    const pushToStack = (nodeIdList) => {
+        if (DEV_MODE) {
+            validatePushedListForUseViewStack(nodeIdList)
+        }
+        setStack((viewStack) => {
+            return [nodeIdList, ...viewStack]
         })
     }
-
-    const popNodesFromStack = () => {
-        setNodeStack((nodeStack) => {
-            if (nodeStack.length === 0) {
-                throw new Error("MainApp: Cannot pop from empty node stack!")
+    const popFromStack = () => {
+        setStack((viewStack) => {
+            if (viewStack.length === 0) {
+                throw new Error(
+                    "(Internal MainApp error): Cannot pop from empty node stack!"
+                )
             }
-            return nodeStack.slice(1)
+            return viewStack.slice(1)
         })
     }
+    const clearStack = () => {
+        setStack([])
+    }
 
-    return [nodeStack, pushNodesToStack, popNodesFromStack]
+    return [viewStack[0] || null, pushToStack, popFromStack, clearStack]
+}
+function validateInitStackForUseViewStack(initStack) {
+    if (!Array.isArray(initStack)) {
+        throw new Error(
+            `(Internal MainApp error): The initial view stack must be an array, not '${initStack}'`
+        )
+    }
+    for (let listIdx = 0; listIdx < initStack.length; listIdx++) {
+        const list = initStack[listIdx]
+        if (!Array.isArray(list)) {
+            throw new Error(
+                `(Internal MainApp error): The initial view stack must be an array of arrays; got '${list}' at initStack[${listIdx}]`
+            )
+        }
+        for (let nodeIdIdx = 0; nodeIdIdx < list.length; nodeIdIdx++) {
+            const nodeId = list[nodeIdIdx]
+            if (!nodeStore.isNodeId(nodeId)) {
+                throw new Error(
+                    `(Internal MainApp error): The initial view stack must only contain valid node ids; got '${nodeId}' at initStack[${listIdx}][${nodeIdIdx}]`
+                )
+            }
+        }
+    }
+}
+function validatePushedListForUseViewStack(nodeIdList) {
+    if (!Array.isArray(nodeIdList)) {
+        throw new Error()
+    }
+    for (
+        let nodeIdIdx = 0;
+        nodeIdIdx < nodeIdList.length;
+        nodeIdIdx++
+    ) {
+        const nodeId = nodeIdList[nodeIdIdx]
+        if (!nodeStore.isNodeId(nodeId)) {
+            throw new Error(
+                `(Internal MainApp error): All lists pushed to the view stack must only contain valid node ids; got '${nodeId}' at listToPush[${nodeIdIdx}]`
+            )
+        }
+    }
 }
 
 function renderMenuContent(topBarRef) {
