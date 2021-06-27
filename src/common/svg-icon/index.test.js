@@ -86,8 +86,6 @@ describe("CSS class tests", () => {
         expect(icon).toHaveClass(type)
     })
 
-    // TODO: this is a valid/working test, but React's invalid prop warnings
-    //       need to be silenced (at least, when run in spck mobile editor)
     it("renders the 'invalid' class name when an invalid type is given", () => {
         const type = "there is no way this is a valid type"
         act(() => {
