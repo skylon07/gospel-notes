@@ -177,7 +177,9 @@ class NodeParent {
                 break
 
             default:
-                throw new TypeError(`Missing node.setData() implementation for node type '${this._type}'`)
+                throw new TypeError(
+                    `Missing node.setData() implementation for node type '${this._type}'`
+                )
         }
 
         Object.freeze(this._data)
