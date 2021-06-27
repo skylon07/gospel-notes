@@ -12,12 +12,11 @@ Gospel Notes is a small study-journalling app, intended to be used alongside Gos
 
 Gospel Notes has a few key features:
 
-- Three separate pages to organize doctrinal questions (and common counter-questions), scriptural lessons, and topical notes for general gospel discussions
+- Nameable pages, where you can organize notes into categories such as doctrinal questions (and common counter-questions), scriptural lessons, or topical notes for general gospel discussions
 - Fluid UI and easy-to-navigate notebook system
 - Integrated search engine with options including searching folders, notebooks, and individual notes
-- "Deep Link" generators (to link notes to scriptures in Gospel Library; one click away!)
-- Can import previously exported save files
-- Can share notebooks with other Gospel Notes users
+- "Deep Link" generators (to link notes to resources in Gospel Library; one click away!)
+- The ability to backup and share notebooks with other Gospel Notes users
 
 ### How do I use it?
 
@@ -46,3 +45,6 @@ To run in a docker container, make sure you have docker installed and then:
 
 - You commit .env?!
   - Yes. This is a convention recommended and used by Create React App.
+
+- Why are there no issues here?
+  - Issues are tracked on a [Kanban board on Atlassian](https://davtar.atlassian.net/jira/software/c/projects/GN/boards/4/roadmap). If there are issues added here on GitHub, they will be moved to this site.
