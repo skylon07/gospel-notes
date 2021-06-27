@@ -27,17 +27,20 @@ function MainApp() {
     // ref needed to avoid new callbacks
     const viewNodesRef = useRef()
     viewNodesRef.current = viewNodes
-    const removeNodeIdFromViewNodes = useCallback((nodeId) => {
-        const viewNodes = viewNodesRef.current
-        const idx = viewNodes.indexOf(nodeId)
-        if (idx !== -1) {
-            const beforeNodes = viewNodes.slice(0, idx)
-            const afterNodes = viewNodes.slice(idx + 1)
-            const newViewNodes = beforeNodes.concat(afterNodes)
-            popFromViewStack()
-            pushToViewStack(newViewNodes)
-        }
-    }, [pushToViewStack, popFromViewStack])
+    const removeNodeIdFromViewNodes = useCallback(
+        (nodeId) => {
+            const viewNodes = viewNodesRef.current
+            const idx = viewNodes.indexOf(nodeId)
+            if (idx !== -1) {
+                const beforeNodes = viewNodes.slice(0, idx)
+                const afterNodes = viewNodes.slice(idx + 1)
+                const newViewNodes = beforeNodes.concat(afterNodes)
+                popFromViewStack()
+                pushToViewStack(newViewNodes)
+            }
+        },
+        [pushToViewStack, popFromViewStack]
+    )
 
     const [displayMode, setDisplayMode] = useState(DISPLAY_MODES.all)
     const displaySearch = (queryStr) => {
@@ -66,16 +69,19 @@ function MainApp() {
         // assuming children affect a parent node's search score
         searchIndex.updateNode(parentNode)
     }, [])
-    // eslint-disable-next-line no-unused-vars
-    const onNodeDataChange = useCallback((node, dataName, newData) => {
-        searchIndex.updateNode(node)
-        removeIfEmptyNode(node, (affectedParents) => {
-            removeNodeIdFromViewNodes(node.id)
-            for (const parentNode of affectedParents) {
-                onNodeRemoveChild(parentNode, node)
-            }
-        })
-    }, [removeNodeIdFromViewNodes, onNodeRemoveChild])
+    const onNodeDataChange = useCallback(
+        // eslint-disable-next-line no-unused-vars
+        (node, dataName, newData) => {
+            searchIndex.updateNode(node)
+            removeIfEmptyNode(node, (affectedParents) => {
+                removeNodeIdFromViewNodes(node.id)
+                for (const parentNode of affectedParents) {
+                    onNodeRemoveChild(parentNode, node)
+                }
+            })
+        },
+        [removeNodeIdFromViewNodes, onNodeRemoveChild]
+    )
     const onAddNode = (newNode) => {
         searchIndex.updateNode(newNode)
 
@@ -234,7 +240,7 @@ function removeIfEmptyNode(node, onRemove) {
             }
             break
         }
-        
+
         case "DropBar": {
             const { title } = node.data
             if (title === "") {
