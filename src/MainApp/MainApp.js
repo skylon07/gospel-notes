@@ -41,19 +41,21 @@ function MainApp() {
 
     const topBarRef = useRef(null)
 
-    const updateNodeDataInIndex = useCallback((newNode) => {
-        searchIndex.updateNode(newNode)
-    }, [])
-    const addNodeToIndex = useCallback((parentNode, childNode) => {
+    const onNodeAddChild = useCallback((parentNode, childNode) => {
         searchIndex.updateNode(childNode)
         // assuming children affect a parent node's search score
         searchIndex.updateNode(parentNode)
     }, [])
-    const removeNodeFromIndex = useCallback((parentNode, childNode) => {
+    const onNodeRemoveChild = useCallback((parentNode, childNode) => {
         searchIndex.deleteNode(childNode)
         // assuming children affect a parent node's search score
         searchIndex.updateNode(parentNode)
     }, [])
+    // eslint-disable-next-line no-unused-vars
+    const onNodeDataChange = useCallback((node, dataName, newData) => {
+        searchIndex.updateNode(node)
+        removeIfEmptyNode(node, onNodeRemoveChild)
+    }, [onNodeRemoveChild])
     const onAddNode = (newNode) => {
         searchIndex.updateNode(newNode)
 
@@ -76,9 +78,9 @@ function MainApp() {
             />
             <MainWindow>
                 <NoteBoard
-                    onNodeDataChange={updateNodeDataInIndex}
-                    onNodeAddChild={addNodeToIndex}
-                    onNodeRemoveChild={removeNodeFromIndex}
+                    onNodeDataChange={onNodeDataChange}
+                    onNodeAddChild={onNodeAddChild}
+                    onNodeRemoveChild={onNodeRemoveChild}
                 >
                     {viewNodes}
                     {renderAddButton(onAddNode)}
@@ -156,11 +158,7 @@ function validatePushedListForUseViewStack(nodeIdList) {
     if (!Array.isArray(nodeIdList)) {
         throw new Error()
     }
-    for (
-        let nodeIdIdx = 0;
-        nodeIdIdx < nodeIdList.length;
-        nodeIdIdx++
-    ) {
+    for (let nodeIdIdx = 0; nodeIdIdx < nodeIdList.length; nodeIdIdx++) {
         const nodeId = nodeIdList[nodeIdIdx]
         if (!nodeStore.isNodeId(nodeId)) {
             throw new Error(
@@ -204,6 +202,40 @@ function promptNewNode() {
         content: "This is the content",
     })
     return newNode
+}
+
+// called when the user deletes some node's data
+function removeIfEmptyNode(node, onRemove) {
+    switch (node.type) {
+        case "NoteBox": {
+            const { title, content } = node.data
+            if (title === "" && content === "") {
+                removeEmptyNode(node, onRemove)
+            }
+            break
+        }
+        
+        case "DropBar": {
+            const { title } = node.data
+            if (title === "") {
+                removeEmptyNode(node, onRemove)
+            }
+            break
+        }
+
+        default:
+    }
+}
+
+// this function assumes that deleting one BoardNode deletes the node and,
+// therefore, all BoardNodes tied to that node
+function removeEmptyNode(node, onRemove) {
+    const parents = node.removeFromParents()
+    if (typeof onRemove === "function") {
+        for (const parent of parents) {
+            onRemove(parent)
+        }
+    }
 }
 
 // a container that holds any settings/data pertaining to the window

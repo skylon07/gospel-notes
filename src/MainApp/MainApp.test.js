@@ -35,4 +35,4 @@ it("renders with a CSS class", () => {
 
 // TODO: write tests directly using useRootNode, and for its implementation
 
-// TODO: do we need to write more tests for this...?
+// TODO: test for removing notebox/dropbar children nodes when empty
