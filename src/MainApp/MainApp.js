@@ -9,6 +9,7 @@ import { TopBar } from "navigation"
 import { nodeStore, AddButton, NoteBoard } from "noteboard"
 
 const DEV_MODE = process.env.NODE_ENV === "development"
+const TEST_MODE = process.env.NODE_ENV === "test"
 
 const DISPLAY_MODES = {
     all: "all",
@@ -128,13 +129,13 @@ export function useRootNode() {
 
 export function useViewStack(initStack = []) {
     const [viewStack, setStack] = useState(() => {
-        if (DEV_MODE) {
+        if (DEV_MODE || TEST_MODE) {
             validateInitStackForUseViewStack(initStack)
         }
         return initStack
     })
     const pushToStack = useCallback((nodeIdList) => {
-        if (DEV_MODE) {
+        if (DEV_MODE || TEST_MODE) {
             validatePushedListForUseViewStack(nodeIdList)
         }
         setStack((viewStack) => {
