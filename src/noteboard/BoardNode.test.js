@@ -253,8 +253,6 @@ describe("context change listener tests", () => {
 
 // TODO: test that BoardNode subscriptions update the UI when a node changes
 
-// TODO: test for removing notebox/dropbar children nodes when empty
-
 // TODO: directly test useSameNode() hook
 
 // TODO: directly test useNodeUpdate() hook

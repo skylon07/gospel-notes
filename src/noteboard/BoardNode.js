@@ -131,14 +131,12 @@ function NoteBoxNode(props) {
         if (!ignoreNoteBoxRef.current) {
             node.setData({ title: newTitle })
             trigger(callbacks.onNodeDataChange, node, "title", newTitle)
-            removeIfEmptyNoteBox(node, callbacks.onNodeRemoveChild)
         }
     }
     const changeNodeContent = (newContent) => {
         if (!ignoreNoteBoxRef.current) {
             node.setData({ content: newContent })
             trigger(callbacks.onNodeDataChange, node, "content", newContent)
-            removeIfEmptyNoteBox(node, callbacks.onNodeRemoveChild)
         }
     }
 
@@ -156,23 +154,6 @@ function NoteBoxNode(props) {
 NoteBoxNode.propTypes = {
     node: NodePropTypes.node.isRequired,
     readOnly: PropTypes.bool.isRequired,
-}
-
-// called when the user deletes a NoteBox's data
-function removeIfEmptyNoteBox(node, onRemoveChild) {
-    const { title, content } = node.data
-    if (node.type === "NoteBox" && title === "" && content === "") {
-        removeEmptyNode(node, onRemoveChild)
-    }
-}
-
-// this function assumes that deleting one BoardNode deletes the node and,
-// therefore, all BoardNodes tied to that node
-function removeEmptyNode(node, onRemoveChild) {
-    const parents = node.removeFromParents()
-    for (const parent of parents) {
-        trigger(onRemoveChild, parent, node)
-    }
 }
 
 function DropBarNode(props) {
@@ -216,7 +197,6 @@ function DropBarNode(props) {
 
         node.setData({ title: newTitle })
         trigger(callbacks.onNodeDataChange, node, "title", newTitle)
-        removeIfEmptyDropBar(node, callbacks.onNodeRemoveChild)
     }
     const promptChangeIconType = () => {
         if (props.readOnly) {
@@ -250,13 +230,6 @@ function DropBarNode(props) {
 DropBarNode.propTypes = {
     node: NodePropTypes.node.isRequired,
     readOnly: PropTypes.bool.isRequired,
-}
-
-// called when the user deletes a DropBar's data
-function removeIfEmptyDropBar(node, onRemoveChild) {
-    if (node.type === "DropBar" && node.data.title === "") {
-        removeEmptyNode(node, onRemoveChild)
-    }
 }
 
 function FolderNode() {
