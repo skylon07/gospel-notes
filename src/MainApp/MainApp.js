@@ -160,21 +160,21 @@ export function useViewStack(initStack = []) {
 }
 function validateInitStackForUseViewStack(initStack) {
     if (!Array.isArray(initStack)) {
-        throw new Error(
+        throw new TypeError(
             `(Internal MainApp error): The initial view stack must be an array, not '${initStack}'`
         )
     }
     for (let listIdx = 0; listIdx < initStack.length; listIdx++) {
         const list = initStack[listIdx]
         if (!Array.isArray(list)) {
-            throw new Error(
+            throw new TypeError(
                 `(Internal MainApp error): The initial view stack must be an array of arrays; got '${list}' at initStack[${listIdx}]`
             )
         }
         for (let nodeIdIdx = 0; nodeIdIdx < list.length; nodeIdIdx++) {
             const nodeId = list[nodeIdIdx]
             if (!nodeStore.isNodeId(nodeId)) {
-                throw new Error(
+                throw new TypeError(
                     `(Internal MainApp error): The initial view stack must only contain valid node ids; got '${nodeId}' at initStack[${listIdx}][${nodeIdIdx}]`
                 )
             }
@@ -183,12 +183,14 @@ function validateInitStackForUseViewStack(initStack) {
 }
 function validatePushedListForUseViewStack(nodeIdList) {
     if (!Array.isArray(nodeIdList)) {
-        throw new Error()
+        throw new TypeError(
+            `(Internal MainApp error): The list pushed to the view stack must be an array; got '${nodeIdList}'`
+        )
     }
     for (let nodeIdIdx = 0; nodeIdIdx < nodeIdList.length; nodeIdIdx++) {
         const nodeId = nodeIdList[nodeIdIdx]
         if (!nodeStore.isNodeId(nodeId)) {
-            throw new Error(
+            throw new TypeError(
                 `(Internal MainApp error): All lists pushed to the view stack must only contain valid node ids; got '${nodeId}' at listToPush[${nodeIdIdx}]`
             )
         }
