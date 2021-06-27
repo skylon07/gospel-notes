@@ -16,6 +16,7 @@
     },
     "plugins": ["react", "react-hooks"],
     "rules": {
+        "default-case": "error",
         "indent": ["error", 4, { "SwitchCase": 1, "ignoredNodes": ["ConditionalExpression"] }],
         "linebreak-style": ["error", "unix"],
         "no-fallthrough": "off",
