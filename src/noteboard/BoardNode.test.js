@@ -90,27 +90,25 @@ it("renders with a CSS class", () => {
 })
 
 describe("node rendering tests", () => {
+    it("renders nodes by ID (using Dummy type)", () => {
+        const dummyData = "Hey, I'm a dummy!"
+        const nodeId = nodeStore.createNode("Dummy", { data: dummyData }).id
+        act(() => {
+            render(<BoardNode node={nodeId} />, root)
+        })
+        const boardNode = grabBoardNode()
+        const dummyNode = grabChildFrom(boardNode)
+
+        expect(dummyNode).toHaveClass("Dummy")
+        expect(dummyNode).toHaveTextContent(dummyData)
+    })
+
     it("renders NoteBox nodes", () => {
         const title = "title"
         const content = "content"
         const node = nodeStore.createNode("NoteBox", { title, content })
         act(() => {
             render(<BoardNode node={node} />, root)
-        })
-        const boardNode = grabBoardNode()
-        const noteBox = grabChildFrom(boardNode)
-        const noteBoxData = grabNoteBoxData(noteBox)
-
-        expect(noteBox).toHaveClass("NoteBox")
-        expect(noteBoxData).toStrictEqual({ title, content })
-    })
-
-    it("renders nodes by ID (using NoteBox type)", () => {
-        const title = "title"
-        const content = "content"
-        const nodeId = nodeStore.createNode("NoteBox", { title, content }).id
-        act(() => {
-            render(<BoardNode node={nodeId} />, root)
         })
         const boardNode = grabBoardNode()
         const noteBox = grabChildFrom(boardNode)
