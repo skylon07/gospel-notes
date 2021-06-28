@@ -4,16 +4,14 @@ import { act } from "react-dom/test-utils"
 
 import Draggable from "./Draggable.js"
 
-// NOTE: modern is required as it allows setState() to run inside timeouts
-//       (otherwise, React won't be able to complete its lifecycle)
+// modern is required as it allows setState() to run inside timeouts
+// (otherwise, React won't be able to complete its lifecycle)
 jest.useFakeTimers("modern")
 
 let root = null
 beforeEach(() => {
     root = document.createElement("div")
     document.body.appendChild(root)
-
-    updateTouchId()
 })
 afterEach(() => {
     unmountComponentAtNode(root)
@@ -21,27 +19,11 @@ afterEach(() => {
     root = null
 })
 
-let currTouchId = 0
-function updateTouchId() {
-    currTouchId = Date.now()
-}
-
-// NOTE: an object with clientX/Y normally suffices, but
-//       spck env requires me to generate actual touches
 function makeTouch(target, clientX, clientY) {
-    if (window.Touch) {
-        return new Touch({
-            identifier: currTouchId,
-            target,
-            clientX,
-            clientY,
-        })
-    } else {
-        return {
-            target,
-            clientX,
-            clientY,
-        }
+    return {
+        target,
+        clientX,
+        clientY,
     }
 }
 

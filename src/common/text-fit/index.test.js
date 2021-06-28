@@ -33,8 +33,8 @@ describe("constant nodes", () => {
         expect(node).toHaveClass("TextNode")
     })
 
-    // NOTE: not really sure how to mock element sizes while
-    //       maintaining meaningful tests...
+    // TODO: write more tests (not really sure how to mock element sizes while
+    //       maintaining meaningful tests...)
 })
 
 describe("static nodes", () => {

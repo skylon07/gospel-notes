@@ -9,7 +9,7 @@ const SEPARATORS = {
 //       no need to revise these tests
 // eslint-disable-next-line no-unused-vars
 let mockLocalStorage = null
-// NOTE: __proto__ must be spied on; this actually returns a jest fn()
+// // __proto__ must be spied on; this actually returns a jest fn()
 // jest.spyOn(localStorage.__proto__, "getItem").mockImplementation(
 //     function (storageKey) {
 //         // FIXME: this does not work...?
