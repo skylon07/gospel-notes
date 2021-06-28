@@ -10,9 +10,7 @@ export class NodeSearchIndex {
     updateNode(nodeOrId) {
         const node = this._validateNode(nodeOrId)
         const nodeData = this._getFieldsFrom(node)
-        // TODO: don't spread the nodeData when I don't need to use fakeJest.js
-        //       (reminder: change the tests too; setReference() is tracked)
-        this._index.setReference(node.id, ...nodeData)
+        this._index.setReference(node.id, nodeData)
     }
 
     // calls index.deleteReference() with relevant node data
@@ -39,12 +37,12 @@ export class NodeSearchIndex {
 
     // returns important node.data values as an array of field information
     _getFieldsFrom(node) {
-        const { NoteBox, DropBar } = nodeStore.nodeTypes
+        const types = nodeStore.nodeTypes
         switch (node.type) {
-            case NoteBox:
+            case types.NoteBox:
                 return this._getFieldsFromNoteBox(node)
 
-            case DropBar:
+            case types.DropBar:
                 return this._getFieldsFromDropBar(node)
 
             default:

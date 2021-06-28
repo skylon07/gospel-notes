@@ -7,7 +7,10 @@ beforeEach(() => {
     nodeIndex = new NodeSearchIndex()
     // track calls to lunr index functions
     lunrIndex = nodeIndex._index
-    lunrIndex.setReference = jest.fn(lunrIndex.setReference.bind(lunrIndex))
+    // prettier-ignore
+    lunrIndex.setReference = jest.fn(
+        lunrIndex.setReference.bind(lunrIndex)
+    )
     lunrIndex.deleteReference = jest.fn(
         lunrIndex.deleteReference.bind(lunrIndex)
     )
@@ -32,7 +35,10 @@ describe("updating node tests", () => {
         nodeIndex.updateNode(node)
 
         expect(lunrIndex.setReference).toBeCalledTimes(1)
-        expect(lunrIndex.setReference).toBeCalledWith(node.id, title, content)
+        expect(lunrIndex.setReference).toBeCalledWith(
+            node.id,
+            expect.objectContaining([title, content])
+        )
     })
 
     it("updates the index with the DropBar title", () => {
@@ -42,7 +48,10 @@ describe("updating node tests", () => {
         nodeIndex.updateNode(node)
 
         expect(lunrIndex.setReference).toBeCalledTimes(1)
-        expect(lunrIndex.setReference).toBeCalledWith(node.id, title)
+        expect(lunrIndex.setReference).toBeCalledWith(
+            node.id,
+            expect.objectContaining([title])
+        )
     })
 
     it("updates multiple given nodes in the index", () => {
@@ -85,12 +94,11 @@ describe("updating node tests", () => {
         for (let i = 0; i < 3; i++) {
             expect(lunrIndex.setReference).toBeCalledWith(
                 noteBoxNodes[i].id,
-                noteBoxTitles[i],
-                noteBoxContents[i]
+                expect.objectContaining([noteBoxTitles[i], noteBoxContents[i]])
             )
             expect(lunrIndex.setReference).toBeCalledWith(
                 dropBarNodes[i].id,
-                dropBarTitles[i]
+                expect.objectContaining([dropBarTitles[i]])
             )
         }
     })
