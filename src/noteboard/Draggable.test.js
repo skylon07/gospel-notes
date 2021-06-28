@@ -5,7 +5,7 @@ import { act } from "react-dom/test-utils"
 import Draggable from "./Draggable.js"
 
 // NOTE: modern is required as it allows setState() to run inside timeouts
-// (otherwise, React won't be able to complete its lifecycle)
+//       (otherwise, React won't be able to complete its lifecycle)
 jest.useFakeTimers("modern")
 
 let root = null
