@@ -1,11 +1,10 @@
-import React, { useRef, useEffect } from "react"
+import React, { useRef, useImperativeHandle } from "react"
 import PropTypes from "prop-types"
 import "./SearchBar.css"
 
 import { SVGIcon } from "common/svg-icon"
 
-// TODO: change force prop to a ref accessible function
-function SearchBar(props) {
+const SearchBar = React.forwardRef(function SearchBar(props, ref) {
     const inputRef = useRef(null)
     const select = () => {
         inputRef.current.select()
@@ -13,12 +12,11 @@ function SearchBar(props) {
     const blur = () => {
         inputRef.current.blur()
     }
+    const focus = () => {
+        inputRef.current.focus()
+    }
 
-    useEffect(() => {
-        if (props.forceFocus) {
-            inputRef.current.focus()
-        }
-    })
+    useImperativeHandle(ref, () => ({focus, blur, select}))
 
     const triggerSearch = () => {
         blur()
@@ -45,9 +43,8 @@ function SearchBar(props) {
             </div>
         </div>
     )
-}
+})
 SearchBar.propTypes = {
     onSearch: PropTypes.func,
-    forceFocus: PropTypes.bool,
 }
 export default SearchBar
