@@ -3,7 +3,7 @@ import { render, unmountComponentAtNode } from "react-dom"
 import { act } from "react-dom/test-utils"
 
 // kind of funny that tests are written for something that does tests...
-import HookTester from "./HookTester.js"
+import HookTester, { callHookOn } from "./HookTester.js"
 
 let root = null
 beforeEach(() => {
@@ -20,65 +20,103 @@ it("renders without crashing (like any other component)", () => {
     render(<HookTester />, root)
 })
 
-function callHook(hook, ...hookArgs) {
-    act(() => {
-        render(<HookTester useHook={hook} hookArgs={hookArgs} />, root)
+describe("HookTester tests", () => {
+    function callHook(hook, ...hookArgs) {
+        act(() => {
+            render(<HookTester useHook={hook} hookArgs={hookArgs} />, root)
+        })
+    }
+    it("calls its 'useHook' property every render", () => {
+        const fakeHook = jest.fn()
+        callHook(fakeHook)
+
+        expect(fakeHook).toHaveBeenCalledTimes(1)
+
+        callHook(fakeHook)
+
+        expect(fakeHook).toHaveBeenCalledTimes(2)
     })
-}
-it("calls its 'useHook' property every render", () => {
-    const fakeHook = jest.fn()
-    callHook(fakeHook)
 
-    expect(fakeHook).toHaveBeenCalledTimes(1)
+    it("calls its 'useHook' property with 'hookArgs'", () => {
+        const firstArgs = ["first argument"]
+        const fakeHook = jest.fn()
+        callHook(fakeHook, ...firstArgs)
 
-    callHook(fakeHook)
+        expect(fakeHook).toHaveBeenLastCalledWith(...firstArgs)
 
-    expect(fakeHook).toHaveBeenCalledTimes(2)
+        const secondArgs = ["first arg", "second arg", "third arg"]
+        callHook(fakeHook, ...secondArgs)
+
+        expect(fakeHook).toHaveBeenLastCalledWith(...secondArgs)
+    })
+
+    function tryHook(hook, onUseHook, onError) {
+        act(() => {
+            render(
+                <HookTester
+                    useHook={hook}
+                    onUseHook={onUseHook}
+                    onError={onError}
+                />,
+                root
+            )
+        })
+    }
+    it("calls 'onUseHook' with the returned value of 'useHook'", () => {
+        const hookReturnValue = "some value, any value"
+        const fakeHook = jest.fn(() => hookReturnValue)
+        const onUseFakeHook = jest.fn()
+        tryHook(fakeHook, onUseFakeHook)
+
+        expect(onUseFakeHook).toHaveBeenCalledTimes(1)
+        expect(onUseFakeHook).toHaveBeenLastCalledWith(hookReturnValue)
+    })
+
+    it("calls 'onError' when 'useHook' throws an error", () => {
+        const error = new Error("The hook errored!")
+        const fakeHook = jest.fn(() => {
+            throw error
+        })
+        const onError = jest.fn()
+        tryHook(fakeHook, null, onError)
+
+        expect(onError).toHaveBeenCalledTimes(1)
+        expect(onError).toHaveBeenLastCalledWith(error)
+    })
 })
 
-it("calls its 'useHook' property with 'hookArgs'", () => {
-    const firstArgs = ["first argument"]
-    const fakeHook = jest.fn()
-    callHook(fakeHook, ...firstArgs)
+describe("callHookOn() tests", () => {
+    it("calls 'useHook' with the correct 'hookArgs'", () => {
+        const firstArgs = ["first argument"]
+        const fakeHook = jest.fn()
+        callHookOn(root, fakeHook, ...firstArgs)
 
-    expect(fakeHook).toHaveBeenLastCalledWith(...firstArgs)
-
-    const secondArgs = ["first arg", "second arg", "third arg"]
-    callHook(fakeHook, ...secondArgs)
-
-    expect(fakeHook).toHaveBeenLastCalledWith(...secondArgs)
-})
-
-function tryHook(hook, onUseHook, onError) {
-    act(() => {
-        render(
-            <HookTester
-                useHook={hook}
-                onUseHook={onUseHook}
-                onError={onError}
-            />,
-            root
-        )
+        expect(fakeHook).toHaveBeenCalledTimes(1)
+        expect(fakeHook).toHaveBeenLastCalledWith(...firstArgs)
+        
+        const secondArgs = ["first arg", "second arg", "third arg"]
+        callHookOn(root, fakeHook, ...secondArgs)
+        
+        expect(fakeHook).toHaveBeenCalledTimes(2)
+        expect(fakeHook).toHaveBeenLastCalledWith(...secondArgs)
     })
-}
-it("calls 'onUseHook' with the returned value of 'useHook'", () => {
-    const hookReturnValue = "some value, any value"
-    const fakeHook = jest.fn(() => hookReturnValue)
-    const onUseFakeHook = jest.fn()
-    tryHook(fakeHook, onUseFakeHook)
 
-    expect(onUseFakeHook).toHaveBeenCalledTimes(1)
-    expect(onUseFakeHook).toHaveBeenLastCalledWith(hookReturnValue)
-})
+    
+    it("returns the value returned by 'useHook'", () => {
+        const hookReturnValue = "some value, any value"
+        const fakeHook = jest.fn(() => hookReturnValue)
+        const result = callHookOn(root, fakeHook)
 
-it("calls 'onError' when 'useHook' throws an error", () => {
-    const error = new Error("The hook errored!")
-    const fakeHook = jest.fn(() => {
-        throw error
+        expect(result).toBe(hookReturnValue)
     })
-    const onError = jest.fn()
-    tryHook(fakeHook, null, onError)
 
-    expect(onError).toHaveBeenCalledTimes(1)
-    expect(onError).toHaveBeenLastCalledWith(error)
+    it("throws the error thrown inside 'useHook'", () => {
+        const error = new Error("The hook errored!")
+        const fakeHook = jest.fn(() => {
+            throw error
+        })
+        expect(() => {
+            callHookOn(root, fakeHook)
+        }).toThrow(error)
+    })
 })

@@ -1,15 +1,19 @@
 import React from "react"
+import { render } from "react-dom"
+import { act } from "react-dom/test-utils"
 import PropTypes from "prop-types"
 
 // provided as a convenience for testing hooks
 function HookTester(props) {
-    return <HookErrorCatcher onError={props.onError}>
-        <TestCustomHook
-            useHook={props.useHook}
-            hookArgs={props.hookArgs}
-            onUseHook={props.onUseHook}
-        />
-    </HookErrorCatcher>
+    return (
+        <HookErrorCatcher onError={props.onError}>
+            <TestCustomHook
+                useHook={props.useHook}
+                hookArgs={props.hookArgs}
+                onUseHook={props.onUseHook}
+            />
+        </HookErrorCatcher>
+    )
 }
 HookTester.propTypes = {
     useHook: PropTypes.func,
@@ -22,12 +26,43 @@ HookTester.defaultProps = {
 }
 export default HookTester
 
+// a helper function that turns HookTester into a function call
+export function callHookOn(DOMRoot, useHook, ...hookArgs) {
+    let hookResult = null
+    const recordHookResult = (result) => {
+        hookResult = result
+    }
+    // NOTE: React catches errors thrown during rendering (therefore
+    //       in hooks as well); recording and throwing this allows jest to
+    //       catch the error instead for testing
+    let thrownError = null
+    const recordError = (error) => {
+        thrownError = error
+    }
+    act(() => {
+        render(
+            <HookTester
+                useHook={useHook}
+                hookArgs={hookArgs}
+                onUseHook={recordHookResult}
+                onError={recordError}
+            />,
+            DOMRoot
+        )
+    })
+    if (thrownError) {
+        throw thrownError
+    }
+    return hookResult
+}
+
 // NOTE: React throws... quite the chunk of information when components throw;
 //       this is a bit of a hack, but they work!
 const origError = console.error
 function ignoreConsoleError() {
     console.error = (error) => {
-        const isErroredInComponent = /The above error occurred in the <.*> component:/.test(error + "")
+        const isErroredInComponent =
+            /The above error occurred in the <.*> component:/.test(error + "")
         const isReactError = /Error: Uncaught \[.*\]/.test(error + "")
         if (!isErroredInComponent && !isReactError) {
             origError.call(console, error)
