@@ -17,6 +17,7 @@ function numberOfDocuments(idx = index) {
     return idx._idx.documentStore.length
 }
 
+// TODO: can we mock lunr?
 function documentStore(idx = index) {
     return idx._idx.documentStore.store
 }
@@ -61,7 +62,7 @@ describe("document update tests", () => {
                 { not: "valid" },
                 "another valid field"
             )
-        })
+        }).toThrow(SearchIndexDocumentError)
     })
 })
 
@@ -135,4 +136,6 @@ describe("serialization tests", () => {
         expect(storeObj.ref).toStrictEqual(["field"])
         expect(storeObj.anotherRef).toStrictEqual(["field2"])
     })
+
+    // TODO: SearchIndexCreationError tests
 })
