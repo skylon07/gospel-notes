@@ -39,7 +39,7 @@ function DropBar(props) {
     })
 
     const toggleDrop = () => {
-        // offsetHeight is used since this represents the height
+        // offsetHeight is used since it represents the height
         // before transformations are applied
         const currHeight = contentRef.current.offsetHeight
         STYLE.setTransform(currHeight)
@@ -51,9 +51,9 @@ function DropBar(props) {
         //       causes twitchy DOM elements; requestAnimationFrame() is used to
         //       get around this problem
         window.requestAnimationFrame(() => {
-            // NOTE: to conform to React rules as best as possible, please DO NOT
-            //       RUN anything here that does not directly relate to setting
-            //       temporary CSS classes/animations to DOM elements
+            // to conform to React rules as best as possible, please DO NOT
+            // RUN anything here that does not directly relate to setting
+            // temporary CSS classes/animations to DOM elements
             if (contentRef.current) {
                 const nextAnimationDirection = dropped ? "raising" : "dropping"
                 updateSiblingAndParentClasses(

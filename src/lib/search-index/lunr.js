@@ -2082,7 +2082,7 @@
      */
     ;(function (root, factory) {
         // NOTE: eslint doesn't like how "define" isn't defined (how ironic...)
-        // eslint-disable-next-line
+        // eslint-disable-next-line no-undef
         if (typeof define === "function" && define.amd) {
             // AMD. Register as an anonymous module.
             // eslint-disable-next-line

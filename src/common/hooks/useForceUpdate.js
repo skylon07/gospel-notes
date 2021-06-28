@@ -2,7 +2,7 @@ import { useReducer } from "react"
 
 function rerenderGuaranteer() {
     // useState() and useReducer() compare values and will prevent rerendering
-    // when the returned vaoue doesn't change; because no two symbols are the
+    // when the returned value doesn't change; because no two symbols are the
     // same, this guarantees a rerender
     return Symbol()
 }

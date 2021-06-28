@@ -21,9 +21,9 @@ const BoardNodeGroup = React.memo(function BoardNodeGroup(props) {
     const node = useSameNode(props.node, "BoardNodeGroup")
     useNodeUpdate(node, "children", forceUpdate)
 
-    // NOTE: props.children is only considered when no representative node is
-    //       given; however, using props.children allows converting data to
-    //       BoardNodes without having a parent node available
+    // props.children is only considered when no representative node is
+    // given; however, using props.children allows converting data to
+    // BoardNodes without having a parent node available
     const children = node?.children || props.children
 
     return renderBoardNodes(children, props.readOnly)
