@@ -52,20 +52,22 @@ it("selects all text in the input field when focused", () => {
     expect(inputField.selectionEnd).toBe(searchString.length)
 })
 
-it("has a forceFocus property that, when true, focuses the input", () => {
-    act(() => {
-        render(<SearchBar forceFocus={false} />, root)
-    })
-    const searchBar = grabSearchBar()
-    const inputField = searchBar.querySelector("input")
-
-    expect(document.activeElement).not.toBe(inputField)
-
-    act(() => {
-        render(<SearchBar forceFocus={true} />, root)
+describe("ref handle tests", () => {
+    it("provides an imperative handler through the ref prop", () => {
+        // TODO
     })
 
-    expect(document.activeElement).toBe(inputField)
+    it("provides a focus() function in the ref", () => {
+        // TODO
+    })
+
+    it("provides a blur() function in the ref", () => {
+        // TODO
+    })
+
+    it("provides a select() function in the ref", () => {
+        // TODO
+    })
 })
 
 describe("listener callback tests", () => {
