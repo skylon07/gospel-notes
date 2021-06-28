@@ -91,8 +91,8 @@ function renderNode(props, node) {
 
         case types.Dummy:
             return (
-                <div>
-                    Dummy Node: {node.data} ({node.children.length} children)
+                <div className="Dummy">
+                    Dummy Node: {node.data.data} ({node.children.length} children)
                 </div>
             )
 
