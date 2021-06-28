@@ -49,7 +49,7 @@
 
     return {
         [when("holding")]: {
-            // NOTE: separate container used to allow transform coordinates not to be scaled
+            // separate container used to allow transform coordinates not to be scaled
             ScaleContainer: {
                 transformOrigin: () => {
                     if (this.state.initHoldX === null) {

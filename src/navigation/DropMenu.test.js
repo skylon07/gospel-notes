@@ -50,7 +50,7 @@ describe("class rendering tests", () => {
         const dropMenu = grabDropMenu()
         const menuBox = grabMenuBoxFrom(dropMenu)
 
-        // NOTE: this doesn't seem to work (see the test below)
+        // // this doesn't seem to work (see the test below)
         // expect(dropMenu).toBeVisible();
         expect(menuBox).toHaveClass("showing", "noMountingAnimation")
     })
@@ -62,9 +62,10 @@ describe("class rendering tests", () => {
         const dropMenu = grabDropMenu()
         const menuBox = grabMenuBoxFrom(dropMenu)
 
-        // NOTE: this does not seem to catch the opacity set in the .hidden CSS class
+        // // this does not seem to catch the opacity set in the .hidden CSS class
         // expect(dropMenu).not.toBeVisible();
-        // NOTE: calculating style doesn't seem to work either
+
+        // // calculating style doesn't seem to work either...
         // const style = window.getComputedStyle(dropMenu)
         // expect(style.height).toBe(0)
         // expect(style.display).toBe("flex") // is "block"?

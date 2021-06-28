@@ -13,9 +13,9 @@ function Holdable(props) {
         if (typeof props.onHold === "function") {
             props.onHold()
         }
-        // NOTE: alerts and UI bugs prevent cancelTouchHold() from running,
-        //       so this ensures the mouse is useable even if the touchend event
-        //       is never fired
+        // alerts and UI bugs prevent cancelTouchHold() from running, so this
+        // ensures the mouse is useable even if the touchend event is never
+        // fired
         mouseIgnored.current = false
     }
 
@@ -23,9 +23,9 @@ function Holdable(props) {
         const { clientX, clientY } = event.touches[0]
         startingTouchPosition.current = { startX: clientX, startY: clientY }
 
-        // NOTE: touch events fire similar mouse events; to prevent both from
-        //       activating, touch events temporarily block mouse events (it's
-        //       temporary to still allow both to work)
+        // touch events fire similar mouse events; to prevent both from
+        // activating, touch events temporarily block mouse events (it's
+        // temporary to still allow both to work)
         mouseIgnored.current = true
         startHold(event)
     }
@@ -40,9 +40,9 @@ function Holdable(props) {
     }
 
     const cancelTouchHold = (event) => {
-        // NOTE: moving a touch should cancel the hold, however sometimes
-        //       onTouchMove is activated when nothing moved, so this detects if
-        //       there was actually a change
+        // moving a touch should cancel the hold, however sometimes onTouchMove
+        // is activated when nothing moved, so this detects if there was
+        // actually a change
         if (event.type === "touchmove") {
             const { clientX: currX, clientY: currY } = event.touches[0]
             const { startX, startY } = startingTouchPosition.current

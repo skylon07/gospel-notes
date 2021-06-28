@@ -1279,8 +1279,8 @@
         }, this)
 
         var documentSet = documentSets.reduce(function (memo, set) {
-            // NOTE: was originally memo.intersect(), however I (skylon07) wanted "OR"
-            //       token comparisons, so it's changed it to union
+            // was originally memo.intersect(), however I (skylon07) wanted
+            // "OR" token comparisons, so it's changed it to union
             return memo.union(set)
         })
 
@@ -2081,7 +2081,7 @@
      * Export code from https://github.com/umdjs/umd/blob/master/returnExports.js
      */
     ;(function (root, factory) {
-        // NOTE: eslint doesn't like how "define" isn't defined (how ironic...)
+        // eslint doesn't like how "define" isn't defined (how ironic...)
         // eslint-disable-next-line no-undef
         if (typeof define === "function" && define.amd) {
             // AMD. Register as an anonymous module.

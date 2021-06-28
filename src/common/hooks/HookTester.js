@@ -32,9 +32,6 @@ export function callHookOn(DOMRoot, useHook, ...hookArgs) {
     const recordHookResult = (result) => {
         hookResult = result
     }
-    // NOTE: React catches errors thrown during rendering (therefore
-    //       in hooks as well); recording and throwing this allows jest to
-    //       catch the error instead for testing
     let thrownError = null
     const recordError = (error) => {
         thrownError = error
@@ -51,13 +48,16 @@ export function callHookOn(DOMRoot, useHook, ...hookArgs) {
         )
     })
     if (thrownError) {
+        // React catches errors thrown during rendering (therefore in hooks as
+        // well); recording and throwing this allows jest to catch the error
+        // instead for testing
         throw thrownError
     }
     return hookResult
 }
 
-// NOTE: React throws... quite the chunk of information when components throw;
-//       this is a bit of a hack, but they work!
+// React throws... quite the chunk of information when components throw; this
+// is a bit of a hack, but it fixes the problem!
 const origError = console.error
 function ignoreConsoleError() {
     console.error = (error) => {
@@ -85,7 +85,7 @@ class HookErrorCatcher extends React.Component {
 
     render() {
         ignoreConsoleError()
-        // NOTE: TESTS WILL NOT WORK if the errored component is returned again
+        // TESTS WILL NOT WORK if the errored component is returned again
         return !this.state.errored ? this.props.children : null
     }
 

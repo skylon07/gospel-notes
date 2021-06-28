@@ -108,10 +108,10 @@ function createHelperCallbacks(dragRef, setHolding) {
     const startDelay = (onCancel) => {
         holdTimeout = setTimeout(() => setHolding(true), 160)
 
-        // NOTE: when touching for 0.5 seconds, the "contextmenu" event is
-        // fired, stopping later control over preventing default scrolling
-        // actions; this cancels the drag operation after the context event
-        // fires (bugs arise when applying to the "contextmenu" event itself...)
+        // when touching for 0.5 seconds, the "contextmenu" event is fired,
+        // stopping later control over preventing default scrolling actions;
+        // this cancels the drag operation after the context event fires (bugs
+        // arise when applying to the "contextmenu" event itself...)
         cancelTimeout = setTimeout(onCancel, 465)
     }
     const stopDelay = () => {
