@@ -34,7 +34,7 @@ const SearchBar = React.forwardRef(function SearchBar(props, ref) {
     }
 
     return (
-        <div data-testid="search-bar" className="SearchBar">
+        <div aria-label={props.ariaLabel} role="search" className="SearchBar">
             <input ref={inputRef} onFocus={select} onKeyDown={searchOnEnter} />
             <div className="SearchButton">
                 <button onClick={triggerSearch}>
@@ -45,6 +45,7 @@ const SearchBar = React.forwardRef(function SearchBar(props, ref) {
     )
 })
 SearchBar.propTypes = {
+    ariaLabel: PropTypes.string.isRequired,
     onSearch: PropTypes.func,
 }
 export default SearchBar

@@ -33,7 +33,9 @@ function NoteBoard(props) {
     )
 
     return (
-        <div data-testid="note-board" className="NoteBoard">
+        // CHECKME: is "main" the right role, or "group" or "region"?
+        // CHECKME: does this need an aria-label?
+        <div aria-label="note board" role="main" className="NoteBoard">
             <NoteBoardCallbacks.Provider value={callbacks}>
                 <BoardNodeGroup readOnly={props.readOnly}>
                     {props.children}

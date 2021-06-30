@@ -91,7 +91,8 @@ function MainApp() {
     }
 
     return (
-        <div data-testid="main-app" className="MainApp">
+        // CHECKME: is this the correct label and role for this element?
+        <div aria-label="main app" role="none" className="MainApp">
             <BetaDisclaimer />
             <TopBar
                 ref={topBarRef}

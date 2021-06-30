@@ -34,8 +34,13 @@ const NoteBox = React.forwardRef(function NoteBox(props, ref) {
         setLastTitle(newTitle)
         trigger(props.onTitleChange, newTitle)
     }
+    // CHECKME: is this how aria labels are supposed to be used?
+    const titleLabel = lastTitle
+        ? `note box titled ${lastTitle}`
+        : "an untitled note box"
     const titleProps = {
         ref: titleRef,
+        ariaLabel: titleLabel,
         className: "Title",
         onBlur: () => detectChange(titleRef, lastTitle, changeTitle),
         onInput: () => resizeTextarea("title", titleRef),
@@ -47,6 +52,7 @@ const NoteBox = React.forwardRef(function NoteBox(props, ref) {
     }
     const contentProps = {
         ref: contentRef,
+        ariaLabel: `content of ${titleLabel}`,
         className: "Content",
         onBlur: () => detectChange(contentRef, lastContent, changeContent),
         onInput: () => resizeTextarea("content", contentRef),
@@ -93,7 +99,7 @@ const NoteBox = React.forwardRef(function NoteBox(props, ref) {
     }))
 
     return (
-        <div data-testid="note-box" className="NoteBox">
+        <div className="NoteBox">
             {renderTextarea(lastTitle, titleProps, props.readOnly)}
             {renderTextarea(lastContent, contentProps, props.readOnly)}
         </div>
@@ -123,6 +129,8 @@ function renderTextarea(initText, elemProps, readOnly) {
         return (
             <textarea
                 ref={elemProps.ref}
+                aria-label={elemProps.ariaLabel}
+                role="textbox"
                 className={elemProps.className}
                 rows="1"
                 cols="1"
@@ -136,6 +144,8 @@ function renderTextarea(initText, elemProps, readOnly) {
         return (
             <textarea
                 ref={elemProps.ref}
+                aria-label={elemProps.ariaLabel}
+                role="textbox"
                 className={elemProps.className}
                 rows="1"
                 cols="1"

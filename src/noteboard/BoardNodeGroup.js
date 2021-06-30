@@ -10,7 +10,9 @@ import BoardNode from "./BoardNode.js"
 
 // has two main jobs: render BoardNodes from nodes/ids, and update them when a
 // node's children are updated (which acts as a rendering neck/optimization,
-// keeping children from being rerendered when a BoardNode gets a data change)
+// keeping children from being rerendered when a BoardNode gets a data change);
+// BoardNodeGroups don't render anything to the DOM themselves, they are
+// "abstract components" in that sense
 
 // BoardNodeGroups should not make any calls to onNodeAdd/RemoveChild, as it
 // should only rerender BoardNodes on subscription updates, and not cause

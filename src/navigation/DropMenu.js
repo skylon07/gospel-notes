@@ -35,23 +35,34 @@ const DropMenu = React.forwardRef(function DropMenu(props, ref) {
         return { hide }
     })
 
+    const hideSubLabel = hidden ? "show" : "hide"
+    const buttonLabel = `"${hideSubLabel}" button for ${props.ariaMenuLabel}`
     return (
         <div
-            data-testid="drop-menu"
             className="DropMenu"
+            // CHECKME: do I need an aria-label?
+            role="none"
             // we only want to hide the menu when clicks happen outside the
             // menu; this binding ensures just that
             onClick={ignoreHideFromWindow}
         >
-            <button className="ToggleButton" onClick={toggleHidden}>
+            <button
+                aria-label={buttonLabel}
+                role="switch"
+                className="ToggleButton"
+                onClick={toggleHidden}
+            >
                 <SVGIcon type="bars" />
             </button>
-            <DropMenuBox hidden={hidden}>{props.children}</DropMenuBox>
+            <DropMenuBox ariaLabel={props.ariaMenuLabel} hidden={hidden}>
+                {props.children}
+            </DropMenuBox>
         </div>
     )
 })
 DropMenu.propTypes = {
     children: PropTypes.node,
+    ariaMenuLabel: PropTypes.string.isRequired,
     initHidden: PropTypes.bool,
 }
 DropMenu.defaultProps = {
@@ -74,7 +85,8 @@ function DropMenuBox(props) {
 
     return (
         <div
-            data-testid="drop-menu-box"
+            aria-label={props.ariaLabel}
+            role="menu"
             className={className}
             onClick={props.onClick}
         >
@@ -85,6 +97,7 @@ function DropMenuBox(props) {
 }
 DropMenuBox.propTypes = {
     children: PropTypes.node,
+    ariaLabel: PropTypes.string.isRequired,
     hidden: PropTypes.bool.isRequired,
     onClick: PropTypes.func,
 }

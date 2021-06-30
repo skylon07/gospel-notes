@@ -15,6 +15,8 @@ export default class BetaDisclaimer extends React.Component {
         return (
             <div
                 className="BetaDisclaimer"
+                aria-label="disclaimer"
+                role="alert"
                 style={this.makeStyle()}
                 onAnimationEnd={() => this.afterFade()}
             >

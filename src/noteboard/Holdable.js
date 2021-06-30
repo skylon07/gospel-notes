@@ -69,7 +69,10 @@ function Holdable(props) {
 
     return (
         <div
-            data-testid="holdable"
+            // CHECKME: does this need a label?
+            aria-label="holdable"
+            // CHECKME: is "group" right, or "region", or something else?
+            role="group"
             className="Holdable"
             onTouchStart={startTouchHold}
             onTouchEnd={cancelTouchHold}

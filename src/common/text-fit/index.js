@@ -29,7 +29,7 @@ class TextNode extends React.Component {
         // children are expected to be a raw string of text
         return (
             <div
-                data-testid="text-node"
+                // TODO: add aria labels and roles
                 ref={this.selfRef}
                 className={`TextNode ${this.classExtension}`}
             >

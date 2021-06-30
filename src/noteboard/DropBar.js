@@ -64,9 +64,19 @@ function DropBar(props) {
         })
     }
 
+    // CHECKME: is this how aria labels are supposed to be used?
+    const titleLabel = props.title
+        ? `dropping header named ${props.title}`
+        : "unnamed dropping header"
+
+    // CHECKME: ...and this too?
+    const titleSubLabel = props.title
+        ? `header ${props.title}`
+        : "unnamed header"
     return (
-        // TODO: test the second <Holdable /> bounds (CSS background color)
-        <div data-testid="drop-bar" className="DropBar">
+        // CHECKME: is "group" the right role, or should I use "region", or
+        //          something else?
+        <div aria-label={titleLabel} role="group" className="DropBar">
             <div className="Bar">
                 <div className="Icon">
                     <Holdable onHold={props.onIconHold}>
@@ -78,9 +88,17 @@ function DropBar(props) {
                         {props.title}
                     </Holdable>
                 </div>
-                <DropdownButton onClick={toggleDrop} dropped={dropped} />
+                <DropdownButton
+                    ariaTitleLabel={titleSubLabel}
+                    onClick={toggleDrop}
+                    dropped={dropped}
+                />
             </div>
-            <DropBarContent ref={contentRef} dropped={dropped}>
+            <DropBarContent
+                ref={contentRef}
+                ariaTitleLabel={titleSubLabel}
+                dropped={dropped}
+            >
                 {props.children}
             </DropBarContent>
             <div className={bottomBarClassName} />
@@ -193,9 +211,14 @@ function DropdownButton(props) {
     // (condensed a bit)
     // offset = w * 2 ** (1 / 2) / 4
     const offset = 1.0606601717 // for w = 3px
+
+    // CHECKME: is this correct aria label usage?
+    const dropSubLabel = props.dropped ? "raise" : "drop"
+    const ariaLabel = `${dropSubLabel} button for ${props.ariaTitleLabel}`
     return (
         <svg
-            data-testid="dropdown-button"
+            aria-label={ariaLabel}
+            role="switch"
             className={className}
             viewBox="0 0 40 40"
             onClick={props.onClick}
@@ -206,6 +229,7 @@ function DropdownButton(props) {
     )
 }
 DropdownButton.propTypes = {
+    ariaTitleLabel: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
     dropped: PropTypes.bool.isRequired,
 }
@@ -223,8 +247,16 @@ const DropBarContent = React.forwardRef(function (props, ref) {
         ],
     })
 
+    // CHECKME: is this how aria labels are used?
+    const ariaLabel = `content for ${props.ariaTitleLabel}`
     return (
-        <div ref={ref} data-testid="drop-bar-content" className={className}>
+        <div
+            ref={ref}
+            aria-label={ariaLabel}
+            // CHECKME: is "group" the right role, or "region"?
+            role="group"
+            className={className}
+        >
             <div className="Container">{props.children}</div>
             <div className="TopGradient" />
             <div className="BottomGradient" />
@@ -232,6 +264,7 @@ const DropBarContent = React.forwardRef(function (props, ref) {
     )
 })
 DropBarContent.propTypes = {
+    ariaTitleLabel: PropTypes.string.isRequired,
     children: PropTypes.node,
     dropped: PropTypes.bool.isRequired,
 }

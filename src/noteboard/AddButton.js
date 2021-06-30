@@ -7,7 +7,8 @@ import { SVGIcon } from "common/svg-icon"
 function AddButton(props) {
     return (
         <button
-            data-testid="add-button"
+            aria-label={props.ariaLabel}
+            role="button"
             className="AddButton"
             onClick={props.onClick}
         >
@@ -19,6 +20,7 @@ function AddButton(props) {
 }
 AddButton.propTypes = {
     children: PropTypes.node,
+    ariaLabel: PropTypes.string.isRequired,
     onClick: PropTypes.func,
 }
 export default AddButton

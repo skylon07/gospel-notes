@@ -23,7 +23,7 @@ const BoardNode = React.memo(function BoardNode(props) {
 
     // TODO: make prop-enabled ability to grow on mount (when they are dynamically added)
     return (
-        <div data-testid="board-node" className="BoardNode">
+        <div className="BoardNode">
             {renderNode(props, node)}
         </div>
     )
@@ -124,6 +124,8 @@ function NoteBoxNode(props) {
         const { title, content } = node.data
         const noteBox = noteBoxRef.current
 
+        // TODO: we can get rid of the ignore ref; setTitle/Content() accepts
+        //       a second "silent" argument that prevents calling the listeners
         ignoreNoteBoxRef.current = true
         noteBox.setTitle(title)
         noteBox.setContent(content)

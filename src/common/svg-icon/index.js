@@ -133,20 +133,24 @@ export function SVGIconPropType(props, propName, componentName) {
 
 // main interface component that wraps everything together
 function SVGIcon(props) {
+    const validIconProvided = created.iconNames.includes(props.type)
+
     const className = useClassName({
         base: "SVGIcon",
         filters: [
             {
                 value: props.type,
-                useIf: created.iconNames.includes(props.type),
+                useIf: validIconProvided,
                 otherwise: "invalid",
             },
         ],
     })
 
     const svg = created.icons[props.type] || created.icons.invalid
+    const ariaLabel = validIconProvided ? `${props.type} icon` : "invalid icon"
     return (
-        <div data-testid="svg-icon" className={className}>
+        // CHECMKE: does this need a label if it has no role?
+        <div aria-label={ariaLabel} role="none" className={className}>
             {svg}
         </div>
     )

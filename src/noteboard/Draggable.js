@@ -45,7 +45,14 @@ function Draggable(props) {
     // a scale container is used to allow unscaled coordinates to be
     // used in translating the element absolutely
     return (
-        <div ref={dragRef} data-testid="draggable" className={className}>
+        <div
+            ref={dragRef}
+            // CHECKME: not sure if this needs a label or not...
+            aria-label="draggable"
+            // CHECKME: is this a "group" or "region" or something else?
+            role="group"
+            className={className}
+        >
             <div className="ScaleContainer">{props.children}</div>
         </div>
     )

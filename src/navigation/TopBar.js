@@ -54,10 +54,14 @@ const TopBar = React.forwardRef(function (props, ref) {
     const buttons = props.navButtons.map((buttonData) => {
         // TODO: render buttons with short names when the screen can't fit the
         //       full names
+        const selected = buttonData.key === props.selectedNavButton
+        const currentlyDisplayed = selected ? ", currently displayed" : ""
+        const ariaLabel = `notebook ${buttonData.fullName}${currentlyDisplayed}`
         const button = (
             <TopBarButton
                 key={buttonData.key}
-                selected={buttonData.key === props.selectedNavButton}
+                ariaLabel={ariaLabel}
+                selected={selected}
                 onClick={buttonData.onClick}
             >
                 {buttonData.fullName}
@@ -73,21 +77,32 @@ const TopBar = React.forwardRef(function (props, ref) {
 
     // the order is weird because the animation bounds need to be "behind" the menu
     return (
-        <div data-testid="top-bar" className="TopBar">
+        <div aria-label="notebook" role="navigation" className="TopBar">
             <div className="AnimationBounds">
                 <div className={navClassName}>
                     {buttons}
                     <div className="Spacer" />
-                    <TopBarButton onClick={searchMode}>
+                    <TopBarButton
+                        ariaLabel="display search bar"
+                        onClick={searchMode}
+                    >
                         <SVGIcon type="magGlass" />
                     </TopBarButton>
                 </div>
                 <div className={searchClassName}>
-                    <TopBarButton onClick={navMode}>
+                    <TopBarButton
+                        ariaLabel="display notebooks"
+                        onClick={navMode}
+                    >
                         <SVGIcon type="backArrow" />
                     </TopBarButton>
                     <div className="Spacer" />
-                    <SearchBar onSearch={props.onSearch} />
+                    <SearchBar
+                        // since it is assumed TopBar is only created once, a
+                        // static label is passed
+                        ariaLabel="main search bar"
+                        onSearch={props.onSearch}
+                    />
                 </div>
             </div>
             <DropMenu ref={menuRef}>{props.menuContent}</DropMenu>
@@ -127,7 +142,8 @@ function TopBarButton(props) {
 
     return (
         <button
-            data-testid="top-bar-button"
+            aria-label={props.ariaLabel}
+            role="option"
             className={className}
             onClick={props.onClick}
         >
@@ -137,6 +153,7 @@ function TopBarButton(props) {
 }
 TopBarButton.propTypes = {
     children: PropTypes.node,
+    ariaLabel: PropTypes.string.isRequired,
     selected: PropTypes.bool,
     onClick: PropTypes.func,
 }
