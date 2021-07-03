@@ -27,6 +27,9 @@ function NoteBoard(props) {
         },
         [props.onNodeRemoveChild]
     )
+    // quick reminder: if the signature of this object changes (aka callbacks
+    // are added/removed from here), please remember to update and match the
+    // callbacks in "common/test-utils.jsx"
     const callbacks = useMemo(
         () => ({ onNodeDataChange, onNodeAddChild, onNodeRemoveChild }),
         [onNodeDataChange, onNodeAddChild, onNodeRemoveChild]

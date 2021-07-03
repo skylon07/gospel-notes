@@ -211,8 +211,15 @@ function renderAddButton(onAddNode) {
             onAddNode(newNode)
         }
     }
+    // CHECKME: is this correct aria-label usage?
+    // TODO: the label should include the parent folder's name
+    const addButtonLabel = "add new node to board"
     return (
-        <AddButton key="the (l)on(e)ly add button..." onClick={addNode}>
+        <AddButton
+            key="the (l)on(e)ly add button..."
+            ariaLabel={addButtonLabel}
+            onClick={addNode}
+        >
             Add Node
         </AddButton>
     )

@@ -105,7 +105,7 @@ const TopBar = React.forwardRef(function (props, ref) {
                     />
                 </div>
             </div>
-            <DropMenu ref={menuRef}>{props.menuContent}</DropMenu>
+            <DropMenu ariaMenuLabel="main menu" ref={menuRef}>{props.menuContent}</DropMenu>
         </div>
     )
 })

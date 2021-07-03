@@ -22,12 +22,12 @@ function grabAddButton() {
 }
 
 it("renders without crashing", () => {
-    render(<AddButton />, root)
+    render(<AddButton ariaLabel="" />, root)
 })
 
 it("renders with a CSS class", () => {
     act(() => {
-        render(<AddButton />, root)
+        render(<AddButton ariaLabel="" />, root)
     })
     const addButton = grabAddButton()
 

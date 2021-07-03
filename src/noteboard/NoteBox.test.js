@@ -1,5 +1,6 @@
 import React from "react"
 import { render, unmountComponentAtNode } from "react-dom"
+import { fireEvent, screen } from "@testing-library/react"
 import { act } from "react-dom/test-utils"
 
 import NoteBox from "./NoteBox.js"

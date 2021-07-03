@@ -22,11 +22,7 @@ const BoardNode = React.memo(function BoardNode(props) {
     const node = useSameNode(props.node)
 
     // TODO: make prop-enabled ability to grow on mount (when they are dynamically added)
-    return (
-        <div className="BoardNode">
-            {renderNode(props, node)}
-        </div>
-    )
+    return <div className="BoardNode">{renderNode(props, node)}</div>
 })
 BoardNode.propTypes = {
     node: NodePropTypes.nodeOrId,
@@ -90,9 +86,11 @@ function renderNode(props, node) {
             return <FolderNode />
 
         case types.Dummy:
+            // prettier-ignore
             return (
                 <div className="Dummy">
-                    Dummy Node: {node.data.data} ({node.children.length} children)
+                    Dummy Node: {node.data.data}
+                    ({node.children.length} children)
                 </div>
             )
 
@@ -181,8 +179,10 @@ function DropBarNode(props) {
     }
     let possibleAddButton = null
     if (!props.readOnly) {
+        // CHECKME: is this correct aria label usage?
+        const addButtonLabel = `add note to header ${title}`
         possibleAddButton = (
-            <AddButton key="add button" onClick={addNoteBox}>
+            <AddButton key="add button" ariaLabel={addButtonLabel} onClick={addNoteBox}>
                 Add Note
             </AddButton>
         )
