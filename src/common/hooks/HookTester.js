@@ -1,7 +1,6 @@
 import React from "react"
-import { render } from "react-dom"
-import { act } from "react-dom/test-utils"
 import PropTypes from "prop-types"
+import { render } from "@testing-library/react"
 
 // provided as a convenience for testing hooks
 function HookTester(props) {
@@ -16,8 +15,8 @@ function HookTester(props) {
     )
 }
 HookTester.propTypes = {
-    useHook: PropTypes.func,
-    hookArgs: PropTypes.array,
+    useHook: PropTypes.func.isRequired,
+    hookArgs: PropTypes.array.isRequired,
     onUseHook: PropTypes.func,
     onError: PropTypes.func,
 }
@@ -27,7 +26,9 @@ HookTester.defaultProps = {
 export default HookTester
 
 // a helper function that turns HookTester into a function call
-export function callHookOn(DOMRoot, useHook, ...hookArgs) {
+// (note that this uses @testing-library, so make sure cleanup() is called
+// after tests)
+export function callHook(useHook, ...hookArgs) {
     let hookResult = null
     const recordHookResult = (result) => {
         hookResult = result
@@ -36,17 +37,14 @@ export function callHookOn(DOMRoot, useHook, ...hookArgs) {
     const recordError = (error) => {
         thrownError = error
     }
-    act(() => {
-        render(
-            <HookTester
-                useHook={useHook}
-                hookArgs={hookArgs}
-                onUseHook={recordHookResult}
-                onError={recordError}
-            />,
-            DOMRoot
-        )
-    })
+    render(
+        <HookTester
+            useHook={useHook}
+            hookArgs={hookArgs}
+            onUseHook={recordHookResult}
+            onError={recordError}
+        />
+    )
     if (thrownError) {
         // React catches errors thrown during rendering (therefore in hooks as
         // well); recording and throwing this allows jest to catch the error
@@ -56,52 +54,63 @@ export function callHookOn(DOMRoot, useHook, ...hookArgs) {
     return hookResult
 }
 
-// React throws... quite the chunk of information when components throw; this
-// is a bit of a hack, but it fixes the problem!
-const origError = console.error
-function ignoreConsoleError() {
-    console.error = (error) => {
-        const isErroredInComponent =
-            /The above error occurred in the <.*> component:/.test(error + "")
-        const isReactError = /Error: Uncaught \[.*\]/.test(error + "")
-        if (!isErroredInComponent && !isReactError) {
-            origError.call(console, error)
-        }
-    }
-}
-function restoreConsoleError() {
-    console.error = origError
-}
 class HookErrorCatcher extends React.Component {
     constructor(props) {
         super(props)
         this.state = { errored: false }
+
+        this._origConsoleError = null
     }
 
     static getDerivedStateFromError() {
-        restoreConsoleError()
         return { errored: true }
     }
 
     render() {
-        ignoreConsoleError()
+        this._ignoreConsoleError()
         // TESTS WILL NOT WORK if the errored component is returned again
         return !this.state.errored ? this.props.children : null
     }
 
     componentDidCatch(error) {
-        restoreConsoleError()
+        this._restoreConsoleError()
         if (typeof this.props.onError === "function") {
             this.props.onError(error)
         }
     }
 
     componentDidMount() {
-        restoreConsoleError()
+        this._restoreConsoleError()
     }
 
     componentDidUpdate() {
-        restoreConsoleError()
+        this._restoreConsoleError()
+    }
+
+    // React throws... quite the chunk of information when components throw; this
+    // is a bit of a hack, but it fixes the problem!
+    _ignoreConsoleError() {
+        if (typeof console.error === "function") {
+            this._origConsoleError = console.error
+            console.error = (error) => {
+                const isErroredInComponent =
+                    /The above error occurred in the <.*> component:/.test(
+                        error + ""
+                    )
+                const isReactError = /Error: Uncaught \[.*\]/.test(error + "")
+                if (!isErroredInComponent && !isReactError) {
+                    this._origConsoleError.call(console, error)
+                }
+            }
+        }
+    }
+    _restoreConsoleError() {
+        if (this._origConsoleError === null) {
+            return
+        }
+
+        console.error = this._origConsoleError
+        this._origConsoleError = null
     }
 }
 HookErrorCatcher.propTypes = {
@@ -120,7 +129,7 @@ function TestCustomHook(props) {
     return null
 }
 TestCustomHook.propTypes = {
-    useHook: PropTypes.func,
-    hookArgs: PropTypes.array,
+    useHook: PropTypes.func.isRequired,
+    hookArgs: PropTypes.array.isRequired,
     onUseHook: PropTypes.func,
 }
