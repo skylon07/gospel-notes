@@ -1,7 +1,8 @@
 import React from "react"
 import PropTypes from "prop-types"
-import { render as renderToNode, unmountComponentAtNode } from "react-dom"
-import { act } from "react-dom/test-utils"
+
+import { render, cleanup } from "@testing-library/react"
+
 import { NoteBoardCallbacks } from "noteboard/NoteBoard"
 
 // it might be useful for some tests (ie BoardNodes) to track how many times
@@ -25,77 +26,102 @@ AllProvidersInApp.propTypes = {
     children: PropTypes.node,
 }
 
-const ROOT_ID = "__render_root__"
-
-// overriding default render is a practice suggested by @testing-library itself
-// https://testing-library.com/docs/react-testing-library/setup#custom-render
-function customRender(ui) {
-    // what's inside here, however, is not common practice...
-
-    customRender.needsCleanup = true
-    if (jest && expect) {
-        const state = expect.getState()
-        customRender.lastRunInTest = [state.currentTestName, state.testPath]
+class CustomRenderer {
+    constructor() {
+        this.needsCleanup = false
+        this.jestStateLastRender = null
+        this.root = null
+        this._warningsIgnored = false
     }
 
-    // @testing-library's render() mounts a new component every time it is
-    // called; we want it to always stay inside the "root" node, so we can
-    // control mounts/updates in our tests
-    let root = document.getElementById(ROOT_ID)
-    if (!root) {
-        root = document.createElement("div")
-        root.id = ROOT_ID
-        document.body.appendChild(root)
-    }
-    act(() => {
-        // using act() guarantees React flushes updates/renderings syncronously
-        renderToNode(<AllProvidersInApp>{ui}</AllProvidersInApp>, root)
-    })
-}
-customRender.needsCleanup = false
-customRender.lastRunInTest = null
-
-// this is needed since we are completely overriding their render function...
-function customCleanup() {
-    customRender.needsCleanup = false
-    const root = document.getElementById(ROOT_ID)
-    if (root) {
-        unmountComponentAtNode(root)
-        document.body.removeChild(root)
-    }
-}
-
-function injectJestCheckers() {
-    if (jest && beforeEach) {
-        checkCleanup()
-    }
-}
-injectJestCheckers()
-
-// this check warns if one forgets to call cleanup() after rendering
-function checkCleanup() {
-    const check = () => {
-        if (customRender.needsCleanup && !customCleanup.ignoreWarnings) {
-            const [badTest, filePath] = customRender.lastRunInTest
-            console.warn(`Test "${badTest}" failed to run cleanup() afterward (in ${filePath})`)
+    // overriding default render is a practice suggested by @testing-library itself
+    // https://testing-library.com/docs/react-testing-library/setup#custom-render
+    render(ui, options = {}) {
+        if (typeof options !== "object") {
+            throw new TypeError(
+                `The second argument to render() must be an options object, not "${options}"`
+            )
         }
-        customRender.needsCleanup = false
+
+        this.needsCleanup = true
+        if (jest && expect) {
+            this.jestStateLastRender = expect.getState()
+        }
+
+        // @testing-library's render() mounts a new component every time it is
+        // called; we want it to always stay inside the "root" node, so we can
+        // control mounts/updates in our tests
+        if (this.root !== null) {
+            options.container = this.root
+        }
+        options.wrapper = AllProvidersInApp
+
+        const { container } = render(ui, options)
+        if (this.root === null) {
+            this.root = container
+        }
+
+        if (this.root !== container) {
+            // this should not ever happen, assuming that the container returned is the root element passed in
+            throw new Error(
+                `Internal rendering error: Stored root container ${this.root} and last returned container ${container} do not match`
+            )
+        }
     }
 
-    // beforeEach() is used to perform the check after all other calls to
-    // afterEach() have been applied (ie calls that could invoke cleanup())
-    beforeEach(() => {
-        check()
-    })
-    // afterAll() ensures the last test cleaned up correctly
-    // (which beforeEach() wouldn't catch)
-    afterAll(() => {
-        check()
-    })
+    cleanup() {
+        cleanup()
+        this.root = null
+        this.needsCleanup = false
+    }
+
+    // this check warns if one forgets to call cleanup() after rendering
+    checkCleanup() {
+        if (this.needsCleanup && !this._warningsIgnored) {
+            const { currentTestName, filePath } = this.jestStateLastRender
+            console.warn(
+                `Test "${currentTestName}" failed to run cleanup() afterward (in ${filePath})`
+            )
+        }
+        this.needsCleanup = false
+    }
+
+    ignoreWarnings(should = true) {
+        this._warningsIgnored = should
+    }
+
+    // this method is INTENTIONALLY left out of the constructor; this allows
+    // test-utils.test.jsx to recreate the renderer every test iteration
+    injectCleanupChecker() {
+        // checks only run if they are executed inside the jest environment
+        if (jest && beforeEach) {
+            // beforeEach() is used to perform the check after all other calls to
+            // afterEach() have been applied (ie calls that could invoke cleanup())
+            beforeEach(() => {
+                this.checkCleanup()
+            })
+            // afterAll() ensures the last test cleaned up correctly
+            // (which beforeEach() wouldn't catch)
+            afterAll(() => {
+                this.checkCleanup()
+            })
+        }
+    }
 }
 
-export { customRender as render, customCleanup as cleanup }
-export { fireEvent, screen } from "@testing-library/react"
+// use the same signature as @testing-library...
+export * from "@testing-library/react"
 
-// extended access for tests ONLY!
-export const __forTestingOnly__ = { AllProvidersInApp }
+// ...while overriding a couple things
+const cr = new CustomRenderer()
+cr.injectCleanupChecker()
+// test-utils.test.jsx assumes the render/cleanup functions are bound like
+// this; if you change how these are exported, please check those tests are
+// still working
+const customRender = cr.render.bind(cr)
+const customCleanup = cr.cleanup.bind(cr)
+customCleanup.ignoreWarnings = cr.ignoreWarnings.bind(cr)
+export { customRender as render, customCleanup as cleanup }
+
+// extended access for testing ONLY!
+export const __forTestingOnly__ = { AllProvidersInApp, CustomRenderer }
