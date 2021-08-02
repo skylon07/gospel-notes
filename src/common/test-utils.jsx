@@ -78,9 +78,9 @@ class CustomRenderer {
     // this check warns if one forgets to call cleanup() after rendering
     checkCleanup() {
         if (this.needsCleanup && !this._warningsIgnored) {
-            const { currentTestName, filePath } = this.jestStateLastRender
+            const { currentTestName, testPath } = this.jestStateLastRender
             console.warn(
-                `Test "${currentTestName}" failed to run cleanup() afterward (in ${filePath})`
+                `Test "${currentTestName}" failed to run cleanup() afterward (in ${testPath})`
             )
         }
         this.needsCleanup = false
