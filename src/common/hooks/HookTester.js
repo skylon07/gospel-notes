@@ -1,15 +1,57 @@
-import React from "react"
+import React, { useRef, useEffect } from "react"
 import PropTypes from "prop-types"
 import { render } from "common/test-utils"
 
 // provided as a convenience for testing hooks
 function HookTester(props) {
+    // React throws... quite the chunk of information when components throw; this
+    // is a bit of a hack, but it fixes the problem!
+    const origErrorRef = useRef(console.error)
+    const ignoreConsoleError = () => {
+        if (typeof console.error === "function") {
+            console.error = (error) => {
+                const isErroredInComponent =
+                    /The above error occurred in the <.*> component:/.test(
+                        error + ""
+                    )
+                // eslint-disable-next-line no-useless-escape
+                const isReactError = /Error: Uncaught [\['"].*[\]'"]/.test(
+                    error + ""
+                )
+                if (!isErroredInComponent && !isReactError) {
+                    origErrorRef.current.call(console, error)
+                }
+            }
+        }
+    }
+    const restoreConsoleError = () => {
+        console.error = origErrorRef.current
+    }
+
+    ignoreConsoleError()
+    const onError = (...args) => {
+        restoreConsoleError()
+        if (typeof props.onError === "function") {
+            props.onError(...args)
+        }
+    }
+    const onUseHook = (...args) => {
+        restoreConsoleError()
+        if (typeof props.onUseHook === "function") {
+            props.onUseHook(...args)
+        }
+    }
+    // not necessary... but it helps ensure console is restored on cleanup
+    useEffect(() => {
+        return restoreConsoleError
+    }, [])
+
     return (
-        <HookErrorCatcher onError={props.onError}>
+        <HookErrorCatcher onError={onError}>
             <TestCustomHook
                 useHook={props.useHook}
                 hookArgs={props.hookArgs}
-                onUseHook={props.onUseHook}
+                onUseHook={onUseHook}
             />
         </HookErrorCatcher>
     )
@@ -57,60 +99,53 @@ export function callHook(useHook, ...hookArgs) {
 class HookErrorCatcher extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { errored: false }
+        this.state = { errored: false, justErrored: false }
 
-        this._origConsoleError = null
+        this._lastCleanChildren = null
     }
 
     static getDerivedStateFromError() {
-        return { errored: true }
+        return { justErrored: true }
+    }
+
+    // children render, and if they error, state becomes "errored: true"; in
+    // order to restore regular functionality for future renders, every render
+    // resets the "errored" state in getDerivedStateFromProps(); however, we
+    // DON'T want to do this right after getDerivedStateFromError(), hence why
+    // "justErrored" is tracked
+    static getDerivedStateFromProps(props, state) {
+        return { errored: state.justErrored, justErrored: false }
     }
 
     render() {
-        this._ignoreConsoleError()
         // TESTS WILL NOT WORK if the errored component is returned again
-        return !this.state.errored ? this.props.children : null
+        if (this.state.errored) {
+            // to allow consecutive calls from callHook(), the last
+            // (non-erroring) children is recorded and returned in the event of
+            // an error, "resetting" the virtual DOM to before the error
+            // happened, while still allowing callHook() to record the error
+            return this._lastCleanChildren
+        } else {
+            // this may cause an error; if so, getDerivedStateFromError() will
+            // trigger the alternative "clean" rendering
+            return this.props.children
+        }
     }
 
     componentDidCatch(error) {
-        this._restoreConsoleError()
         if (typeof this.props.onError === "function") {
             this.props.onError(error)
         }
     }
 
     componentDidMount() {
-        this._restoreConsoleError()
+        // if the component mounted, then the children are "clean"/didn't error
+        this._lastCleanChildren = this.props.children
     }
 
     componentDidUpdate() {
-        this._restoreConsoleError()
-    }
-
-    // React throws... quite the chunk of information when components throw; this
-    // is a bit of a hack, but it fixes the problem!
-    _ignoreConsoleError() {
-        if (typeof console.error === "function") {
-            this._origConsoleError = console.error
-            console.error = (error) => {
-                const isErroredInComponent =
-                    /The above error occurred in the <.*> component:/.test(
-                        error + ""
-                    )
-                const isReactError = /Error: Uncaught \[.*\]/.test(error + "")
-                if (!isErroredInComponent && !isReactError) {
-                    this._origConsoleError.call(console, error)
-                }
-            }
-        }
-    }
-    _restoreConsoleError() {
-        if (this._origConsoleError === null) {
-            return
-        }
-
-        console.error = this._origConsoleError
-        this._origConsoleError = null
+        // if the component updated, then the children are "clean"/didn't error
+        this._lastCleanChildren = this.props.children
     }
 }
 HookErrorCatcher.propTypes = {

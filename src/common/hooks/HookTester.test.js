@@ -109,6 +109,28 @@ describe("callHook()", () => {
             callHook(fakeHook)
         }).toThrow(error)
     })
+
+    it("can call/throw errors repeatedly without cleanup()/DOM resetting", () => {
+        const fakeHook = jest.fn(() => {
+            throw new Error()
+        })
+        expect(() => {
+            callHook(fakeHook)
+        }).toThrow()
+        expect(() => {
+            callHook(fakeHook)
+        }).toThrow()
+
+        // make a successful render
+        callHook(() => null)
+
+        expect(() => {
+            callHook(fakeHook)
+        }).toThrow()
+        expect(() => {
+            callHook(fakeHook)
+        }).toThrow()
+    })
 })
 
 describe("console.error() override", () => {
