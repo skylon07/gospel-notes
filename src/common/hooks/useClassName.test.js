@@ -1,127 +1,51 @@
-import React from "react"
-import { render, unmountComponentAtNode } from "react-dom"
-import { act } from "react-dom/test-utils"
+import { cleanup } from "common/test-utils"
+import { callHook } from "./HookTester.js"
 
 import useClassName from "./useClassName.js"
 
-function TestComponent(props) {
-    try {
-        const value = useClassName(props.options)
-        if (typeof props.onUseClassName === "function") {
-            props.onUseClassName(value)
-        }
-    } catch (error) {
-        if (typeof props.onError === "function") {
-            props.onError(error)
-        } else {
-            console.error("An error was thrown during render: " + error)
-        }
-    }
-    return null
-}
-
-let root = null
-beforeEach(() => {
-    root = document.createElement("div")
-    document.body.appendChild(root)
-})
 afterEach(() => {
-    unmountComponentAtNode(root)
-    document.body.removeChild(root)
-    root = null
+    cleanup()
 })
 
-it("doesn't crash when no values are provided (tests component render)", () => {
-    render(<TestComponent />, root)
-})
-
-it("can take and return a base class", () => {
-    const base = "SomeBaseClass"
-    const options = { base }
-    let fullClass = null
-    act(() => {
-        render(
-            <TestComponent
-                options={options}
-                onUseClassName={(str) => (fullClass = str)}
-            />,
-            root
-        )
+describe("the 'base' option", () => {
+    it("can take and return a base class", () => {
+        const base = "SomeBaseClass"
+        const options = { base }
+        const fullClass = callHook(useClassName, options)
+        expect(fullClass).toBe(base)
     })
-
-    expect(fullClass).toBe(base)
 })
 
-describe("noMountingAnimation tests", () => {
-    it("returns the .noMountingAnimation class", () => {
+describe("the 'noMountingAnimation' option", () => {
+    it("returns the .noMountingAnimation class on the first render", () => {
         const options = { noMountingAnimation: true }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass).toBe("noMountingAnimation")
     })
 
     it("does not return the .noMountingAnimation class on subsequent renders", () => {
         const options = { noMountingAnimation: true }
-        act(() => {
-            render(<TestComponent options={options} />, root)
-        })
+        callHook(useClassName, options)
 
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        // "subsequent renders" start here...
+        let fullClass = callHook(useClassName, options)
         expect(fullClass).not.toBe("noMountingAnimation")
         // in fact, let's be more generic...
         expect(fullClass.includes("noMountingAnimation")).toBe(false)
 
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        fullClass = callHook(useClassName, options)
         expect(fullClass.includes("noMountingAnimation")).toBe(false)
     })
 })
 
-describe("choices list tests", () => {
+describe("the 'choices' option", () => {
     it("can return a class from a dictionary of choices", () => {
         const choice = {
             values: { good: "goodClass", bad: "badClass" },
             useKey: "bad",
         }
         const options = { choices: [choice] }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass).toBe("badClass")
     })
 
@@ -131,39 +55,19 @@ describe("choices list tests", () => {
             useKey: 2,
         }
         const options = { choices: [choice] }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass).toBe("class2")
     })
 })
 
-describe("filters list tests", () => {
-    it("returns the filtered item when given 'true'", () => {
+describe("the 'filters' option", () => {
+    it("returns the passed value when given 'true'", () => {
         const filter = {
             value: "value",
             useIf: true,
         }
         const options = { filters: [filter] }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass).toBe("value")
     })
 
@@ -173,44 +77,24 @@ describe("filters list tests", () => {
             useIf: false,
         }
         const options = { filters: [filter] }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass).toBe("")
     })
 
-    it("returns the default item when given 'false'", () => {
+    it("returns the default/'otherwise' value when given 'false'", () => {
         const filter = {
             value: "value",
             useIf: false,
             otherwise: "defaultClass",
         }
         const options = { filters: [filter] }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass).toBe("defaultClass")
     })
 })
 
-describe("class joining tests", () => {
-    it("returns all classes separated by spaces", () => {
+describe("the resulting joined classes string", () => {
+    it("contains all classes separated by spaces", () => {
         const base = "SomeBase"
         const noMountingAnimation = true
         const choices = [
@@ -226,17 +110,7 @@ describe("class joining tests", () => {
             },
         ]
         const options = { base, noMountingAnimation, choices, filters }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass.includes("SomeBase")).toBe(true)
         expect(fullClass.includes("noMountingAnimation")).toBe(true)
         expect(fullClass.includes("choice1")).toBe(true)
@@ -244,7 +118,7 @@ describe("class joining tests", () => {
         expect(fullClass.split(" ").length).toBe(4)
     })
 
-    it("does NOT strip already given spaces", () => {
+    it("preserves originally given spaces", () => {
         const base = "SomeBase with some space"
         const noMountingAnimation = true
         const choices = [
@@ -260,17 +134,7 @@ describe("class joining tests", () => {
             },
         ]
         const options = { base, noMountingAnimation, choices, filters }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
+        const fullClass = callHook(useClassName, options)
         expect(fullClass.includes("SomeBase with some space")).toBe(true)
         expect(fullClass.includes("noMountingAnimation")).toBe(true)
         expect(fullClass.includes("choice0 c0")).toBe(true)
@@ -278,9 +142,9 @@ describe("class joining tests", () => {
         expect(fullClass.split(" ").length).toBe(12)
     })
 
-    it("ignores empty strings (ie does not join with spaces between them)", () => {
+    it("does not have excess spaces after joining empty strings", () => {
         const base = ""
-        const noMountingAnimation = true
+        const noMountingAnimation = false
         const choices = [
             {
                 values: ["", ""],
@@ -293,147 +157,141 @@ describe("class joining tests", () => {
                 useIf: false,
             },
         ]
-        const options = { base, noMountingAnimation, choices }
-        let fullClass = null
-        act(() => {
-            render(
-                <TestComponent
-                    options={options}
-                    onUseClassName={(str) => (fullClass = str)}
-                />,
-                root
-            )
-        })
-
-        expect(fullClass.includes("noMountingAnimation")).toBe(true)
+        const options = { base, noMountingAnimation, choices, filters }
+        const fullClass = callHook(useClassName, options)
         expect(fullClass.split(" ").length).toBe(1)
         // which basically means...
-        expect(fullClass).toBe("noMountingAnimation")
+        expect(fullClass).toBe("")
     })
 })
 
-function renderErrorTestWith(options) {
-    let error = null
-    act(() => {
-        render(
-            <TestComponent onError={(e) => (error = e)} options={options} />,
-            root
-        )
-    })
-    if (error) {
-        throw error
-    }
-}
-describe("a crap ton of throw-an-error tests", () => {
-    describe("the 'options' themselves", () => {
-        it("throws when an object is not given", () => {
+describe("error handling", () => {
+    describe("about the options object itself", () => {
+        it("only throws when an object is not given", () => {
             expect(() => {
                 const options = null
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = 5
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = "an object but not really"
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
         })
     })
 
-    describe("option: base", () => {
-        it("throws when a string is not given (and something else was)", () => {
+    describe("inside the 'base' option", () => {
+        it("only throws when a string is not given (and something else was)", () => {
             expect(() => {
                 const options = { base: 3 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
+            }).toThrow(TypeError)
+
+            expect(() => {
+                const options = { base: () => "function that returns string" }
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             // these are VALID
             expect(() => {
                 const options = {}
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
 
             expect(() => {
                 const options = { base: "" }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
         })
     })
 
-    describe("option: noMountingAnimation", () => {
-        it("throws when value can't be a boolean (oh wait... there isn't any)", () => {
-            // thr problem is nothing...
-            const theProblem = "nothing"
-            expect("nothing").toBe(theProblem)
-        })
-
-        it("...basically never throws", () => {
+    describe("inside the 'noMountingAnimation' option", () => {
+        it("only throws when the value can't be a boolean (oh wait... there isn't any)", () => {
+            // these are ALL VALID! YAY
             expect(() => {
                 const options = { noMountingAnimation: null }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
+            }).not.toThrow()
+
+            expect(() => {
+                const options = { noMountingAnimation: "truthy" }
+                callHook(useClassName, options)
+            }).not.toThrow()
+
+            expect(() => {
+                const options = { noMountingAnimation: [] }
+                callHook(useClassName, options)
+            }).not.toThrow()
+        })
+
+        it("... basically never throws", () => {
+            expect(() => {
+                const options = {}
+                callHook(useClassName, options)
             }).not.toThrow()
 
             expect(() => {
                 const options = { noMountingAnimation: 3 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
 
             // yes... this should be considered truthy and not error
             expect(() => {
-                const options = { noMountingAnimation: [] }
-                renderErrorTestWith(options)
+                const options = { noMountingAnimation: Symbol() }
+                callHook(useClassName, options)
             }).not.toThrow()
         })
     })
 
-    describe("option: choices", () => {
-        it("throws when an array is not given (and something else was)", () => {
+    describe("inside the 'choices' option", () => {
+        it("only throws when an array is not given (and something else was)", () => {
             expect(() => {
                 const options = { choices: {} }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = { choices: 4 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             // these are VALID
             expect(() => {
                 const options = { choices: [] }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
 
             expect(() => {
                 const options = {}
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
         })
 
-        it("throws when an invalid choice is given", () => {
+        it("only throws when an invalid choice is given", () => {
             expect(() => {
                 const options = { choices: [4, 3] }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = { choices: [null] }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = {
                     choices: ["bad", "choice", "list"],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
         })
 
-        it("throws when a bad choice-values list is given", () => {
+        it("only throws when a bad choice-values list is given", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -443,7 +301,7 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -455,7 +313,7 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -467,7 +325,7 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             // these are VALID
@@ -480,11 +338,23 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
+            }).not.toThrow()
+
+            expect(() => {
+                const options = {
+                    choices: [
+                        {
+                            values: ["an", "array", "of", "values"],
+                            useKey: 1,
+                        },
+                    ],
+                }
+                callHook(useClassName, options)
             }).not.toThrow()
         })
 
-        it("throws when the useKey is out-of-bounds of the choice-values list", () => {
+        it("only throws when the useKey is out-of-bounds of the choice-values list", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -494,19 +364,19 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = {
                     choices: [
                         {
-                            values: ["val0", "val1"],
+                            values: { some: "keys" },
                             useKey: "bad key!",
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -518,11 +388,11 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
         })
 
-        it("throws when a non-string value is returned", () => {
+        it("only throws when a non-string value is returned", () => {
             expect(() => {
                 const options = {
                     choices: [
@@ -532,7 +402,7 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -544,7 +414,7 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -556,65 +426,65 @@ describe("a crap ton of throw-an-error tests", () => {
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
         })
     })
 
-    describe("option: filters", () => {
-        it("throws when an array is not given (and something else was)", () => {
+    describe("about the 'filters' option", () => {
+        it("only throws when an array is not given (and something else was)", () => {
             expect(() => {
                 const options = { filters: {} }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = { filters: 12 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             // these are VALID
             expect(() => {
                 const options = { filters: [] }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
 
             expect(() => {
                 const options = {}
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
         })
 
-        it("throws when an invalid filter is given", () => {
+        it("only throws when an invalid filter is given", () => {
             expect(() => {
                 const options = { filters: [9, 4] }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = { filters: [null] }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
                 const options = {
                     filters: ["bad", "filter", "list"],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
         })
 
-        it("throws when a bad filter-value is given", () => {
+        it("only throws when a bad filter-value is given", () => {
             expect(() => {
                 const options = {
                     filters: [
                         {
                             value: null,
-                            useIf: 0,
+                            useIf: false,
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -622,11 +492,11 @@ describe("a crap ton of throw-an-error tests", () => {
                     filters: [
                         {
                             value: { bad: "value" },
-                            useIf: 0,
+                            useIf: false,
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -634,39 +504,90 @@ describe("a crap ton of throw-an-error tests", () => {
                     filters: [
                         {
                             value: 5678,
+                            useIf: false,
+                        },
+                    ],
+                }
+                callHook(useClassName, options)
+            }).toThrow(TypeError)
+
+            // these are VALID
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: false,
+                        },
+                    ],
+                }
+                callHook(useClassName, options)
+            }).not.toThrow()
+        })
+
+        it("only throws when a bad filter-useIf is given (which is impossible)", () => {
+            // these are ALL VALID! YAY
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
                             useIf: true,
                         },
                     ],
                 }
-                renderErrorTestWith(options)
-            }).toThrow(TypeError)
+                callHook(useClassName, options)
+            }).not.toThrow()
 
-            // these are VALID
             expect(() => {
                 const options = {
                     filters: [
                         {
                             value: "",
-                            useIf: "yes",
+                            useIf: 5,
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
-        })
 
-        it("throws when a bad filter-otherwise is given", () => {
             expect(() => {
                 const options = {
                     filters: [
                         {
                             value: "",
-                            useIf: "yes",
+                            useIf: "this is technically a truthy value",
+                        },
+                    ],
+                }
+                callHook(useClassName, options)
+            }).not.toThrow()
+
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: ["still", "a", "truthy", "value"],
+                        },
+                    ],
+                }
+                callHook(useClassName, options)
+            }).not.toThrow()
+        })
+
+        it("only throws when a bad filter-otherwise is given", () => {
+            expect(() => {
+                const options = {
+                    filters: [
+                        {
+                            value: "",
+                            useIf: false,
                             otherwise: true,
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -674,12 +595,12 @@ describe("a crap ton of throw-an-error tests", () => {
                     filters: [
                         {
                             value: "",
-                            useIf: "ahuh",
+                            useIf: false,
                             otherwise: null,
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             expect(() => {
@@ -687,12 +608,12 @@ describe("a crap ton of throw-an-error tests", () => {
                     filters: [
                         {
                             value: "",
-                            useIf: "yessir",
+                            useIf: false,
                             otherwise: ["lots", "of", "values?"],
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).toThrow(TypeError)
 
             // these are VALID
@@ -701,12 +622,12 @@ describe("a crap ton of throw-an-error tests", () => {
                     filters: [
                         {
                             value: "",
-                            useIf: "yup",
+                            useIf: false,
                             otherwise: "",
                         },
                     ],
                 }
-                renderErrorTestWith(options)
+                callHook(useClassName, options)
             }).not.toThrow()
         })
     })
