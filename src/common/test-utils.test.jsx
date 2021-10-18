@@ -27,8 +27,8 @@ afterEach(() => {
 
 describe("the module", () => {
     it("exports all required values", () => {
-        const requiredValeus = "render cleanup fireEvent screen".split(" ")
-        for (const value of requiredValeus) {
+        const requiredValues = "render cleanup fireEvent screen".split(" ")
+        for (const value of requiredValues) {
             expect(test_utils[value]).toBeTruthy()
         }
 
