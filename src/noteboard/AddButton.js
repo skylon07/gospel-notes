@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import "./AddButton.css"
 
-import { SVGIcon } from "common/svg-icon"
+import { SVGIcon } from "common/svg-icons"
 
 function AddButton(props) {
     return (

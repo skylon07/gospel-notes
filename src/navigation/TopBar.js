@@ -3,7 +3,7 @@ import { useClassName } from "common/hooks"
 import PropTypes from "prop-types"
 import "./TopBar.css"
 
-import { SVGIcon } from "common/svg-icon"
+import { SVGIcon } from "common/svg-icons"
 
 import DropMenu from "./DropMenu.js"
 import SearchBar from "./SearchBar.js"

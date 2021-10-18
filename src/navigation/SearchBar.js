@@ -2,7 +2,7 @@ import React, { useRef, useImperativeHandle } from "react"
 import PropTypes from "prop-types"
 import "./SearchBar.css"
 
-import { SVGIcon } from "common/svg-icon"
+import { SVGIcon } from "common/svg-icons"
 
 const SearchBar = React.forwardRef(function SearchBar(props, ref) {
     const inputRef = useRef(null)

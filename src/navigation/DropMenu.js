@@ -3,7 +3,7 @@ import { useClassName } from "common/hooks"
 import PropTypes from "prop-types"
 import "./DropMenu.css"
 
-import { SVGIcon } from "common/svg-icon"
+import { SVGIcon } from "common/svg-icons"
 
 const DropMenu = React.forwardRef(function DropMenu(props, ref) {
     const [hidden, setHidden] = useState(props.initHidden)
