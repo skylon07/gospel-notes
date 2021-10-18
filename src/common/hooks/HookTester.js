@@ -48,7 +48,7 @@ function HookTester(props) {
 
     return (
         <HookErrorCatcher onError={onError}>
-            <TestCustomHook
+            <RunCustomHook
                 useHook={props.useHook}
                 hookArgs={props.hookArgs}
                 onUseHook={onUseHook}
@@ -153,7 +153,7 @@ HookErrorCatcher.propTypes = {
     onError: PropTypes.func,
 }
 
-function TestCustomHook(props) {
+function RunCustomHook(props) {
     const args = props.hookArgs
     if (typeof props.useHook === "function") {
         const result = props.useHook(...args)
@@ -163,7 +163,7 @@ function TestCustomHook(props) {
     }
     return null
 }
-TestCustomHook.propTypes = {
+RunCustomHook.propTypes = {
     useHook: PropTypes.func.isRequired,
     hookArgs: PropTypes.array.isRequired,
     onUseHook: PropTypes.func,
