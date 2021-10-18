@@ -17,7 +17,6 @@ function numberOfDocuments(idx = index) {
     return idx._idx.documentStore.length
 }
 
-// TODO: can we mock lunr?
 function documentStore(idx = index) {
     return idx._idx.documentStore.store
 }
@@ -137,5 +136,9 @@ describe("serialization tests", () => {
         expect(storeObj.anotherRef).toStrictEqual(["field2"])
     })
 
-    // TODO: SearchIndexCreationError tests
+    it("errors when trying to initialize from an invalid string", () => {
+        expect(() => {
+            SearchIndex.createFrom("this is not a valid JSON string")
+        }).toThrow(SearchIndexCreationError)
+    })
 })
