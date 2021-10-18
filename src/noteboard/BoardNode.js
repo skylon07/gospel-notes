@@ -1,5 +1,4 @@
 import React, { useRef, useCallback, useEffect, useContext } from "react"
-import { useForceUpdate } from "common/hooks"
 import PropTypes from "prop-types"
 import "./BoardNode.css"
 
@@ -161,7 +160,9 @@ NoteBoxNode.propTypes = {
 }
 
 function DropBarNode(props) {
-    const forceUpdate = useForceUpdate()
+    // FIXME: useForceUpdate() was removed, and this line probably
+    //        means this component need a refactor...
+    const forceUpdate = () => {}
     const callbacks = useContext(NoteBoardCallbacks)
 
     const node = props.node

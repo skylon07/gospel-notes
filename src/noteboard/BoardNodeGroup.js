@@ -1,5 +1,4 @@
 import React from "react"
-import { useForceUpdate } from "common/hooks"
 import { useSameNode, useNodeUpdate } from "./BoardNode.js"
 import PropTypes from "prop-types"
 
@@ -18,8 +17,10 @@ import BoardNode from "./BoardNode.js"
 // should only rerender BoardNodes on subscription updates, and not cause
 // updates themselves
 const BoardNodeGroup = React.memo(function BoardNodeGroup(props) {
-    const forceUpdate = useForceUpdate()
-
+    // FIXME: useForceUpdate() was removed, and this line probably
+    //        means this component need a refactor...
+    const forceUpdate = () => {}
+    
     const node = useSameNode(props.node, "BoardNodeGroup")
     useNodeUpdate(node, "children", forceUpdate)
 
