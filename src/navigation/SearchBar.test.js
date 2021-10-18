@@ -54,11 +54,24 @@ it("selects all text in the input field when focused", () => {
 
 describe("ref handle tests", () => {
     it("provides an imperative handler through the ref prop", () => {
-        // TODO
+        const ref = React.createRef()
+        act(() => {
+            render(<SearchBar ref={ref} />)
+        })
+
+        expect(ref.current).not.toBe(null)
+        expect(typeof ref.current).toBe("object")
     })
 
     it("provides a focus() function in the ref", () => {
-        // TODO
+        const ref = React.createRef()
+        act(() => {
+            render(<SearchBar ref={ref} />)
+        })
+
+        expect(typeof ref.focus).toBe("function")
+        
+        // TODO: test that focus() works
     })
 
     it("provides a blur() function in the ref", () => {
