@@ -431,7 +431,7 @@ describe("error handling", () => {
         })
     })
 
-    describe("about the 'filters' option", () => {
+    describe("inside the 'filters' option", () => {
         it("only throws when an array is not given (and something else was)", () => {
             expect(() => {
                 const options = { filters: {} }
