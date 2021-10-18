@@ -2,6 +2,7 @@ import React from "react"
 import ReactDOM, { unmountComponentAtNode } from "react-dom"
 
 import * as test_utils from "./test-utils.jsx"
+import test_utils_default from "./test-utils.jsx"
 import { __forTestingOnly__ } from "./test-utils"
 const { AllProvidersInApp, CustomRenderer } = __forTestingOnly__
 
@@ -26,14 +27,24 @@ afterEach(() => {
 })
 
 describe("the module", () => {
+    const requiredValues = "render cleanup fireEvent screen".split(" ")
+    
     it("exports all required values", () => {
-        const requiredValues = "render cleanup fireEvent screen".split(" ")
         for (const value of requiredValues) {
             expect(test_utils[value]).toBeTruthy()
         }
 
         // make sure cleanup() has an ignoreWarnings() property
         expect(test_utils.cleanup.ignoreWarnings).toBeTruthy()
+    })
+
+    it("exports a default with all required values", () => {
+        for (const value of requiredValues) {
+            expect(test_utils_default[value]).toBeTruthy()
+        }
+
+        // make sure cleanup() has an ignoreWarnings() property
+        expect(test_utils_default.cleanup.ignoreWarnings).toBeTruthy()
     })
 })
 

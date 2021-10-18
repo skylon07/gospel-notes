@@ -111,6 +111,11 @@ class CustomRenderer {
 
 // use the same signature as @testing-library...
 export * from "@testing-library/react"
+import * as all_tl from "@testing-library/react"
+const ALL_EXPORTS = {}
+for (const name in all_tl) {
+    ALL_EXPORTS[name] = all_tl[name]
+}
 
 // ...while overriding a couple things
 const cr = new CustomRenderer()
@@ -121,7 +126,14 @@ cr.injectCleanupChecker()
 const customRender = cr.render.bind(cr)
 const customCleanup = cr.cleanup.bind(cr)
 customCleanup.ignoreWarnings = cr.ignoreWarnings.bind(cr)
-export { customRender as render, customCleanup as cleanup }
+ALL_EXPORTS.render = customRender
+ALL_EXPORTS.cleanup = customCleanup
+export {customRender as render, customCleanup as cleanup}
 
 // extended access for testing ONLY!
-export const __forTestingOnly__ = { AllProvidersInApp, CustomRenderer }
+const __forTestingOnly__ = { AllProvidersInApp, CustomRenderer }
+ALL_EXPORTS.__forTestingOnly__ = __forTestingOnly__
+export { __forTestingOnly__ }
+
+// export everything as one package, too
+export default ALL_EXPORTS
