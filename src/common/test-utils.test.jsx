@@ -1,7 +1,9 @@
 import React from "react"
+import PropTypes from "prop-types"
 import ReactDOM, { unmountComponentAtNode } from "react-dom"
 
 import * as test_utils from "./test-utils.jsx"
+import { callRefHandle } from "./test-utils.jsx"
 import test_utils_default from "./test-utils.jsx"
 import { __forTestingOnly__ } from "./test-utils"
 const { AllProvidersInApp, CustomRenderer } = __forTestingOnly__
@@ -27,8 +29,9 @@ afterEach(() => {
 })
 
 describe("the module", () => {
-    const requiredValues = "render cleanup fireEvent screen".split(" ")
-    
+    const requiredValues =
+        "render cleanup fireEvent screen callRefHandle".split(" ")
+
     it("exports all required values", () => {
         for (const value of requiredValues) {
             expect(test_utils[value]).toBeTruthy()
@@ -73,7 +76,7 @@ describe("render()", () => {
     it("renders React elements using ReactDOM.render()", () => {
         render(<div />)
 
-        expect(renderSpy).toBeCalledTimes(1)
+        expect(renderSpy).toHaveBeenCalledTimes(1)
         expect(renderSpy).toHaveBeenLastCalledWith(
             expect.anything(), // not testing the first argument
             expect.any(HTMLElement)
@@ -190,5 +193,75 @@ describe("cleanup warnings checker", () => {
         cr.checkCleanup()
 
         expect(warnSpy).toHaveBeenCalledTimes(1)
+    })
+})
+
+describe("callRefHandle()", () => {
+    const ComponentWithHandle = React.forwardRef(function ComponentWithHandle(
+        props,
+        ref
+    ) {
+        // eslint-disable-next-line no-unused-vars
+        const [_, setSomeState] = React.useState()
+
+        React.useImperativeHandle(ref, () => {
+            const testHandle = (...args) => props.testHandleCallback(...args)
+            const stateHandle = () => setSomeState(Symbol())
+            return { testHandle, stateHandle }
+        })
+
+        return null
+    })
+    ComponentWithHandle.propTypes = {
+        testHandleCallback: PropTypes.func,
+    }
+
+    const origError = console.error
+    afterEach(() => {
+        console.error = origError
+    })
+
+    it("calls a given handler from a ref", () => {
+        const ref = React.createRef()
+        const callback = jest.fn()
+        render(<ComponentWithHandle ref={ref} testHandleCallback={callback} />)
+
+        callRefHandle(ref, "testHandle")
+
+        expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it("calls a given handler with given arguments from a ref", () => {
+        const ref = React.createRef()
+        const callback = jest.fn()
+        render(<ComponentWithHandle ref={ref} testHandleCallback={callback} />)
+
+        const testArg1 = "first test argument"
+        const testArg2 = Symbol()
+        callRefHandle(ref, "testHandle", testArg1, testArg2)
+
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(callback).toHaveBeenLastCalledWith(testArg1, testArg2)
+    })
+
+    it("calls the handler wrapped in act() (in case a rerender occurs because of this action)", () => {
+        // track React printing warnings later
+        console.error = jest.fn(console.error)
+
+        const ref = React.createRef()
+        const onRender = jest.fn()
+        render(
+            <React.Profiler id="ComponentWithHandle" onRender={onRender}>
+                <ComponentWithHandle ref={ref} />
+            </React.Profiler>
+        )
+
+        expect(onRender).toHaveBeenCalledTimes(1)
+        
+        callRefHandle(ref, "stateHandle")
+        callRefHandle(ref, "stateHandle")
+        
+        expect(onRender).toHaveBeenCalledTimes(3)
+        expect(console.error).not.toHaveBeenCalled()
     })
 })

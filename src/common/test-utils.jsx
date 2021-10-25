@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import { render, cleanup } from "@testing-library/react"
+import { render, cleanup, act } from "@testing-library/react"
 
 import { NoteBoardCallbacks } from "noteboard/NoteBoard"
 
@@ -130,7 +130,19 @@ ALL_EXPORTS.render = customRender
 ALL_EXPORTS.cleanup = customCleanup
 export {customRender as render, customCleanup as cleanup}
 
-// extended access for testing ONLY!
+// act-er for calling ref handles
+export function callRefHandle(ref, handleName, ...args) {
+    act(() => {
+        if (ref && ref.current) {
+            if (typeof ref.current[handleName] === "function") {
+                ref.current[handleName](...args)
+            }
+        }
+    })
+}
+ALL_EXPORTS.callRefHandle = callRefHandle
+
+// extended access for test-utils tests ONLY!
 const __forTestingOnly__ = { AllProvidersInApp, CustomRenderer }
 ALL_EXPORTS.__forTestingOnly__ = __forTestingOnly__
 export { __forTestingOnly__ }
