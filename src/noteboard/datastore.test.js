@@ -435,7 +435,7 @@ describe("Node tests", () => {
             const title = "new title!"
             node.setData({ title })
 
-            expect(listener).not.toBeCalled()
+            expect(listener).not.toHaveBeenCalled()
         })
 
         it("throws when given a non-function listener", () => {

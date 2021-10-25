@@ -160,7 +160,7 @@ describe("listener callback tests", () => {
         const topBar = grabTopBar()
         const [searchButton, backButton] = grabSearchAndBackButtonFrom(topBar)
 
-        expect(onModeChange).not.toBeCalled()
+        expect(onModeChange).not.toHaveBeenCalled()
 
         act(() => {
             searchButton.dispatchEvent(
@@ -168,14 +168,14 @@ describe("listener callback tests", () => {
             )
         })
 
-        expect(onModeChange).toBeCalledTimes(1)
+        expect(onModeChange).toHaveBeenCalledTimes(1)
         expect(onModeChange).toHaveBeenCalledWith("search")
 
         act(() => {
             backButton.dispatchEvent(new MouseEvent("click", { bubbles: true }))
         })
 
-        expect(onModeChange).toBeCalledTimes(2)
+        expect(onModeChange).toHaveBeenCalledTimes(2)
         expect(onModeChange).toHaveBeenLastCalledWith("nav")
     })
 })

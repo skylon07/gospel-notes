@@ -23,8 +23,8 @@ afterEach(() => {
 })
 
 it("initially has no nodes stored in the index", () => {
-    expect(lunrIndex.setReference).not.toBeCalled()
-    expect(lunrIndex.deleteReference).not.toBeCalled()
+    expect(lunrIndex.setReference).not.toHaveBeenCalled()
+    expect(lunrIndex.deleteReference).not.toHaveBeenCalled()
 })
 
 describe("updating node tests", () => {
@@ -34,8 +34,8 @@ describe("updating node tests", () => {
         const node = nodeStore.createNode("NoteBox", { title, content })
         nodeIndex.updateNode(node)
 
-        expect(lunrIndex.setReference).toBeCalledTimes(1)
-        expect(lunrIndex.setReference).toBeCalledWith(
+        expect(lunrIndex.setReference).toHaveBeenCalledTimes(1)
+        expect(lunrIndex.setReference).toHaveBeenCalledWith(
             node.id,
             expect.objectContaining([title, content])
         )
@@ -47,8 +47,8 @@ describe("updating node tests", () => {
         const node = nodeStore.createNode("DropBar", { title, iconType })
         nodeIndex.updateNode(node)
 
-        expect(lunrIndex.setReference).toBeCalledTimes(1)
-        expect(lunrIndex.setReference).toBeCalledWith(
+        expect(lunrIndex.setReference).toHaveBeenCalledTimes(1)
+        expect(lunrIndex.setReference).toHaveBeenCalledWith(
             node.id,
             expect.objectContaining([title])
         )
@@ -90,13 +90,13 @@ describe("updating node tests", () => {
             nodeIndex.updateNode(dropBarNode)
         }
 
-        expect(lunrIndex.setReference).toBeCalledTimes(6)
+        expect(lunrIndex.setReference).toHaveBeenCalledTimes(6)
         for (let i = 0; i < 3; i++) {
-            expect(lunrIndex.setReference).toBeCalledWith(
+            expect(lunrIndex.setReference).toHaveBeenCalledWith(
                 noteBoxNodes[i].id,
                 expect.objectContaining([noteBoxTitles[i], noteBoxContents[i]])
             )
-            expect(lunrIndex.setReference).toBeCalledWith(
+            expect(lunrIndex.setReference).toHaveBeenCalleddWith(
                 dropBarNodes[i].id,
                 expect.objectContaining([dropBarTitles[i]])
             )
@@ -111,6 +111,6 @@ it("deletes node from the index", () => {
     nodeIndex.updateNode(node)
     nodeIndex.deleteNode(node)
 
-    expect(lunrIndex.setReference).toBeCalledTimes(1)
-    expect(lunrIndex.deleteReference).toBeCalledTimes(1)
+    expect(lunrIndex.setReference).toHaveBeenCalledTimes(1)
+    expect(lunrIndex.deleteReference).toHaveBeenCalledTimes(1)
 })
