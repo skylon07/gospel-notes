@@ -39,9 +39,10 @@ const DropMenu = React.forwardRef(function DropMenu(props, ref) {
     const buttonLabel = `"${hideSubLabel}" button for ${props.ariaMenuLabel}`
     return (
         <div
-            className="DropMenu"
+            data-testid="DropMenu"
             // CHECKME: do I need an aria-label?
             role="none"
+            className="DropMenu"
             // we only want to hide the menu when clicks happen outside the
             // menu; this binding ensures just that
             onClick={ignoreHideFromWindow}
