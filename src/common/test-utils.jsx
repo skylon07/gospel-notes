@@ -136,7 +136,11 @@ export function callRefHandle(ref, handleName, ...args) {
         if (ref && ref.current) {
             if (typeof ref.current[handleName] === "function") {
                 ref.current[handleName](...args)
+            } else {
+                throw new Error(`A ref did not have the function '${handleName}'`)
             }
+        } else {
+            throw new Error("The provided ref was not an active React.createRef()")
         }
     })
 }
